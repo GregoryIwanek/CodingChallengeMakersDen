@@ -170,8 +170,18 @@ private fun DashboardCard(title: String) {
             Box(Modifier.size(28.dp).background(Color(0xFFEDF1F4), CircleShape))
             Spacer(Modifier.width(10.dp))
             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Box(Modifier.width(120.dp).height(8.dp).background(Color(0xFFEDF1F4), RoundedCornerShape(4.dp)))
-                Box(Modifier.width(80.dp).height(8.dp).background(Color(0xFFEDF1F4), RoundedCornerShape(4.dp)))
+                Box(
+                    Modifier
+                        .width(120.dp)
+                        .height(8.dp)
+                        .background(Color(0xFFEDF1F4), RoundedCornerShape(4.dp)),
+                )
+                Box(
+                    Modifier
+                        .width(80.dp)
+                        .height(8.dp)
+                        .background(Color(0xFFEDF1F4), RoundedCornerShape(4.dp)),
+                )
             }
         }
     }

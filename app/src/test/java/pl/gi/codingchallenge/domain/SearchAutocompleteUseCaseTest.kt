@@ -73,7 +73,11 @@ class SearchAutocompleteUseCaseTest {
 
     @Test
     fun `new query cancels in-flight previous search (flatMapLatest)`() = runTest(dispatcher) {
-        fakeRepo.enqueueDelayedResult("first", delayMs = 1000, results = listOf(fakeRepo.sampleRepo("first-repo")))
+        fakeRepo.enqueueDelayedResult(
+            "first",
+            delayMs = 1000,
+            results = listOf(fakeRepo.sampleRepo("first-repo")),
+        )
         fakeRepo.enqueueResult("second", listOf(fakeRepo.sampleRepo("second-repo")))
 
         useCase(query).test {

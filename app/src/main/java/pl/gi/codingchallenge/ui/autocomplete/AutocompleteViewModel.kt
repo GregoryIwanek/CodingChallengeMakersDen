@@ -19,10 +19,21 @@ class AutocompleteViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val query = MutableStateFlow("")
-    val uiState: StateFlow<AutocompleteUiState> = searchAutocomplete(query)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), AutocompleteUiState.Idle)
+
+    private val _uiState = observeUiState(searchAutocomplete)
+    val uiState: StateFlow<AutocompleteUiState> = _uiState
 
     fun onQueryChanged(newQuery: String) {
         query.value = newQuery
     }
+
+    private fun observeUiState(
+        searchAutocomplete: SearchAutocompleteUseCase,
+    ): StateFlow<AutocompleteUiState> =
+        searchAutocomplete(query)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+                AutocompleteUiState.Idle,
+            )
 }
