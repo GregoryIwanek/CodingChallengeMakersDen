@@ -32,8 +32,8 @@ class AutocompleteViewModel @Inject constructor(
     ): StateFlow<AutocompleteUiState> =
         searchAutocomplete(query)
             .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-                AutocompleteUiState.Idle,
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+                initialValue = AutocompleteUiState.Idle,
             )
 }

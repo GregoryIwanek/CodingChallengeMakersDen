@@ -54,7 +54,7 @@ class SearchAutocompleteUseCaseTest {
 
     @Test
     fun `rapid typing only triggers a search for the final debounced query`() = runTest(dispatcher) {
-        fakeRepo.enqueueResult("kot", listOf(fakeRepo.sampleRepo("kotlin")))
+        fakeRepo.enqueueResult(query = "kot", results = listOf(fakeRepo.sampleRepo("kotlin")))
 
         useCase(query).test {
             assertEquals(AutocompleteUiState.Idle, awaitItem())
@@ -78,7 +78,7 @@ class SearchAutocompleteUseCaseTest {
             delayMs = 1000,
             results = listOf(fakeRepo.sampleRepo("first-repo")),
         )
-        fakeRepo.enqueueResult("second", listOf(fakeRepo.sampleRepo("second-repo")))
+        fakeRepo.enqueueResult(query = "second", results = listOf(fakeRepo.sampleRepo("second-repo")))
 
         useCase(query).test {
             awaitItem() // Idle
@@ -98,7 +98,7 @@ class SearchAutocompleteUseCaseTest {
 
     @Test
     fun `empty results maps to Empty state`() = runTest(dispatcher) {
-        fakeRepo.enqueueResult("zzz", emptyList())
+        fakeRepo.enqueueResult(query = "zzz", results = emptyList())
         useCase(query).test {
             awaitItem() // Idle
             query.value = "zzz"
@@ -110,7 +110,7 @@ class SearchAutocompleteUseCaseTest {
 
     @Test
     fun `repository failure maps to Error state`() = runTest(dispatcher) {
-        fakeRepo.enqueueError("boom", IOException("network down"))
+        fakeRepo.enqueueError(query = "boom", error = IOException("network down"))
         useCase(query).test {
             awaitItem() // Idle
             query.value = "boom"

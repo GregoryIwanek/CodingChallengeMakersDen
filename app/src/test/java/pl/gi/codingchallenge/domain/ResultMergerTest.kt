@@ -11,7 +11,7 @@ class ResultMergerTest {
         val repos = listOf(repo(name = "banana-cli"), repo(name = "Apple-sdk"))
         val users = listOf(user(login = "avocado"), user(login = "Cherry"))
 
-        val merged = mergeAndSort(users, repos)
+        val merged = mergeAndSort(users = users, repos = repos)
 
         assertEquals(
             listOf("Apple-sdk", "avocado", "banana-cli", "Cherry"),
@@ -24,7 +24,7 @@ class ResultMergerTest {
         val repos = List(40) { repo(name = "repo$it") }
         val users = List(40) { user(login = "user$it") }
 
-        assertEquals(50, mergeAndSort(users, repos).size)
+        assertEquals(50, mergeAndSort(users = users, repos = repos).size)
     }
 }
 

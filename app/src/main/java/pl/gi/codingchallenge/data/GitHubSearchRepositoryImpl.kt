@@ -14,9 +14,13 @@ class GitHubSearchRepositoryImpl @Inject constructor(
 ) : GitHubSearchRepository {
 
     override suspend fun search(query: String, perTypeLimit: Int): List<SearchResultItem> = coroutineScope {
-        val usersDeferred = async { api.searchUsers(query, perTypeLimit).items.map { it.toDomain() } }
-        val reposDeferred = async { api.searchRepositories(query, perTypeLimit).items.map { it.toDomain() } }
+        val usersDeferred = async {
+            api.searchUsers(query = query, perPage = perTypeLimit).items.map { it.toDomain() }
+        }
+        val reposDeferred = async {
+            api.searchRepositories(query = query, perPage = perTypeLimit).items.map { it.toDomain() }
+        }
 
-        mergeAndSort(usersDeferred.await(), reposDeferred.await())
+        mergeAndSort(users = usersDeferred.await(), repos = reposDeferred.await())
     }
 }
