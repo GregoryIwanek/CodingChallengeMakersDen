@@ -40,7 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -54,27 +53,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.gi.codingchallenge.domain.AutocompleteUiState
 import pl.gi.codingchallenge.domain.model.SearchResultItem
 
-// Shared tokens matching the design exploration (SOLUTION_PLAN.md §9)
-// rather than the host app's MaterialTheme, so the bar looks the same
-// regardless of what theme it's dropped into.
-private object AutocompleteColors {
-    val Surface = Color(0xFFFFFFFF)
-    val Border = Color(0xFFD1D9E0)
-    val Divider = Color(0xFFEAEEF2)
-    val TextPrimary = Color(0xFF1F2328)
-    val TextSecondary = Color(0xFF59636E)
-    val Accent = Color(0xFF0969DA)
-    val RepoBg = Color(0xFFDDF4FF)
-    val UserBg = Color(0xFFF3E8FF)
-    val UserIcon = Color(0xFF8250DF)
-    val StarColor = Color(0xFF9A6700)
-    val ErrorColor = Color(0xFFCF222E)
-}
-
 /**
  * Floating pill search bar that sits over whatever content the host
- * screen provides (the chosen UI pattern, SOLUTION_PLAN.md §9). Owns
- * only the bar and the suggestion card below it — never the backdrop,
+ * screen provides Owns only the bar and the suggestion card below it — never the backdrop,
  * scrim, or navigation, all of which are the host's responsibility.
  * Drop it onto any screen inside a Box:
  *
