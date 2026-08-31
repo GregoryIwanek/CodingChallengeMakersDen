@@ -137,11 +137,13 @@ internal fun GitHubAutocompleteBarComponent(
             onLeadingIconClick = onLeadingIconClick,
         )
 
-        if (active) {
+        // Idle (< 3 chars) renders no panel at all — an empty SuggestionPanel
+        // would still draw its shadow/background as an ownerless floating card.
+        if (active && uiState != AutocompleteUiState.Idle) {
             Spacer(Modifier.height(dimRes(R.dimen.autocomplete_bar_to_panel_spacing)))
             SuggestionPanel {
                 when (uiState) {
-                    AutocompleteUiState.Idle -> {} // < 3 chars: host content stays visible behind the bar
+                    AutocompleteUiState.Idle -> {}
                     AutocompleteUiState.Loading -> LoadingIndicator()
                     AutocompleteUiState.Empty -> EmptyState()
                     is AutocompleteUiState.Error -> ErrorState(uiState.message, onRetry = onRetry)

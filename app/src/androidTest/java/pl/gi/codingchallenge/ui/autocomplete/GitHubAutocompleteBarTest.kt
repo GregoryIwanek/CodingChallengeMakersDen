@@ -55,6 +55,8 @@ class GitHubAutocompleteBarTest {
         composeRule.onNodeWithTag(AutocompleteTestTags.LOADING_INDICATOR).assertDoesNotExist()
         composeRule.onNodeWithTag(AutocompleteTestTags.EMPTY_STATE).assertDoesNotExist()
         composeRule.onNodeWithTag(AutocompleteTestTags.ERROR_STATE).assertDoesNotExist()
+        // No empty floating card either — the panel itself shouldn't render.
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertDoesNotExist()
     }
 
     @Test
@@ -190,9 +192,12 @@ class GitHubAutocompleteBarTest {
     fun typing_forwardsEachCharacterToOnQueryChanged_andExpandsPanel() {
         val queries = mutableListOf<String>()
 
+        // A non-Idle canned state, since focusing/typing alone no longer
+        // shows the panel — it only renders once there's real content to
+        // show (see idleState_showsNoLoadingEmptyOrError).
         composeRule.setContent {
             GitHubAutocompleteBarComponent(
-                uiState = AutocompleteUiState.Idle,
+                uiState = AutocompleteUiState.Loading,
                 onQueryChanged = { queries.add(it) },
                 onRetry = {},
                 onItemClick = {},
@@ -228,6 +233,10 @@ class GitHubAutocompleteBarTest {
         composeRule.onNodeWithTag(AutocompleteTestTags.CLEAR_BUTTON).performClick()
 
         assertEquals("", queries.last())
+        // Clearing doesn't collapse the panel (active stays true, so the
+        // field is ready for retyping) but Idle content means no empty
+        // floating card should be left behind either.
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertDoesNotExist()
     }
 
     @Test
