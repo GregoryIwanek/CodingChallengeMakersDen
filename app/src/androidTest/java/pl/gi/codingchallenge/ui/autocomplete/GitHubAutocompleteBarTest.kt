@@ -242,6 +242,31 @@ class GitHubAutocompleteBarTest {
     }
 
     @Test
+    fun tappingField_reopensClosedPanel_afterCollapsingViaIcon() {
+        composeRule.setContent {
+            GitHubAutocompleteBar(
+                uiState = AutocompleteUiState.Success(sampleResults),
+                onQueryChanged = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+                initialText = "kot",
+                initialActive = true,
+            )
+        }
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertExists()
+
+        // Collapse via the leading icon — this also clears focus (see
+        // FloatingSearchBar), which is what makes the re-tap below work.
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).performClick()
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertDoesNotExist()
+
+        // Tapping the field itself (not the icon) should reopen it.
+        composeRule.onNodeWithTag(AutocompleteTestTags.SEARCH_FIELD).performClick()
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertExists()
+    }
+
+    @Test
     fun leadingIcon_doesNotExist_whenTextEmpty() {
         composeRule.setContent {
             GitHubAutocompleteBar(

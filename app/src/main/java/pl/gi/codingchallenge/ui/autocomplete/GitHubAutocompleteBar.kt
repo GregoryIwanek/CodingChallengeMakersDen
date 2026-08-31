@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -152,6 +153,7 @@ private fun FloatingSearchBar(
     onLeadingIconClick: () -> Unit,
 ) {
     val barCornerRadius = RoundedCornerShape(dimRes(R.dimen.autocomplete_bar_corner_radius))
+    val focusManager = LocalFocusManager.current
 
     Row(
         modifier = Modifier
@@ -168,7 +170,15 @@ private fun FloatingSearchBar(
         if (text.isNotEmpty()) {
             IconButton(
                 onClick = {
-                    onActiveChange(!active)
+                    val nowActive = !active
+                    onActiveChange(nowActive)
+                    if (!nowActive) {
+                        // Clear focus so a later tap on the field fires a fresh
+                        // focus-gained event and reopens the panel (see
+                        // onFocusChanged below) — otherwise the field stays
+                        // focused from before and a re-tap is a no-op.
+                        focusManager.clearFocus()
+                    }
                     onLeadingIconClick()
                 },
                 modifier = Modifier.testTag(AutocompleteTestTags.LEADING_ICON_BUTTON),
