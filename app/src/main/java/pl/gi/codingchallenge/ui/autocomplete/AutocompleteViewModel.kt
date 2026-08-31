@@ -17,37 +17,28 @@ private const val STOP_TIMEOUT_MILLIS = 5_000L
 
 @HiltViewModel
 class AutocompleteViewModel @Inject constructor(
-    searchAutocomplete: SearchAutocompleteUseCase,
+    private val searchAutocomplete: SearchAutocompleteUseCase,
 ) : ViewModel() {
 
     private val query = MutableStateFlow(QueryRequest(text = ""))
 
-    private val _uiState = observeUiState(searchAutocomplete)
+    private val _uiState = observeUiState()
     val uiState: StateFlow<AutocompleteUiState> = _uiState
 
-    fun onQueryChanged(newQuery: String) {
-        query.value = QueryRequest(text = newQuery)
-    }
-
-    /**
-     * Re-runs the search for the current query even if it's unchanged.
-     * Bumping `attempt` (not `text`) makes the emitted [QueryRequest]
-     * structurally distinct, so it survives both `MutableStateFlow`'s
-     * own equality suppression and the use case's `distinctUntilChanged()`
-     * — a plain `onQueryChanged(sameText)` would be silently dropped by
-     * both.
-     */
-    fun retry() {
-        query.update { it.copy(attempt = it.attempt + 1) }
-    }
-
-    private fun observeUiState(
-        searchAutocomplete: SearchAutocompleteUseCase,
-    ): StateFlow<AutocompleteUiState> =
+    private fun observeUiState(): StateFlow<AutocompleteUiState> =
         searchAutocomplete(query)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
                 initialValue = AutocompleteUiState.Idle,
             )
+
+    fun onQueryChanged(newQuery: String) {
+        query.value = QueryRequest(text = newQuery)
+    }
+
+    /** Bumping `attempt` re-runs the search even if `text` is unchanged. */
+    fun retry() {
+        query.update { it.copy(attempt = it.attempt + 1) }
+    }
 }
