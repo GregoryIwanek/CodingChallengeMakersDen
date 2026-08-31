@@ -53,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.gi.codingchallenge.R
 import pl.gi.codingchallenge.domain.AutocompleteUiState
 import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.util.colRes
 import pl.gi.codingchallenge.util.dimRes
 import pl.gi.codingchallenge.util.spRes
 import pl.gi.codingchallenge.util.strRes
@@ -164,7 +165,7 @@ private fun FloatingSearchBar(
                 elevation = dimRes(R.dimen.autocomplete_bar_elevation),
                 shape = barCornerRadius,
             )
-            .background(color = AutocompleteColors.Surface, shape = barCornerRadius)
+            .background(color = colRes(R.color.autocomplete_surface), shape = barCornerRadius)
             .padding(horizontal = dimRes(R.dimen.autocomplete_bar_inner_padding)),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -195,7 +196,7 @@ private fun FloatingSearchBar(
                     } else {
                         strRes(R.string.autocomplete_leading_icon_expand)
                     },
-                    tint = AutocompleteColors.TextSecondary,
+                    tint = colRes(R.color.autocomplete_text_secondary),
                 )
             }
         }
@@ -212,7 +213,7 @@ private fun FloatingSearchBar(
                     text = strRes(R.string.autocomplete_search_placeholder),
                     style = TextStyle(
                         fontSize = spRes(R.dimen.autocomplete_input_text_size),
-                        color = AutocompleteColors.TextSecondary,
+                        color = colRes(R.color.autocomplete_text_secondary),
                     ),
                 )
             }
@@ -222,9 +223,9 @@ private fun FloatingSearchBar(
                 singleLine = true,
                 textStyle = TextStyle(
                     fontSize = spRes(R.dimen.autocomplete_input_text_size),
-                    color = AutocompleteColors.TextPrimary,
+                    color = colRes(R.color.autocomplete_text_primary),
                 ),
-                cursorBrush = SolidColor(AutocompleteColors.Accent),
+                cursorBrush = SolidColor(colRes(R.color.autocomplete_accent)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag(AutocompleteTestTags.SEARCH_FIELD)
@@ -242,13 +243,13 @@ private fun FloatingSearchBar(
                 Box(
                     modifier = Modifier
                         .size(dimRes(R.dimen.autocomplete_clear_circle_size))
-                        .background(color = AutocompleteColors.Border, shape = CircleShape),
+                        .background(color = colRes(R.color.autocomplete_border), shape = CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         Icons.Filled.Clear,
                         contentDescription = strRes(R.string.autocomplete_clear_icon),
-                        tint = AutocompleteColors.TextSecondary,
+                        tint = colRes(R.color.autocomplete_text_secondary),
                         modifier = Modifier.size(dimRes(R.dimen.autocomplete_clear_icon_size)),
                     )
                 }
@@ -271,7 +272,7 @@ private fun SuggestionPanel(content: @Composable () -> Unit) {
                 elevation = dimRes(R.dimen.autocomplete_panel_elevation),
                 shape = panelCornerRadius,
             )
-            .background(color = AutocompleteColors.Surface, shape = panelCornerRadius),
+            .background(color = colRes(R.color.autocomplete_surface), shape = panelCornerRadius),
     ) {
         content()
     }
@@ -287,7 +288,7 @@ private fun LoadingIndicator() {
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
-            color = AutocompleteColors.Accent,
+            color = colRes(R.color.autocomplete_accent),
             strokeWidth = dimRes(R.dimen.autocomplete_spinner_stroke_width),
             modifier = Modifier.size(dimRes(R.dimen.autocomplete_large_state_icon_size))
         )
@@ -306,7 +307,7 @@ private fun EmptyState() {
         Text(
             strRes(R.string.autocomplete_empty_message),
             fontSize = spRes(R.dimen.autocomplete_state_headline_text_size),
-            color = AutocompleteColors.TextSecondary,
+            color = colRes(R.color.autocomplete_text_secondary),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(
                 horizontal = dimRes(R.dimen.autocomplete_state_message_horizontal_padding),
@@ -333,19 +334,19 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
             Icon(
                 Icons.Filled.Warning,
                 contentDescription = null,
-                tint = AutocompleteColors.ErrorColor,
+                tint = colRes(R.color.autocomplete_error_color),
                 modifier = Modifier.size(dimRes(R.dimen.autocomplete_large_state_icon_size))
             )
             Text(
                 strRes(R.string.autocomplete_error_headline),
                 fontSize = spRes(R.dimen.autocomplete_state_headline_text_size),
                 fontWeight = FontWeight.SemiBold,
-                color = AutocompleteColors.TextPrimary
+                color = colRes(R.color.autocomplete_text_primary)
             )
             Text(
                 message,
                 fontSize = spRes(R.dimen.autocomplete_state_detail_text_size),
-                color = AutocompleteColors.TextSecondary,
+                color = colRes(R.color.autocomplete_text_secondary),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(
                     horizontal = dimRes(R.dimen.autocomplete_state_message_horizontal_padding),
@@ -363,7 +364,7 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
                 Icon(
                     Icons.Filled.Refresh,
                     contentDescription = null,
-                    tint = AutocompleteColors.Accent,
+                    tint = colRes(R.color.autocomplete_accent),
                     modifier = Modifier.size(dimRes(R.dimen.autocomplete_retry_icon_size))
                 )
                 Spacer(Modifier.width(dimRes(R.dimen.autocomplete_retry_icon_text_spacing)))
@@ -371,7 +372,7 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
                     strRes(R.string.autocomplete_retry_label),
                     fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
                     fontWeight = FontWeight.SemiBold,
-                    color = AutocompleteColors.Accent
+                    color = colRes(R.color.autocomplete_accent)
                 )
             }
         }
@@ -397,7 +398,7 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                     Modifier
                         .size(dimRes(R.dimen.autocomplete_avatar_size))
                         .background(
-                            color = AutocompleteColors.RepoBg,
+                            color = colRes(R.color.autocomplete_repo_bg),
                             shape = RoundedCornerShape(
                                 dimRes(R.dimen.autocomplete_repo_avatar_corner_radius),
                             ),
@@ -406,7 +407,7 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                 ) {
                     Text(
                         item.name.first().uppercase(),
-                        color = AutocompleteColors.Accent,
+                        color = colRes(R.color.autocomplete_accent),
                         fontWeight = FontWeight.Bold,
                         fontSize = spRes(R.dimen.autocomplete_item_title_text_size)
                     )
@@ -417,14 +418,14 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                         item.name,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = spRes(R.dimen.autocomplete_item_title_text_size),
-                        color = AutocompleteColors.TextPrimary,
+                        color = colRes(R.color.autocomplete_text_primary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         item.description?.let { "${item.ownerLogin} · $it" } ?: item.ownerLogin,
                         fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
-                        color = AutocompleteColors.TextSecondary,
+                        color = colRes(R.color.autocomplete_text_secondary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -433,7 +434,7 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                     Icon(
                         Icons.Filled.Star,
                         contentDescription = null,
-                        tint = AutocompleteColors.StarColor,
+                        tint = colRes(R.color.autocomplete_star_color),
                         modifier = Modifier.size(dimRes(R.dimen.autocomplete_star_icon_size))
                     )
                     Spacer(Modifier.width(dimRes(R.dimen.autocomplete_star_icon_text_spacing)))
@@ -441,7 +442,7 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                         formatStars(item.stars),
                         fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
                         fontWeight = FontWeight.SemiBold,
-                        color = AutocompleteColors.StarColor
+                        color = colRes(R.color.autocomplete_star_color)
                     )
                 }
             }
@@ -450,13 +451,13 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                 Box(
                     Modifier
                         .size(dimRes(R.dimen.autocomplete_avatar_size))
-                        .background(color = AutocompleteColors.UserBg, shape = CircleShape),
+                        .background(color = colRes(R.color.autocomplete_user_bg), shape = CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         Icons.Filled.Person,
                         contentDescription = null,
-                        tint = AutocompleteColors.UserIcon,
+                        tint = colRes(R.color.autocomplete_user_icon),
                         modifier = Modifier.size(dimRes(R.dimen.autocomplete_person_icon_size))
                     )
                 }
@@ -466,14 +467,14 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                         item.login,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = spRes(R.dimen.autocomplete_item_title_text_size),
-                        color = AutocompleteColors.TextPrimary,
+                        color = colRes(R.color.autocomplete_text_primary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         item.htmlUrl.removePrefix("https://"),
                         fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
-                        color = AutocompleteColors.TextSecondary,
+                        color = colRes(R.color.autocomplete_text_secondary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )

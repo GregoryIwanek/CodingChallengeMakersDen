@@ -1,10 +1,13 @@
 package pl.gi.codingchallenge.util
 
+import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -38,3 +41,7 @@ fun strRes(@StringRes id: Int): String = stringResource(id)
 /** Short alias for [dimensionResource]. */
 @Composable
 fun dimRes(@DimenRes id: Int): Dp = dimensionResource(id)
+
+/** Short alias for [colorResource]. */
+@Composable
+fun colRes(@ColorRes id: Int): Color = colorResource(id)
