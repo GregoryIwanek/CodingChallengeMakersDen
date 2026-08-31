@@ -14,7 +14,7 @@ import pl.gi.codingchallenge.domain.AutocompleteUiState
 import pl.gi.codingchallenge.domain.model.SearchResultItem
 
 /**
- * Exercises the internal stateless [GitHubAutocompleteBar] overload directly
+ * Exercises the internal stateless [GitHubAutocompleteBarComponent] overload directly
  * with canned [AutocompleteUiState] values (same approach as the @Previews),
  * so these tests verify real Compose rendering/interaction without going
  * through Hilt or the network. See IMPROVEMENTS.md for the tradeoff.
@@ -37,7 +37,7 @@ class GitHubAutocompleteBarTest {
     @Test
     fun idleState_showsNoLoadingEmptyOrError() {
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = {},
                 onItemClick = {},
@@ -54,7 +54,7 @@ class GitHubAutocompleteBarTest {
     @Test
     fun loadingState_showsLoadingIndicator() {
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Loading,
                 onQueryChanged = {},
                 onItemClick = {},
@@ -69,7 +69,7 @@ class GitHubAutocompleteBarTest {
     @Test
     fun emptyState_showsEmptyMessage() {
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Empty,
                 onQueryChanged = {},
                 onItemClick = {},
@@ -87,7 +87,7 @@ class GitHubAutocompleteBarTest {
         var retriedWith: String? = null
 
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Error("Check your connection and try again."),
                 onQueryChanged = { retriedWith = it },
                 onItemClick = {},
@@ -110,7 +110,7 @@ class GitHubAutocompleteBarTest {
         var clicked: SearchResultItem? = null
 
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Success(sampleResults),
                 onQueryChanged = {},
                 onItemClick = { clicked = it },
@@ -130,7 +130,7 @@ class GitHubAutocompleteBarTest {
     @Test
     fun successState_displaysRepoAndUserContentCorrectly() {
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Success(sampleResults),
                 onQueryChanged = {},
                 onItemClick = {},
@@ -154,7 +154,7 @@ class GitHubAutocompleteBarTest {
         val queries = mutableListOf<String>()
 
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = { queries.add(it) },
                 onItemClick = {},
@@ -176,7 +176,7 @@ class GitHubAutocompleteBarTest {
         val queries = mutableListOf<String>()
 
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = { queries.add(it) },
                 onItemClick = {},
@@ -196,7 +196,7 @@ class GitHubAutocompleteBarTest {
         var callbackInvoked = false
 
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Success(sampleResults),
                 onQueryChanged = {},
                 onItemClick = {},
@@ -221,7 +221,7 @@ class GitHubAutocompleteBarTest {
         var callbackInvoked = false
 
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Success(sampleResults),
                 onQueryChanged = {},
                 onItemClick = {},
@@ -244,7 +244,7 @@ class GitHubAutocompleteBarTest {
     @Test
     fun tappingField_reopensClosedPanel_afterCollapsingViaIcon() {
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Success(sampleResults),
                 onQueryChanged = {},
                 onItemClick = {},
@@ -269,7 +269,7 @@ class GitHubAutocompleteBarTest {
     @Test
     fun leadingIcon_doesNotExist_whenTextEmpty() {
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = {},
                 onItemClick = {},
@@ -284,7 +284,7 @@ class GitHubAutocompleteBarTest {
     @Test
     fun leadingIcon_appearsWhenTyping_andDisappearsWhenCleared() {
         composeRule.setContent {
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = {},
                 onItemClick = {},

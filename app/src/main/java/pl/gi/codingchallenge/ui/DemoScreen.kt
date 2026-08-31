@@ -34,7 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pl.gi.codingchallenge.domain.model.SearchResultItem
-import pl.gi.codingchallenge.ui.autocomplete.GitHubAutocompleteBar
+import pl.gi.codingchallenge.ui.autocomplete.GitHubAutocompleteBarComponent
 
 /**
  * Hosts GitHubAutocompleteBar over two unrelated backdrops, switchable
@@ -76,7 +76,7 @@ fun DemoScreen() {
 
             Spacer(Modifier.height(12.dp))
 
-            GitHubAutocompleteBar(
+            GitHubAutocompleteBarComponent(
                 modifier = Modifier.fillMaxWidth(),
                 onItemClick = { item ->
                     val label = when (item) {
