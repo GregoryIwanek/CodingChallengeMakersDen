@@ -19,9 +19,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.gi.codingchallenge.R
@@ -164,25 +165,37 @@ private fun FloatingSearchBar(
             .padding(horizontal = dimRes(R.dimen.autocomplete_bar_inner_padding)),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(
-            onClick = {
-                if (active) onActiveChange(false)
-                onLeadingIconClick()
-            },
-            modifier = Modifier.testTag(AutocompleteTestTags.LEADING_ICON_BUTTON),
-        ) {
-            Icon(
-                imageVector = if (active) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.Menu,
-                contentDescription = if (active) {
-                    strRes(R.string.autocomplete_leading_icon_back)
-                } else {
-                    strRes(R.string.autocomplete_leading_icon_menu)
+        if (text.isNotEmpty()) {
+            IconButton(
+                onClick = {
+                    onActiveChange(!active)
+                    onLeadingIconClick()
                 },
-                tint = AutocompleteColors.TextSecondary,
-            )
+                modifier = Modifier.testTag(AutocompleteTestTags.LEADING_ICON_BUTTON),
+            ) {
+                Icon(
+                    imageVector = if (active) {
+                        Icons.Filled.KeyboardArrowUp
+                    } else {
+                        Icons.Filled.KeyboardArrowDown
+                    },
+                    contentDescription = if (active) {
+                        strRes(R.string.autocomplete_leading_icon_collapse)
+                    } else {
+                        strRes(R.string.autocomplete_leading_icon_expand)
+                    },
+                    tint = AutocompleteColors.TextSecondary,
+                )
+            }
         }
 
-        Box(modifier = Modifier.weight(1f)) {
+        val textStartPadding = if (text.isEmpty()) {
+            dimRes(R.dimen.autocomplete_text_start_padding_no_leading_icon)
+        } else {
+            0.dp
+        }
+
+        Box(modifier = Modifier.weight(1f).padding(start = textStartPadding)) {
             if (text.isEmpty()) {
                 Text(
                     text = strRes(R.string.autocomplete_search_placeholder),

@@ -2,6 +2,7 @@ package pl.gi.codingchallenge.ui.autocomplete
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -200,33 +201,81 @@ class GitHubAutocompleteBarTest {
                 onQueryChanged = {},
                 onItemClick = {},
                 onLeadingIconClick = { callbackInvoked = true },
+                initialText = "kot",
                 initialActive = true,
             )
         }
 
         composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertExists()
+        composeRule.onNodeWithContentDescription("Collapse suggestions").assertExists()
 
         composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).performClick()
 
         composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("Expand suggestions").assertExists()
         assertEquals(true, callbackInvoked)
     }
 
     @Test
-    fun leadingIcon_invokesCallback_whenInactive() {
+    fun leadingIcon_reopensClosedPanel_whenTextPresent() {
         var callbackInvoked = false
 
+        composeRule.setContent {
+            GitHubAutocompleteBar(
+                uiState = AutocompleteUiState.Success(sampleResults),
+                onQueryChanged = {},
+                onItemClick = {},
+                onLeadingIconClick = { callbackInvoked = true },
+                initialText = "kot",
+                initialActive = false,
+            )
+        }
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("Expand suggestions").assertExists()
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).performClick()
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertExists()
+        composeRule.onNodeWithContentDescription("Collapse suggestions").assertExists()
+        assertEquals(true, callbackInvoked)
+    }
+
+    @Test
+    fun leadingIcon_doesNotExist_whenTextEmpty() {
         composeRule.setContent {
             GitHubAutocompleteBar(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = {},
                 onItemClick = {},
-                onLeadingIconClick = { callbackInvoked = true },
+                onLeadingIconClick = {},
             )
         }
 
-        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).performClick()
+        // Not composed at all — takes no layout space — until there's text.
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertDoesNotExist()
+    }
 
-        assertEquals(true, callbackInvoked)
+    @Test
+    fun leadingIcon_appearsWhenTyping_andDisappearsWhenCleared() {
+        composeRule.setContent {
+            GitHubAutocompleteBar(
+                uiState = AutocompleteUiState.Idle,
+                onQueryChanged = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+            )
+        }
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertDoesNotExist()
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.SEARCH_FIELD).performClick()
+        composeRule.onNodeWithTag(AutocompleteTestTags.SEARCH_FIELD).performTextInput("kot")
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertExists()
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.CLEAR_BUTTON).performClick()
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertDoesNotExist()
     }
 }

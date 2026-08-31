@@ -8,6 +8,7 @@
     <dimen name="autocomplete_clear_circle_size">20dp</dimen>
     <dimen name="autocomplete_clear_icon_size">11dp</dimen>
     <dimen name="autocomplete_leading_spacer_width">6dp</dimen>
+    <dimen name="autocomplete_text_start_padding_no_leading_icon">12dp</dimen>
     <dimen name="autocomplete_bar_to_panel_spacing">10dp</dimen>
 
     <!-- GitHubAutocompleteBar — suggestion panel -->
