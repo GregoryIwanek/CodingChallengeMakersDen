@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -86,9 +87,14 @@ fun GitHubAutocompleteBar(
     )
 }
 
-/** Stateless implementation — hoisted out so it can be previewed/tested without Hilt. */
+/**
+ * Stateless implementation — hoisted out so it can be previewed/tested
+ * without Hilt. `internal` (not `private`) so androidTest, which is
+ * compiled as part of this same module, can exercise it directly with
+ * canned [AutocompleteUiState] values instead of going through Hilt.
+ */
 @Composable
-private fun GitHubAutocompleteBar(
+internal fun GitHubAutocompleteBar(
     uiState: AutocompleteUiState,
     onQueryChanged: (String) -> Unit,
     onItemClick: (SearchResultItem) -> Unit,
@@ -156,6 +162,7 @@ private fun FloatingSearchBar(
                 if (active) onActiveChange(false)
                 onLeadingIconClick()
             },
+            modifier = Modifier.testTag(AutocompleteTestTags.LEADING_ICON_BUTTON),
         ) {
             Icon(
                 imageVector = if (active) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.Menu,
@@ -179,12 +186,16 @@ private fun FloatingSearchBar(
                 cursorBrush = SolidColor(AutocompleteColors.Accent),
                 modifier = Modifier
                     .fillMaxWidth()
+                    .testTag(AutocompleteTestTags.SEARCH_FIELD)
                     .onFocusChanged { if (it.isFocused) onActiveChange(true) },
             )
         }
 
         if (text.isNotEmpty()) {
-            IconButton(onClick = { onTextChange("") }, modifier = Modifier.size(32.dp)) {
+            IconButton(
+                onClick = { onTextChange("") },
+                modifier = Modifier.size(32.dp).testTag(AutocompleteTestTags.CLEAR_BUTTON),
+            ) {
                 Box(
                     modifier = Modifier
                         .size(20.dp)
@@ -210,6 +221,7 @@ private fun SuggestionPanel(content: @Composable () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag(AutocompleteTestTags.SUGGESTION_PANEL)
             .shadow(14.dp, RoundedCornerShape(20.dp))
             .background(AutocompleteColors.Surface, RoundedCornerShape(20.dp)),
     ) {
@@ -222,6 +234,7 @@ private fun LoadingIndicator() {
     Box(
         Modifier
             .fillMaxWidth()
+            .testTag(AutocompleteTestTags.LOADING_INDICATOR)
             .height(150.dp), contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
@@ -237,6 +250,7 @@ private fun EmptyState() {
     Box(
         Modifier
             .fillMaxWidth()
+            .testTag(AutocompleteTestTags.EMPTY_STATE)
             .height(150.dp), contentAlignment = Alignment.Center
     ) {
         Text(
@@ -254,6 +268,7 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
     Box(
         Modifier
             .fillMaxWidth()
+            .testTag(AutocompleteTestTags.ERROR_STATE)
             .height(180.dp), contentAlignment = Alignment.Center
     ) {
         Column(
@@ -282,7 +297,8 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
             Spacer(Modifier.height(2.dp))
             OutlinedButton(
                 onClick = onRetry,
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                modifier = Modifier.testTag(AutocompleteTestTags.RETRY_BUTTON),
             ) {
                 Icon(
                     Icons.Filled.Refresh,
@@ -307,6 +323,7 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag(AutocompleteTestTags.resultRow(item.id))
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
