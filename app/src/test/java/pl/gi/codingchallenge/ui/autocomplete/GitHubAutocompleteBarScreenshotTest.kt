@@ -18,8 +18,8 @@ class GitHubAutocompleteBarScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_6.copy(softButtons = false, screenHeight = 1),
-        renderingMode = SessionParams.RenderingMode.V_SCROLL,
+        deviceConfig = DeviceConfig.PIXEL_6,
+        renderingMode = SessionParams.RenderingMode.SHRINK,
         theme = "Theme.CodingChallenge",
     )
 
