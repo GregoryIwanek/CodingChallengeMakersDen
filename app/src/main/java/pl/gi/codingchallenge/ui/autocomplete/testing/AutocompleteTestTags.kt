@@ -1,8 +1,12 @@
-package pl.gi.codingchallenge.ui.autocomplete
+package pl.gi.codingchallenge.ui.autocomplete.testing
 
 // Shared with androidTest (internal is visible there within the same
 // module) so instrumented tests target elements by tag instead of by
-// display text, which changes per AutocompleteUiState.
+// display text, which changes per AutocompleteUiState. Lives in its
+// own `testing` sub-package, separate from the composable it tags, so
+// it reads as test-support infrastructure rather than UI
+// implementation — relevant if ui.autocomplete is ever extracted as
+// a standalone library, not a project
 internal object AutocompleteTestTags {
     const val SEARCH_FIELD = "autocomplete_search_field"
     const val CLEAR_BUTTON = "autocomplete_clear_button"

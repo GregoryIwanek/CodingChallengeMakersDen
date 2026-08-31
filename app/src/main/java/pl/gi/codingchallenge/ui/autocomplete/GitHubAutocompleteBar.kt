@@ -53,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.gi.codingchallenge.R
 import pl.gi.codingchallenge.domain.AutocompleteUiState
 import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.ui.autocomplete.testing.AutocompleteTestTags
 import pl.gi.codingchallenge.util.colRes
 import pl.gi.codingchallenge.util.dimRes
 import pl.gi.codingchallenge.util.spRes
