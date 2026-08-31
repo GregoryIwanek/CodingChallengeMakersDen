@@ -1,5 +1,6 @@
 package pl.gi.codingchallenge.ui.autocomplete
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -9,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.unit.dp
+import androidx.test.espresso.Espresso
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -304,6 +306,61 @@ class GitHubAutocompleteBarTest {
         // Tapping the field itself (not the icon) should reopen it.
         composeRule.onNodeWithTag(AutocompleteTestTags.SEARCH_FIELD).performClick()
         composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertExists()
+    }
+
+    @Test
+    fun systemBack_collapsesActivePanel_andFieldTapReopensIt() {
+        composeRule.setContent {
+            GitHubAutocompleteBarComponent(
+                uiState = AutocompleteUiState.Success(sampleResults),
+                onQueryChanged = {},
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+                initialText = "kot",
+                initialActive = true,
+            )
+        }
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertExists()
+
+        Espresso.pressBack()
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertDoesNotExist()
+
+        // Back also clears focus (like the leading icon), so a plain field
+        // tap — not another back press — is what reopens the panel.
+        composeRule.onNodeWithTag(AutocompleteTestTags.SEARCH_FIELD).performClick()
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertExists()
+    }
+
+    @Test
+    fun systemBack_doesNothing_whenPanelNotActive() {
+        var outerBackInvoked = false
+
+        composeRule.setContent {
+            // Catches the back event only if our BackHandler(enabled = false)
+            // correctly declines to consume it — otherwise Espresso's
+            // pressBack() would fall through to the default OS behavior and
+            // finish the host activity instead.
+            BackHandler(enabled = true) { outerBackInvoked = true }
+
+            GitHubAutocompleteBarComponent(
+                uiState = AutocompleteUiState.Idle,
+                onQueryChanged = {},
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+            )
+        }
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertDoesNotExist()
+
+        Espresso.pressBack()
+
+        assertEquals(true, outerBackInvoked)
+        composeRule.onNodeWithTag(AutocompleteTestTags.SEARCH_FIELD).assertExists()
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertDoesNotExist()
     }
 
     @Test

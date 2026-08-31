@@ -1,5 +1,6 @@
 package pl.gi.codingchallenge.ui.autocomplete
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -114,6 +115,14 @@ internal fun GitHubAutocompleteBarComponent(
 ) {
     var text by rememberSaveable { mutableStateOf(initialText) }
     var active by rememberSaveable { mutableStateOf(initialActive) }
+    val focusManager = LocalFocusManager.current
+
+    // Clearing focus (see FloatingSearchBar's leading icon) is what lets a
+    // later tap on the field re-fire onFocusChanged and reopen the panel.
+    BackHandler(enabled = active) {
+        active = false
+        focusManager.clearFocus()
+    }
 
     Column(modifier) {
         FloatingSearchBar(
