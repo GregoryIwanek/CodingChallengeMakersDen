@@ -1,5 +1,6 @@
 package pl.gi.codingchallenge.ui.autocomplete
 
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -7,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -131,6 +133,32 @@ class GitHubAutocompleteBarTest {
         composeRule.onNodeWithTag(AutocompleteTestTags.resultRow("2")).performClick()
 
         assertEquals(sampleResults[1], clicked)
+    }
+
+    @Test
+    fun successState_capsSuggestionPanelHeight_evenWithManyResults() {
+        val manyResults = List(50) {
+            SearchResultItem.RepoResult(
+                id = "$it", name = "repo-$it", fullName = "owner/repo-$it", ownerLogin = "owner",
+                avatarUrl = null, description = null, stars = 0,
+            )
+        }
+
+        composeRule.setContent {
+            GitHubAutocompleteBarComponent(
+                uiState = AutocompleteUiState.Success(manyResults),
+                onQueryChanged = {},
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+                initialActive = true,
+            )
+        }
+
+        // 50 rows would run to well over 1000dp uncapped, so a measured
+        // height of exactly 500dp proves the cap — not just that
+        // dimens.xml has a value — actually constrains layout.
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertHeightIsEqualTo(500.dp)
     }
 
     @Test

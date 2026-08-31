@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -135,7 +136,9 @@ internal fun GitHubAutocompleteBarComponent(
                     AutocompleteUiState.Empty -> EmptyState()
                     is AutocompleteUiState.Error -> ErrorState(uiState.message, onRetry = onRetry)
 
-                    is AutocompleteUiState.Success -> LazyColumn {
+                    is AutocompleteUiState.Success -> LazyColumn(
+                        modifier = Modifier.heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height)),
+                    ) {
                         items(uiState.items, key = { it.id }) { item ->
                             SearchResultRow(item, onClick = { onItemClick(item) })
                         }

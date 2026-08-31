@@ -14,6 +14,7 @@
     <!-- GitHubAutocompleteBar — suggestion panel -->
     <dimen name="autocomplete_panel_elevation">14dp</dimen>
     <dimen name="autocomplete_panel_corner_radius">20dp</dimen>
+    <dimen name="autocomplete_panel_max_height">500dp</dimen>
 
     <!-- GitHubAutocompleteBar — loading/empty/error states -->
     <dimen name="autocomplete_short_state_box_height">150dp</dimen>
