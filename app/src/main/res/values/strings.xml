@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">CodingChallenge</string>
+
+    <string name="autocomplete_search_placeholder">Search users &amp; repositories</string>
+    <string name="autocomplete_leading_icon_back">Back</string>
+    <string name="autocomplete_leading_icon_menu">Menu</string>
+    <string name="autocomplete_clear_icon">Clear</string>
+    <string name="autocomplete_empty_message">No matching users or repositories</string>
+    <string name="autocomplete_error_headline">Couldn’t load results</string>
+    <string name="autocomplete_retry_label">Retry</string>
 </resources>

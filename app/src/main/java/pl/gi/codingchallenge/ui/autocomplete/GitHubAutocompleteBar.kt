@@ -47,12 +47,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import pl.gi.codingchallenge.R
 import pl.gi.codingchallenge.domain.AutocompleteUiState
 import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.util.dimRes
+import pl.gi.codingchallenge.util.spRes
+import pl.gi.codingchallenge.util.strRes
 
 /**
  * Floating pill search bar that sits over whatever content the host
@@ -119,7 +121,7 @@ internal fun GitHubAutocompleteBar(
         )
 
         if (active) {
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(dimRes(R.dimen.autocomplete_bar_to_panel_spacing)))
             SuggestionPanel {
                 when (uiState) {
                     AutocompleteUiState.Idle -> {} // < 3 chars: host content stays visible behind the bar
@@ -148,13 +150,18 @@ private fun FloatingSearchBar(
     onActiveChange: (Boolean) -> Unit,
     onLeadingIconClick: () -> Unit,
 ) {
+    val barCornerRadius = RoundedCornerShape(dimRes(R.dimen.autocomplete_bar_corner_radius))
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(52.dp)
-            .shadow(6.dp, RoundedCornerShape(26.dp))
-            .background(AutocompleteColors.Surface, RoundedCornerShape(26.dp))
-            .padding(horizontal = 6.dp),
+            .height(dimRes(R.dimen.autocomplete_bar_height))
+            .shadow(
+                elevation = dimRes(R.dimen.autocomplete_bar_elevation),
+                shape = barCornerRadius,
+            )
+            .background(color = AutocompleteColors.Surface, shape = barCornerRadius)
+            .padding(horizontal = dimRes(R.dimen.autocomplete_bar_inner_padding)),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
@@ -166,7 +173,11 @@ private fun FloatingSearchBar(
         ) {
             Icon(
                 imageVector = if (active) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.Menu,
-                contentDescription = if (active) "Back" else "Menu",
+                contentDescription = if (active) {
+                    strRes(R.string.autocomplete_leading_icon_back)
+                } else {
+                    strRes(R.string.autocomplete_leading_icon_menu)
+                },
                 tint = AutocompleteColors.TextSecondary,
             )
         }
@@ -174,15 +185,21 @@ private fun FloatingSearchBar(
         Box(modifier = Modifier.weight(1f)) {
             if (text.isEmpty()) {
                 Text(
-                    text = "Search users & repositories",
-                    style = TextStyle(fontSize = 15.sp, color = AutocompleteColors.TextSecondary),
+                    text = strRes(R.string.autocomplete_search_placeholder),
+                    style = TextStyle(
+                        fontSize = spRes(R.dimen.autocomplete_input_text_size),
+                        color = AutocompleteColors.TextSecondary,
+                    ),
                 )
             }
             BasicTextField(
                 value = text,
                 onValueChange = onTextChange,
                 singleLine = true,
-                textStyle = TextStyle(fontSize = 15.sp, color = AutocompleteColors.TextPrimary),
+                textStyle = TextStyle(
+                    fontSize = spRes(R.dimen.autocomplete_input_text_size),
+                    color = AutocompleteColors.TextPrimary,
+                ),
                 cursorBrush = SolidColor(AutocompleteColors.Accent),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -194,36 +211,43 @@ private fun FloatingSearchBar(
         if (text.isNotEmpty()) {
             IconButton(
                 onClick = { onTextChange("") },
-                modifier = Modifier.size(32.dp).testTag(AutocompleteTestTags.CLEAR_BUTTON),
+                modifier = Modifier
+                    .size(dimRes(R.dimen.autocomplete_clear_button_size))
+                    .testTag(AutocompleteTestTags.CLEAR_BUTTON),
             ) {
                 Box(
                     modifier = Modifier
-                        .size(20.dp)
-                        .background(AutocompleteColors.Border, CircleShape),
+                        .size(dimRes(R.dimen.autocomplete_clear_circle_size))
+                        .background(color = AutocompleteColors.Border, shape = CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         Icons.Filled.Clear,
-                        contentDescription = "Clear",
+                        contentDescription = strRes(R.string.autocomplete_clear_icon),
                         tint = AutocompleteColors.TextSecondary,
-                        modifier = Modifier.size(11.dp),
+                        modifier = Modifier.size(dimRes(R.dimen.autocomplete_clear_icon_size)),
                     )
                 }
             }
         } else {
-            Box(Modifier.width(6.dp))
+            Box(Modifier.width(dimRes(R.dimen.autocomplete_leading_spacer_width)))
         }
     }
 }
 
 @Composable
 private fun SuggestionPanel(content: @Composable () -> Unit) {
+    val panelCornerRadius = RoundedCornerShape(dimRes(R.dimen.autocomplete_panel_corner_radius))
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.SUGGESTION_PANEL)
-            .shadow(14.dp, RoundedCornerShape(20.dp))
-            .background(AutocompleteColors.Surface, RoundedCornerShape(20.dp)),
+            .shadow(
+                elevation = dimRes(R.dimen.autocomplete_panel_elevation),
+                shape = panelCornerRadius,
+            )
+            .background(color = AutocompleteColors.Surface, shape = panelCornerRadius),
     ) {
         content()
     }
@@ -235,12 +259,13 @@ private fun LoadingIndicator() {
         Modifier
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.LOADING_INDICATOR)
-            .height(150.dp), contentAlignment = Alignment.Center
+            .height(dimRes(R.dimen.autocomplete_short_state_box_height)),
+        contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
             color = AutocompleteColors.Accent,
-            strokeWidth = 3.dp,
-            modifier = Modifier.size(28.dp)
+            strokeWidth = dimRes(R.dimen.autocomplete_spinner_stroke_width),
+            modifier = Modifier.size(dimRes(R.dimen.autocomplete_large_state_icon_size))
         )
     }
 }
@@ -251,14 +276,17 @@ private fun EmptyState() {
         Modifier
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.EMPTY_STATE)
-            .height(150.dp), contentAlignment = Alignment.Center
+            .height(dimRes(R.dimen.autocomplete_short_state_box_height)),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
-            "No matching users or repositories",
-            fontSize = 13.sp,
+            strRes(R.string.autocomplete_empty_message),
+            fontSize = spRes(R.dimen.autocomplete_state_headline_text_size),
             color = AutocompleteColors.TextSecondary,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 24.dp),
+            modifier = Modifier.padding(
+                horizontal = dimRes(R.dimen.autocomplete_state_message_horizontal_padding),
+            ),
         )
     }
 }
@@ -269,47 +297,55 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.ERROR_STATE)
-            .height(180.dp), contentAlignment = Alignment.Center
+            .height(dimRes(R.dimen.autocomplete_tall_state_box_height)),
+        contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(
+                dimRes(R.dimen.autocomplete_error_column_spacing),
+            ),
         ) {
             Icon(
                 Icons.Filled.Warning,
                 contentDescription = null,
                 tint = AutocompleteColors.ErrorColor,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(dimRes(R.dimen.autocomplete_large_state_icon_size))
             )
             Text(
-                "Couldn’t load results",
-                fontSize = 13.sp,
+                strRes(R.string.autocomplete_error_headline),
+                fontSize = spRes(R.dimen.autocomplete_state_headline_text_size),
                 fontWeight = FontWeight.SemiBold,
                 color = AutocompleteColors.TextPrimary
             )
             Text(
                 message,
-                fontSize = 11.sp,
+                fontSize = spRes(R.dimen.autocomplete_state_detail_text_size),
                 color = AutocompleteColors.TextSecondary,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 24.dp),
+                modifier = Modifier.padding(
+                    horizontal = dimRes(R.dimen.autocomplete_state_message_horizontal_padding),
+                ),
             )
-            Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(dimRes(R.dimen.autocomplete_error_icon_to_headline_spacing)))
             OutlinedButton(
                 onClick = onRetry,
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                contentPadding = PaddingValues(
+                    horizontal = dimRes(R.dimen.autocomplete_retry_horizontal_padding),
+                    vertical = dimRes(R.dimen.autocomplete_retry_vertical_padding),
+                ),
                 modifier = Modifier.testTag(AutocompleteTestTags.RETRY_BUTTON),
             ) {
                 Icon(
                     Icons.Filled.Refresh,
                     contentDescription = null,
                     tint = AutocompleteColors.Accent,
-                    modifier = Modifier.size(12.dp)
+                    modifier = Modifier.size(dimRes(R.dimen.autocomplete_retry_icon_size))
                 )
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(dimRes(R.dimen.autocomplete_retry_icon_text_spacing)))
                 Text(
-                    "Retry",
-                    fontSize = 12.sp,
+                    strRes(R.string.autocomplete_retry_label),
+                    fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
                     fontWeight = FontWeight.SemiBold,
                     color = AutocompleteColors.Accent
                 )
@@ -325,37 +361,45 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.resultRow(item.id))
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(
+                horizontal = dimRes(R.dimen.autocomplete_row_horizontal_padding),
+                vertical = dimRes(R.dimen.autocomplete_row_vertical_padding),
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         when (item) {
             is SearchResultItem.RepoResult -> {
                 Box(
                     Modifier
-                        .size(34.dp)
-                        .background(AutocompleteColors.RepoBg, RoundedCornerShape(8.dp)),
+                        .size(dimRes(R.dimen.autocomplete_avatar_size))
+                        .background(
+                            color = AutocompleteColors.RepoBg,
+                            shape = RoundedCornerShape(
+                                dimRes(R.dimen.autocomplete_repo_avatar_corner_radius),
+                            ),
+                        ),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         item.name.first().uppercase(),
                         color = AutocompleteColors.Accent,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        fontSize = spRes(R.dimen.autocomplete_item_title_text_size)
                     )
                 }
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(dimRes(R.dimen.autocomplete_avatar_to_text_spacing)))
                 Column(Modifier.weight(1f)) {
                     Text(
                         item.name,
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp,
+                        fontSize = spRes(R.dimen.autocomplete_item_title_text_size),
                         color = AutocompleteColors.TextPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         item.description?.let { "${item.ownerLogin} · $it" } ?: item.ownerLogin,
-                        fontSize = 12.sp,
+                        fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
                         color = AutocompleteColors.TextSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -366,12 +410,12 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                         Icons.Filled.Star,
                         contentDescription = null,
                         tint = AutocompleteColors.StarColor,
-                        modifier = Modifier.size(12.dp)
+                        modifier = Modifier.size(dimRes(R.dimen.autocomplete_star_icon_size))
                     )
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(dimRes(R.dimen.autocomplete_star_icon_text_spacing)))
                     Text(
                         formatStars(item.stars),
-                        fontSize = 12.sp,
+                        fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
                         fontWeight = FontWeight.SemiBold,
                         color = AutocompleteColors.StarColor
                     )
@@ -381,30 +425,30 @@ private fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
             is SearchResultItem.UserResult -> {
                 Box(
                     Modifier
-                        .size(34.dp)
-                        .background(AutocompleteColors.UserBg, CircleShape),
+                        .size(dimRes(R.dimen.autocomplete_avatar_size))
+                        .background(color = AutocompleteColors.UserBg, shape = CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         Icons.Filled.Person,
                         contentDescription = null,
                         tint = AutocompleteColors.UserIcon,
-                        modifier = Modifier.size(17.dp)
+                        modifier = Modifier.size(dimRes(R.dimen.autocomplete_person_icon_size))
                     )
                 }
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(dimRes(R.dimen.autocomplete_avatar_to_text_spacing)))
                 Column(Modifier.weight(1f)) {
                     Text(
                         item.login,
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp,
+                        fontSize = spRes(R.dimen.autocomplete_item_title_text_size),
                         color = AutocompleteColors.TextPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         item.htmlUrl.removePrefix("https://"),
-                        fontSize = 12.sp,
+                        fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
                         color = AutocompleteColors.TextSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
