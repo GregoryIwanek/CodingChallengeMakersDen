@@ -83,11 +83,11 @@ fun GitHubAutocompleteBarComponent(
     onLeadingIconClick: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val onQueryChanged = viewModel::onQueryChanged
 
     GitHubAutocompleteBarComponent(
         uiState = uiState,
-        onQueryChanged = onQueryChanged,
+        onQueryChanged = viewModel::onQueryChanged,
+        onRetry = viewModel::retry,
         onItemClick = onItemClick,
         onLeadingIconClick = onLeadingIconClick,
         modifier = modifier,
@@ -104,6 +104,7 @@ fun GitHubAutocompleteBarComponent(
 internal fun GitHubAutocompleteBarComponent(
     uiState: AutocompleteUiState,
     onQueryChanged: (String) -> Unit,
+    onRetry: () -> Unit,
     onItemClick: (SearchResultItem) -> Unit,
     onLeadingIconClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -132,9 +133,7 @@ internal fun GitHubAutocompleteBarComponent(
                     AutocompleteUiState.Idle -> {} // < 3 chars: host content stays visible behind the bar
                     AutocompleteUiState.Loading -> LoadingIndicator()
                     AutocompleteUiState.Empty -> EmptyState()
-                    is AutocompleteUiState.Error -> ErrorState(uiState.message) {
-                        onQueryChanged(text) // retry
-                    }
+                    is AutocompleteUiState.Error -> ErrorState(uiState.message, onRetry = onRetry)
 
                     is AutocompleteUiState.Success -> LazyColumn {
                         items(uiState.items, key = { it.id }) { item ->

@@ -19,6 +19,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import pl.gi.codingchallenge.domain.AutocompleteUiState
+import pl.gi.codingchallenge.domain.QueryRequest
 import pl.gi.codingchallenge.domain.SearchAutocompleteUseCase
 
 /**
@@ -71,8 +72,8 @@ class AutocompleteViewModelTest {
     @Test
     fun `onQueryChanged forwards the new query into the use case's input flow`() = runTest(dispatcher) {
         val useCase = mockk<SearchAutocompleteUseCase>()
-        val queriesSlot = slot<Flow<String>>()
-        every { useCase(capture(queriesSlot)) } returns flowOf()
+        val requestsSlot = slot<Flow<QueryRequest>>()
+        every { useCase(capture(requestsSlot)) } returns flowOf()
 
         val viewModel = AutocompleteViewModel(useCase)
         viewModel.uiState.test { awaitItem() } // subscribe once so stateIn actually invokes the use case
@@ -80,6 +81,27 @@ class AutocompleteViewModelTest {
 
         viewModel.onQueryChanged("kotlin")
 
-        assertEquals("kotlin", (queriesSlot.captured as MutableStateFlow<String>).value)
+        assertEquals("kotlin", (requestsSlot.captured as MutableStateFlow<QueryRequest>).value.text)
     }
+
+    @Test
+    fun `retry bumps attempt but leaves text unchanged, forwarding into the use case`() =
+        runTest(dispatcher) {
+            val useCase = mockk<SearchAutocompleteUseCase>()
+            val requestsSlot = slot<Flow<QueryRequest>>()
+            every { useCase(capture(requestsSlot)) } returns flowOf()
+
+            val viewModel = AutocompleteViewModel(useCase)
+            viewModel.uiState.test { awaitItem() } // subscribe once so stateIn actually invokes the use case
+            advanceUntilIdle()
+
+            viewModel.onQueryChanged("kotlin")
+            val requests = requestsSlot.captured as MutableStateFlow<QueryRequest>
+            assertEquals(0, requests.value.attempt)
+
+            viewModel.retry()
+
+            assertEquals("kotlin", requests.value.text)
+            assertEquals(1, requests.value.attempt)
+        }
 }

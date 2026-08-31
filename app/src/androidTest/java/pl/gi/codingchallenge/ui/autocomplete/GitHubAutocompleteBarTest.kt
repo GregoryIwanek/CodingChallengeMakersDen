@@ -41,6 +41,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = {},
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialActive = true,
@@ -58,6 +59,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Loading,
                 onQueryChanged = {},
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialActive = true,
@@ -73,6 +75,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Empty,
                 onQueryChanged = {},
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialActive = true,
@@ -84,13 +87,14 @@ class GitHubAutocompleteBarTest {
     }
 
     @Test
-    fun errorState_showsMessage_andRetryInvokesOnQueryChangedWithCurrentText() {
-        var retriedWith: String? = null
+    fun errorState_showsMessage_andRetryButtonInvokesOnRetry() {
+        var retryInvoked = false
 
         composeRule.setContent {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Error("Check your connection and try again."),
-                onQueryChanged = { retriedWith = it },
+                onQueryChanged = {},
+                onRetry = { retryInvoked = true },
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "kot",
@@ -103,7 +107,7 @@ class GitHubAutocompleteBarTest {
 
         composeRule.onNodeWithTag(AutocompleteTestTags.RETRY_BUTTON).performClick()
 
-        assertEquals("kot", retriedWith)
+        assertEquals(true, retryInvoked)
     }
 
     @Test
@@ -114,6 +118,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Success(sampleResults),
                 onQueryChanged = {},
+                onRetry = {},
                 onItemClick = { clicked = it },
                 onLeadingIconClick = {},
                 initialActive = true,
@@ -134,6 +139,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Success(sampleResults),
                 onQueryChanged = {},
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialActive = true,
@@ -158,6 +164,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = { queries.add(it) },
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
             )
@@ -180,6 +187,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = { queries.add(it) },
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "kotlin",
@@ -200,6 +208,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Success(sampleResults),
                 onQueryChanged = {},
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = { callbackInvoked = true },
                 initialText = "kot",
@@ -225,6 +234,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Success(sampleResults),
                 onQueryChanged = {},
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = { callbackInvoked = true },
                 initialText = "kot",
@@ -248,6 +258,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Success(sampleResults),
                 onQueryChanged = {},
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "kot",
@@ -273,6 +284,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = {},
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
             )
@@ -288,6 +300,7 @@ class GitHubAutocompleteBarTest {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = {},
+                onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
             )

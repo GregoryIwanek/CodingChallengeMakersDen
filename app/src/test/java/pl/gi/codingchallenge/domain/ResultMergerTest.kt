@@ -26,6 +26,16 @@ class ResultMergerTest {
 
         assertEquals(50, mergeAndSort(users = users, repos = repos).size)
     }
+
+    @Test
+    fun `cap keeps the alphabetically-first items, not an arbitrary subset`() {
+        val repos = listOf(repo(name = "Banana"), repo(name = "Cherry"))
+        val users = listOf(user(login = "Apple"), user(login = "Date"))
+
+        val merged = mergeAndSort(users = users, repos = repos, limit = 2)
+
+        assertEquals(listOf("Apple", "Banana"), merged.map { it.sortKey })
+    }
 }
 
 private fun repo(

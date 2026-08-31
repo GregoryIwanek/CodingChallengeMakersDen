@@ -18,11 +18,12 @@ class SearchAutocompleteUseCase @Inject constructor(
     private val repository: GitHubSearchRepository,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    operator fun invoke(queries: Flow<String>): Flow<AutocompleteUiState> =
-        queries
+    operator fun invoke(requests: Flow<QueryRequest>): Flow<AutocompleteUiState> =
+        requests
             .debounce(DEBOUNCE_MILLIS)
             .distinctUntilChanged()
-            .flatMapLatest { query ->
+            .flatMapLatest { request ->
+                val query = request.text
                 if (query.length < MIN_QUERY_LENGTH) {
                     flowOf(AutocompleteUiState.Idle)
                 } else {

@@ -38,6 +38,7 @@ private fun GitHubAutocompleteBarSuccessPreview() {
     GitHubAutocompleteBarComponent(
         uiState = AutocompleteUiState.Success(previewResults),
         onQueryChanged = {},
+        onRetry = {},
         onItemClick = {},
         onLeadingIconClick = {},
         initialText = "flow",
@@ -51,6 +52,7 @@ private fun GitHubAutocompleteBarLoadingPreview() {
     GitHubAutocompleteBarComponent(
         uiState = AutocompleteUiState.Loading,
         onQueryChanged = {},
+        onRetry = {},
         onItemClick = {},
         onLeadingIconClick = {},
         initialText = "flow",
@@ -64,6 +66,7 @@ private fun GitHubAutocompleteBarEmptyPreview() {
     GitHubAutocompleteBarComponent(
         uiState = AutocompleteUiState.Empty,
         onQueryChanged = {},
+        onRetry = {},
         onItemClick = {},
         onLeadingIconClick = {},
         initialText = "zzz",
@@ -77,6 +80,7 @@ private fun GitHubAutocompleteBarErrorPreview() {
     GitHubAutocompleteBarComponent(
         uiState = AutocompleteUiState.Error("Check your connection and try again."),
         onQueryChanged = {},
+        onRetry = {},
         onItemClick = {},
         onLeadingIconClick = {},
         initialText = "flow",
@@ -90,6 +94,7 @@ private fun GitHubAutocompleteBarIdlePreview() {
     GitHubAutocompleteBarComponent(
         uiState = AutocompleteUiState.Idle,
         onQueryChanged = {},
+        onRetry = {},
         onItemClick = {},
         onLeadingIconClick = {},
     )
