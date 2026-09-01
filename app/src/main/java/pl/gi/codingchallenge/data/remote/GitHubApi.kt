@@ -11,12 +11,12 @@ interface GitHubApi {
     @GET("search/repositories")
     suspend fun searchRepositories(
         @Query("q") query: String,
-        @Query("per_page") perPage: Int = 50,
+        @Query("per_page") perPage: Int,
     ): GitHubSearchResponse<RepositoryDto>
 
     @GET("search/users")
     suspend fun searchUsers(
         @Query("q") query: String,
-        @Query("per_page") perPage: Int = 50,
+        @Query("per_page") perPage: Int,
     ): GitHubSearchResponse<UserDto>
 }
