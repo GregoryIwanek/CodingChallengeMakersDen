@@ -20,9 +20,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
@@ -47,6 +50,7 @@ internal fun FloatingSearchBar(
 ) {
     val barCornerRadius = RoundedCornerShape(dimRes(R.dimen.autocomplete_bar_corner_radius))
     val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
 
     Row(
         modifier = Modifier
@@ -64,7 +68,11 @@ internal fun FloatingSearchBar(
             onClick = {
                 val nowActive = !active
                 onActiveChange(nowActive)
-                if (!nowActive) {
+                if (nowActive) {
+                    // Focus the field so expanding via the icon behaves the same as
+                    // tapping the field directly — both open and focus together.
+                    focusRequester.requestFocus()
+                } else {
                     // Clear focus so a later tap re-fires focus-gained and reopens the panel.
                     focusManager.clearFocus()
                 }
@@ -113,6 +121,7 @@ internal fun FloatingSearchBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag(AutocompleteTestTags.SEARCH_FIELD)
+                    .focusRequester(focusRequester)
                     .onFocusChanged { onActiveChange(it.isFocused) },
             )
         }
