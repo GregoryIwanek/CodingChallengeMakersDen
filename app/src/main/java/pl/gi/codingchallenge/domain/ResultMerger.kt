@@ -2,8 +2,6 @@ package pl.gi.codingchallenge.domain
 
 import pl.gi.codingchallenge.domain.model.SearchResultItem
 
-private const val MAX_RESULTS = 50
-
 fun mergeAndSort(
     users: List<SearchResultItem.UserResult>,
     repos: List<SearchResultItem.RepoResult>,
