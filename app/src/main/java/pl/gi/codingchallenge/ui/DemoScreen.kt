@@ -34,6 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -120,7 +121,7 @@ private fun ComponentScreen(modifier: Modifier = Modifier) {
 
     Column(
         modifier = modifier
-            .pointerInput(Unit) { detectTapGestures { focusManager.clearFocus() } }
+            .clearFocusOnTap(focusManager)
             .verticalScroll(rememberScrollState())
             .padding(dimRes(R.dimen.demo_screen_padding)),
         verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_component_content_spacing)),
@@ -139,7 +140,7 @@ private fun OverlayScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
-    Box(modifier.pointerInput(Unit) { detectTapGestures { focusManager.clearFocus() } }) {
+    Box(modifier.clearFocusOnTap(focusManager)) {
         MockFeed(Modifier.fillMaxSize())
 
         GitHubAutocompleteBarComponent(
@@ -152,6 +153,9 @@ private fun OverlayScreen(modifier: Modifier = Modifier) {
         )
     }
 }
+
+private fun Modifier.clearFocusOnTap(focusManager: FocusManager): Modifier =
+    pointerInput(Unit) { detectTapGestures { focusManager.clearFocus() } }
 
 private fun showTappedToast(context: Context, item: SearchResultItem) {
     val label = when (item) {
