@@ -65,10 +65,7 @@ internal fun FloatingSearchBar(
                 val nowActive = !active
                 onActiveChange(nowActive)
                 if (!nowActive) {
-                    // Clear focus so a later tap on the field fires a fresh
-                    // focus-gained event and reopens the panel (see
-                    // onFocusChanged below) — otherwise the field stays
-                    // focused from before and a re-tap is a no-op.
+                    // Clear focus so a later tap re-fires focus-gained and reopens the panel.
                     focusManager.clearFocus()
                 }
                 onLeadingIconClick()

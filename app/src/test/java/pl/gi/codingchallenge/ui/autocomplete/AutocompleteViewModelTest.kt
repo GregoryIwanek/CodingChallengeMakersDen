@@ -24,13 +24,8 @@ import pl.gi.codingchallenge.domain.SearchOutcome
 import pl.gi.codingchallenge.domain.model.SearchResultItem
 
 /**
- * AutocompleteViewModel is a thin adapter — its
- * own debounce/cancellation logic already lives in, and is tested by,
- * SearchAutocompleteUseCaseTest. What's worth verifying here is only the
- * ViewModel's own wiring: it forwards queries into the use case and
- * exposes whatever the use case emits. SearchAutocompleteUseCase is a
- * concrete class, mocked directly with MockK — no interface needed for
- * that (see the "should the use case be an interface" discussion).
+ * Covers only the ViewModel's own wiring (forwards queries, exposes
+ * use-case emissions) — debounce/cancellation is SearchAutocompleteUseCaseTest's job.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AutocompleteViewModelTest {

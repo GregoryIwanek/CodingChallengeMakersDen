@@ -441,10 +441,8 @@ class GitHubAutocompleteBarTest {
         var outerBackInvoked = false
 
         composeRule.setContent {
-            // Catches the back event only if our BackHandler(enabled = false)
-            // correctly declines to consume it — otherwise Espresso's
-            // pressBack() would fall through to the default OS behavior and
-            // finish the host activity instead.
+            // Only fires if our BackHandler(enabled = false) correctly
+            // declines to consume the back event.
             BackHandler(enabled = true) { outerBackInvoked = true }
 
             GitHubAutocompleteBarComponent(

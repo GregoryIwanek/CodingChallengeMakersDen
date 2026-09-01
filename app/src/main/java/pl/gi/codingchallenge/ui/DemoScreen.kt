@@ -187,12 +187,8 @@ private fun DashboardCard(title: String) {
     }
 }
 
-// ---- Previews -------------------------------------------------------
-// DemoScreen() itself isn't previewed directly: it renders
-// GitHubAutocompleteBar via the public overload, whose default
-// `viewModel = hiltViewModel()` doesn't resolve in @Preview (same
-// reason GitHubAutocompleteBar.kt previews the stateless overload
-// instead). These preview the Hilt-free pieces DemoScreen is built from.
+// DemoScreen() itself isn't previewed: its default `viewModel = hiltViewModel()`
+// doesn't resolve in @Preview. These preview the Hilt-free pieces it's built from.
 
 @Preview(name = "Map backdrop", showBackground = true, widthDp = 380, heightDp = 700)
 @Composable

@@ -60,10 +60,7 @@ fun GitHubAutocompleteBarComponent(
 }
 
 /**
- * Stateless implementation — hoisted out so it can be previewed/tested
- * without Hilt. `internal` (not `private`) so androidTest, which is
- * compiled as part of this same module, can exercise it directly with
- * canned [AutocompleteUiState] values instead of going through Hilt.
+ * Stateless implementation, hoisted out for preview/test access without Hilt.
  */
 @Composable
 internal fun GitHubAutocompleteBarComponent(
