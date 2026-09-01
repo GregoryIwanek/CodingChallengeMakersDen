@@ -1,6 +1,10 @@
 package pl.gi.codingchallenge.ui.autocomplete
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -8,6 +12,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
@@ -155,6 +161,52 @@ class GitHubAutocompleteBarTest {
         // sampleResults has 2 items, so exactly 1 divider between them.
         composeRule.onNodeWithTag(AutocompleteTestTags.resultDivider(0)).assertExists()
         composeRule.onNodeWithTag(AutocompleteTestTags.resultDivider(1)).assertDoesNotExist()
+    }
+
+    @Test
+    fun successState_resetsScrollPosition_whenTheQueryTextChanges() {
+        val firstBatch = List(20) {
+            SearchResultItem.RepoResult(
+                id = "first-$it", name = "first-repo-$it", fullName = "owner/first-repo-$it",
+                ownerLogin = "owner", avatarUrl = null, description = null, stars = 0,
+            )
+        }
+        val secondBatch = List(20) {
+            SearchResultItem.RepoResult(
+                id = "second-$it", name = "second-repo-$it", fullName = "owner/second-repo-$it",
+                ownerLogin = "owner", avatarUrl = null, description = null, stars = 0,
+            )
+        }
+
+        composeRule.setContent {
+            // Stands in for the ViewModel/use case: as soon as the query
+            // text changes, "results" for the new query are available
+            // immediately (no real debounce/network in this test).
+            var uiState by remember {
+                mutableStateOf<AutocompleteUiState>(AutocompleteUiState.Success(firstBatch))
+            }
+
+            GitHubAutocompleteBarComponent(
+                uiState = uiState,
+                onQueryChanged = { uiState = AutocompleteUiState.Success(secondBatch) },
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+                initialText = "kot",
+                initialActive = true,
+            )
+        }
+
+        // Scroll partway through the first query's results.
+        composeRule.onNodeWithTag(AutocompleteTestTags.RESULTS_LIST).performScrollToIndex(15)
+        composeRule.onNodeWithTag(AutocompleteTestTags.resultRow("first-0")).assertDoesNotExist()
+
+        // Type a genuinely new query — text changes, new results arrive.
+        composeRule.onNodeWithTag(AutocompleteTestTags.SEARCH_FIELD).performTextClearance()
+        composeRule.onNodeWithTag(AutocompleteTestTags.SEARCH_FIELD).performTextInput("flow")
+
+        // Fresh results should start scrolled to the top.
+        composeRule.onNodeWithTag(AutocompleteTestTags.resultRow("second-0")).assertExists()
     }
 
     @Test

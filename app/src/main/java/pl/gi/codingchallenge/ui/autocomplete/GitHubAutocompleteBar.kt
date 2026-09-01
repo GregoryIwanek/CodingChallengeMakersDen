@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -150,7 +152,13 @@ internal fun GitHubAutocompleteBarComponent(
                     is AutocompleteUiState.Error -> ErrorState(uiState.message, onRetry = onRetry)
 
                     is AutocompleteUiState.Success -> LazyColumn(
-                        modifier = Modifier.heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height)),
+                        // Keyed on text (not the whole uiState) so a retry
+                        // of the same query keeps its scroll position, but
+                        // a genuinely new query starts scrolled to the top.
+                        state = remember(text) { LazyListState() },
+                        modifier = Modifier
+                            .heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height))
+                            .testTag(AutocompleteTestTags.RESULTS_LIST),
                     ) {
                         itemsIndexed(uiState.items, key = { _, item -> item.id }) { index, item ->
                             SearchResultRow(item, onClick = { onItemClick(item) })

@@ -16,6 +16,7 @@ internal object AutocompleteTestTags {
     const val EMPTY_STATE = "autocomplete_empty_state"
     const val ERROR_STATE = "autocomplete_error_state"
     const val RETRY_BUTTON = "autocomplete_retry_button"
+    const val RESULTS_LIST = "autocomplete_results_list"
 
     fun resultRow(id: String) = "autocomplete_result_row_$id"
     fun resultDivider(index: Int) = "autocomplete_result_divider_$index"
