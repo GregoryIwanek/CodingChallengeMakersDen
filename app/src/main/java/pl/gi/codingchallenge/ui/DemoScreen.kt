@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge
+package pl.gi.codingchallenge.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.background
