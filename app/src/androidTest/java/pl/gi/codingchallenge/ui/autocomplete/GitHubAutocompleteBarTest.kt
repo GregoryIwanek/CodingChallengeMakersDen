@@ -7,6 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -443,23 +445,33 @@ class GitHubAutocompleteBarTest {
     }
 
     @Test
-    fun leadingIcon_doesNotExist_whenTextEmpty() {
+    fun leadingIcon_isNeutralAndDisabled_whenQueryTooShortForSuggestions() {
+        var callbackInvoked = false
+
         composeRule.setContent {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
                 onQueryChanged = {},
                 onRetry = {},
                 onItemClick = {},
-                onLeadingIconClick = {},
+                onLeadingIconClick = { callbackInvoked = true },
+                initialText = "ko", // < 3 chars: still Idle, nothing to show
             )
         }
 
-        // Not composed at all — takes no layout space — until there's text.
-        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertDoesNotExist()
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertExists()
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertIsNotEnabled()
+        composeRule.onNodeWithContentDescription("Collapse suggestions").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("Expand suggestions").assertDoesNotExist()
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).performClick()
+
+        assertEquals(false, callbackInvoked)
+        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertDoesNotExist()
     }
 
     @Test
-    fun leadingIcon_appearsWhenTyping_andDisappearsWhenCleared() {
+    fun leadingIcon_isNeutralAndDisabled_whenTextEmpty() {
         composeRule.setContent {
             GitHubAutocompleteBarComponent(
                 uiState = AutocompleteUiState.Idle,
@@ -470,15 +482,44 @@ class GitHubAutocompleteBarTest {
             )
         }
 
-        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertDoesNotExist()
+        // Visible from the start now — a neutral search glyph, not gated
+        // on having text.
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertExists()
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertIsNotEnabled()
+    }
+
+    @Test
+    fun leadingIcon_becomesEnabledWhenSuggestionsAppear_andDisabledAgainWhenCleared() {
+        composeRule.setContent {
+            // Stands in for the ViewModel: 3+ chars means there's
+            // something to show, matching MIN_QUERY_LENGTH in
+            // SearchAutocompleteUseCase.
+            var uiState by remember { mutableStateOf<AutocompleteUiState>(AutocompleteUiState.Idle) }
+
+            GitHubAutocompleteBarComponent(
+                uiState = uiState,
+                onQueryChanged = {
+                    uiState = if (it.length >= 3) {
+                        AutocompleteUiState.Success(sampleResults)
+                    } else {
+                        AutocompleteUiState.Idle
+                    }
+                },
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+            )
+        }
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertIsNotEnabled()
 
         composeRule.onNodeWithTag(AutocompleteTestTags.SEARCH_FIELD).performClick()
         composeRule.onNodeWithTag(AutocompleteTestTags.SEARCH_FIELD).performTextInput("kot")
 
-        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertExists()
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertIsEnabled()
 
         composeRule.onNodeWithTag(AutocompleteTestTags.CLEAR_BUTTON).performClick()
 
-        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertDoesNotExist()
+        composeRule.onNodeWithTag(AutocompleteTestTags.LEADING_ICON_BUTTON).assertIsNotEnabled()
     }
 }

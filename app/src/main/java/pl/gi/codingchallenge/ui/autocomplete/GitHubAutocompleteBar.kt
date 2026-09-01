@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,7 +54,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.gi.codingchallenge.R
@@ -119,6 +119,7 @@ internal fun GitHubAutocompleteBarComponent(
 ) {
     var text by rememberSaveable { mutableStateOf(initialText) }
     var active by rememberSaveable { mutableStateOf(initialActive) }
+    val hasSuggestions = uiState != AutocompleteUiState.Idle
     val focusManager = LocalFocusManager.current
 
     // Clearing focus (see FloatingSearchBar's leading icon) is what lets a
@@ -132,6 +133,7 @@ internal fun GitHubAutocompleteBarComponent(
         FloatingSearchBar(
             text = text,
             active = active,
+            hasSuggestions = hasSuggestions,
             onTextChange = {
                 text = it
                 onQueryChanged(it)
@@ -142,7 +144,7 @@ internal fun GitHubAutocompleteBarComponent(
 
         // Idle (< 3 chars) renders no panel at all — an empty SuggestionPanel
         // would still draw its shadow/background as an ownerless floating card.
-        if (active && uiState != AutocompleteUiState.Idle) {
+        if (active && hasSuggestions) {
             Spacer(Modifier.height(dimRes(R.dimen.autocomplete_bar_to_panel_spacing)))
             SuggestionPanel {
                 when (uiState) {
@@ -180,6 +182,7 @@ internal fun GitHubAutocompleteBarComponent(
 private fun FloatingSearchBar(
     text: String,
     active: Boolean,
+    hasSuggestions: Boolean,
     onTextChange: (String) -> Unit,
     onActiveChange: (Boolean) -> Unit,
     onLeadingIconClick: () -> Unit,
@@ -199,45 +202,41 @@ private fun FloatingSearchBar(
             .padding(horizontal = dimRes(R.dimen.autocomplete_bar_inner_padding)),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (text.isNotEmpty()) {
-            IconButton(
-                onClick = {
-                    val nowActive = !active
-                    onActiveChange(nowActive)
-                    if (!nowActive) {
-                        // Clear focus so a later tap on the field fires a fresh
-                        // focus-gained event and reopens the panel (see
-                        // onFocusChanged below) — otherwise the field stays
-                        // focused from before and a re-tap is a no-op.
-                        focusManager.clearFocus()
-                    }
-                    onLeadingIconClick()
+        IconButton(
+            onClick = {
+                val nowActive = !active
+                onActiveChange(nowActive)
+                if (!nowActive) {
+                    // Clear focus so a later tap on the field fires a fresh
+                    // focus-gained event and reopens the panel (see
+                    // onFocusChanged below) — otherwise the field stays
+                    // focused from before and a re-tap is a no-op.
+                    focusManager.clearFocus()
+                }
+                onLeadingIconClick()
+            },
+            enabled = hasSuggestions,
+            modifier = Modifier.testTag(AutocompleteTestTags.LEADING_ICON_BUTTON),
+        ) {
+            // Nothing to expand/collapse below MIN_QUERY_LENGTH chars —
+            // a neutral, non-interactive search glyph instead of an
+            // arrow that would falsely imply there's a panel to toggle.
+            Icon(
+                imageVector = when {
+                    !hasSuggestions -> Icons.Filled.Search
+                    active -> Icons.Filled.KeyboardArrowUp
+                    else -> Icons.Filled.KeyboardArrowDown
                 },
-                modifier = Modifier.testTag(AutocompleteTestTags.LEADING_ICON_BUTTON),
-            ) {
-                Icon(
-                    imageVector = if (active) {
-                        Icons.Filled.KeyboardArrowUp
-                    } else {
-                        Icons.Filled.KeyboardArrowDown
-                    },
-                    contentDescription = if (active) {
-                        strRes(R.string.autocomplete_leading_icon_collapse)
-                    } else {
-                        strRes(R.string.autocomplete_leading_icon_expand)
-                    },
-                    tint = colRes(R.color.autocomplete_text_secondary),
-                )
-            }
+                contentDescription = when {
+                    !hasSuggestions -> null
+                    active -> strRes(R.string.autocomplete_leading_icon_collapse)
+                    else -> strRes(R.string.autocomplete_leading_icon_expand)
+                },
+                tint = colRes(R.color.autocomplete_text_secondary),
+            )
         }
 
-        val textStartPadding = if (text.isEmpty()) {
-            dimRes(R.dimen.autocomplete_text_start_padding_no_leading_icon)
-        } else {
-            0.dp
-        }
-
-        Box(modifier = Modifier.weight(1f).padding(start = textStartPadding)) {
+        Box(modifier = Modifier.weight(1f)) {
             if (text.isEmpty()) {
                 Text(
                     text = strRes(R.string.autocomplete_search_placeholder),
