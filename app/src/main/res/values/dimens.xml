@@ -48,4 +48,19 @@
     <dimen name="autocomplete_state_detail_text_size">11sp</dimen>
     <dimen name="autocomplete_item_title_text_size">14sp</dimen>
     <dimen name="autocomplete_small_label_text_size">12sp</dimen>
+
+    <!-- DemoScreen -->
+    <dimen name="demo_screen_padding">24dp</dimen>
+    <dimen name="demo_section_spacing">12dp</dimen>
+    <dimen name="demo_requirement_item_spacing">6dp</dimen>
+    <dimen name="demo_cta_spacer_height">8dp</dimen>
+    <dimen name="demo_component_content_spacing">16dp</dimen>
+    <dimen name="demo_overlay_bar_margin">16dp</dimen>
+    <!-- Clears the floating bar so the first feed card doesn't render under it. -->
+    <dimen name="demo_feed_top_clearance">88dp</dimen>
+    <dimen name="demo_feed_content_padding">16dp</dimen>
+    <dimen name="demo_feed_item_spacing">12dp</dimen>
+    <dimen name="demo_feed_card_corner_radius">12dp</dimen>
+    <dimen name="demo_feed_card_padding">16dp</dimen>
+    <dimen name="demo_feed_card_content_spacing">8dp</dimen>
 </resources>

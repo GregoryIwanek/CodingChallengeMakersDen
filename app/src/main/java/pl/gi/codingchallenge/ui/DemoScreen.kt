@@ -1,5 +1,6 @@
 package pl.gi.codingchallenge.ui
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,11 +34,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import pl.gi.codingchallenge.R
 import pl.gi.codingchallenge.domain.model.SearchResultItem
 import pl.gi.codingchallenge.ui.autocomplete.GitHubAutocompleteBarComponent
+import pl.gi.codingchallenge.util.dimRes
+import pl.gi.codingchallenge.util.strRes
 
 private const val COMPONENT_TAB_VIEW_MODEL_KEY = "component_tab"
 private const val OVERLAY_TAB_VIEW_MODEL_KEY = "overlay_tab"
@@ -60,19 +64,19 @@ fun DemoScreen() {
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
                     icon = { Icon(Icons.Filled.Info, contentDescription = null) },
-                    label = { Text("Overview") },
+                    label = { Text(strRes(R.string.demo_nav_overview)) },
                 )
                 NavigationBarItem(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     icon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                    label = { Text("Component") },
+                    label = { Text(strRes(R.string.demo_nav_component)) },
                 )
                 NavigationBarItem(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
                     icon = { Icon(Icons.Filled.List, contentDescription = null) },
-                    label = { Text("Overlay") },
+                    label = { Text(strRes(R.string.demo_nav_overlay)) },
                 )
             }
         },
@@ -85,39 +89,24 @@ fun DemoScreen() {
     }
 }
 
-private val requirements = listOf(
-    "Search starts only once the query is at least 3 characters long",
-    "Searches both GitHub users and repositories",
-    "Merges both result types into a single, alphabetically-sorted list",
-    "Caps the combined result list at 50 items",
-    "Shows loading, empty, and error states",
-    "Handles rapid typing gracefully — debounced, cancels stale requests",
-    "Works as a reusable component, not hardcoded to one screen",
-    "Built without any autocomplete/search library",
-)
-
 @Composable
 private fun OverviewScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+            .padding(dimRes(R.dimen.demo_screen_padding)),
+        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_section_spacing)),
     ) {
-        Text("GitHub Users & Repositories Autocomplete", style = MaterialTheme.typography.headlineSmall)
-        Text(
-            "A reusable Jetpack Compose component that searches GitHub users and " +
-                "repositories as you type, merging both into one alphabetically-sorted list.",
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        Text("Requirements", style = MaterialTheme.typography.titleMedium)
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            requirements.forEach { requirement ->
+        Text(strRes(R.string.demo_headline), style = MaterialTheme.typography.headlineSmall)
+        Text(strRes(R.string.demo_description), style = MaterialTheme.typography.bodyLarge)
+        Text(strRes(R.string.demo_requirements_title), style = MaterialTheme.typography.titleMedium)
+        Column(verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_requirement_item_spacing))) {
+            stringArrayResource(R.array.demo_requirements).forEach { requirement ->
                 Text("•  $requirement", style = MaterialTheme.typography.bodyMedium)
             }
         }
-        Spacer(Modifier.height(8.dp))
-        Text("Open the Component tab below to try it live.", style = MaterialTheme.typography.titleSmall)
+        Spacer(Modifier.height(dimRes(R.dimen.demo_cta_spacer_height)))
+        Text(strRes(R.string.demo_cta), style = MaterialTheme.typography.titleSmall)
     }
 }
 
@@ -128,27 +117,15 @@ private fun ComponentScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(dimRes(R.dimen.demo_screen_padding)),
+        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_component_content_spacing)),
     ) {
         GitHubAutocompleteBarComponent(
             modifier = Modifier.fillMaxWidth(),
             viewModel = hiltViewModel(key = COMPONENT_TAB_VIEW_MODEL_KEY),
-            onItemClick = { item ->
-                val label = when (item) {
-                    is SearchResultItem.RepoResult -> item.fullName
-                    is SearchResultItem.UserResult -> item.login
-                }
-                Toast.makeText(context, "Tapped $label", Toast.LENGTH_SHORT).show()
-            },
+            onItemClick = { showTappedToast(context, it) },
         )
-        Text(
-            "The suggestion panel above floats over whatever content sits below it — " +
-                "it never owns the backdrop, scrim, or navigation. Dropped inside a Box " +
-                "aligned over a real screen, the panel would overlay that screen's content " +
-                "instead of pushing it down like it does here.",
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        Text(strRes(R.string.demo_component_panel_explanation), style = MaterialTheme.typography.bodyMedium)
     }
 }
 
@@ -162,26 +139,35 @@ private fun OverlayScreen(modifier: Modifier = Modifier) {
         GitHubAutocompleteBarComponent(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(16.dp)
+                .padding(dimRes(R.dimen.demo_overlay_bar_margin))
                 .fillMaxWidth(),
             viewModel = hiltViewModel(key = OVERLAY_TAB_VIEW_MODEL_KEY),
-            onItemClick = { item ->
-                val label = when (item) {
-                    is SearchResultItem.RepoResult -> item.fullName
-                    is SearchResultItem.UserResult -> item.login
-                }
-                Toast.makeText(context, "Tapped $label", Toast.LENGTH_SHORT).show()
-            },
+            onItemClick = { showTappedToast(context, it) },
         )
     }
 }
 
+private fun showTappedToast(context: Context, item: SearchResultItem) {
+    val label = when (item) {
+        is SearchResultItem.RepoResult -> item.fullName
+        is SearchResultItem.UserResult -> item.login
+    }
+    Toast.makeText(context, context.getString(R.string.demo_tapped_toast, label), Toast.LENGTH_SHORT).show()
+}
+
 @Composable
 private fun MockFeed(modifier: Modifier = Modifier) {
+    val feedContentPadding = dimRes(R.dimen.demo_feed_content_padding)
+
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(top = 88.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(
+            top = dimRes(R.dimen.demo_feed_top_clearance),
+            start = feedContentPadding,
+            end = feedContentPadding,
+            bottom = feedContentPadding,
+        ),
+        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_feed_item_spacing)),
     ) {
         items(20) { index -> FeedCard(index) }
     }
@@ -192,16 +178,15 @@ private fun FeedCard(index: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+            .background(
+                MaterialTheme.colorScheme.surfaceVariant,
+                RoundedCornerShape(dimRes(R.dimen.demo_feed_card_corner_radius)),
+            )
+            .padding(dimRes(R.dimen.demo_feed_card_padding)),
+        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_feed_card_content_spacing)),
     ) {
-        Text("Feed item ${index + 1}", style = MaterialTheme.typography.titleSmall)
-        Text(
-            "Unrelated host content — the suggestion panel overlays this feed " +
-                "instead of pushing it down.",
-            style = MaterialTheme.typography.bodySmall,
-        )
+        Text(stringResource(R.string.demo_feed_item_title, index + 1), style = MaterialTheme.typography.titleSmall)
+        Text(strRes(R.string.demo_feed_item_body), style = MaterialTheme.typography.bodySmall)
     }
 }
 
