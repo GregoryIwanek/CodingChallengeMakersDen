@@ -36,8 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import pl.gi.codingchallenge.domain.model.SearchResultItem
 import pl.gi.codingchallenge.ui.autocomplete.GitHubAutocompleteBarComponent
+
+private const val COMPONENT_TAB_VIEW_MODEL_KEY = "component_tab"
+private const val OVERLAY_TAB_VIEW_MODEL_KEY = "overlay_tab"
 
 /**
  * Three-tab demo: Overview describes the assignment and requirements; Component
@@ -129,6 +133,7 @@ private fun ComponentScreen(modifier: Modifier = Modifier) {
     ) {
         GitHubAutocompleteBarComponent(
             modifier = Modifier.fillMaxWidth(),
+            viewModel = hiltViewModel(key = COMPONENT_TAB_VIEW_MODEL_KEY),
             onItemClick = { item ->
                 val label = when (item) {
                     is SearchResultItem.RepoResult -> item.fullName
@@ -159,6 +164,7 @@ private fun OverlayScreen(modifier: Modifier = Modifier) {
                 .align(Alignment.TopCenter)
                 .padding(16.dp)
                 .fillMaxWidth(),
+            viewModel = hiltViewModel(key = OVERLAY_TAB_VIEW_MODEL_KEY),
             onItemClick = { item ->
                 val label = when (item) {
                     is SearchResultItem.RepoResult -> item.fullName
