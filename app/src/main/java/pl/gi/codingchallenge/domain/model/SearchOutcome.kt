@@ -1,6 +1,4 @@
-package pl.gi.codingchallenge.domain
-
-import pl.gi.codingchallenge.domain.model.SearchResultItem
+package pl.gi.codingchallenge.domain.model
 
 /**
  * Domain-only outcome of a search — no UI/presentation concepts. Notably

@@ -18,10 +18,10 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import pl.gi.codingchallenge.domain.QueryRequest
-import pl.gi.codingchallenge.domain.SearchAutocompleteUseCase
-import pl.gi.codingchallenge.domain.SearchOutcome
+import pl.gi.codingchallenge.domain.model.QueryRequest
+import pl.gi.codingchallenge.domain.model.SearchOutcome
 import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.domain.usecase.SearchAutocompleteUseCase
 
 /**
  * Covers only the ViewModel's own wiring (forwards queries, exposes

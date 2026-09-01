@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge.domain
+package pl.gi.codingchallenge.domain.model
 
 /**
  * A search query plus a retry counter. `attempt` exists so retrying the *same*

@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import pl.gi.codingchallenge.domain.QueryRequest
-import pl.gi.codingchallenge.domain.SearchAutocompleteUseCase
-import pl.gi.codingchallenge.domain.SearchOutcome
+import pl.gi.codingchallenge.domain.model.QueryRequest
+import pl.gi.codingchallenge.domain.model.SearchOutcome
+import pl.gi.codingchallenge.domain.usecase.SearchAutocompleteUseCase
 import javax.inject.Inject
 
 private const val STOP_TIMEOUT_MILLIS = 5_000L

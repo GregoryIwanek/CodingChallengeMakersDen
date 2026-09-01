@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge.domain
+package pl.gi.codingchallenge.domain.usecase
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
+import pl.gi.codingchallenge.domain.model.QueryRequest
+import pl.gi.codingchallenge.domain.model.SearchOutcome
+import pl.gi.codingchallenge.domain.repository.GitHubSearchRepository
 
 private const val DEBOUNCE_MILLIS = 350L
 private const val MIN_QUERY_LENGTH = 3

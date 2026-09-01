@@ -1,12 +1,12 @@
-package pl.gi.codingchallenge.data
+package pl.gi.codingchallenge.data.repository
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import pl.gi.codingchallenge.data.model.toDomain
 import pl.gi.codingchallenge.data.remote.GitHubApi
-import pl.gi.codingchallenge.domain.GitHubSearchRepository
 import pl.gi.codingchallenge.domain.mergeAndSort
 import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.domain.repository.GitHubSearchRepository
 import javax.inject.Inject
 
 class GitHubSearchRepositoryImpl @Inject constructor(

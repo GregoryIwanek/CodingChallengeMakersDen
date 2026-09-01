@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge.domain
+package pl.gi.codingchallenge.domain.repository
 
 import kotlinx.coroutines.delay
 import pl.gi.codingchallenge.domain.model.SearchResultItem

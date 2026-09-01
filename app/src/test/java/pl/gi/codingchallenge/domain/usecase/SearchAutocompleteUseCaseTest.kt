@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge.domain
+package pl.gi.codingchallenge.domain.usecase
 
 import app.cash.turbine.test
 import java.io.IOException
@@ -15,7 +15,10 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import pl.gi.codingchallenge.domain.model.QueryRequest
+import pl.gi.codingchallenge.domain.model.SearchOutcome
 import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.domain.repository.FakeGitHubSearchRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SearchAutocompleteUseCaseTest {

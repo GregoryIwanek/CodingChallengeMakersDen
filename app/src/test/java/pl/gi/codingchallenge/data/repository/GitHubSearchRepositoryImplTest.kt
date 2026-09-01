@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge.data
+package pl.gi.codingchallenge.data.repository
 
 import io.mockk.coEvery
 import io.mockk.coVerify

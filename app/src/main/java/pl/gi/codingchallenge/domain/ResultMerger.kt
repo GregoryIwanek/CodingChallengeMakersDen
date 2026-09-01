@@ -1,5 +1,6 @@
 package pl.gi.codingchallenge.domain
 
+import pl.gi.codingchallenge.domain.model.MAX_RESULTS
 import pl.gi.codingchallenge.domain.model.SearchResultItem
 
 fun mergeAndSort(
