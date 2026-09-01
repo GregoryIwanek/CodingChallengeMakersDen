@@ -237,6 +237,28 @@ class GitHubAutocompleteBarTest {
     }
 
     @Test
+    fun successState_showsFallbackAvatarInitial_whenRepoNameIsEmpty() {
+        val emptyNameRepo = SearchResultItem.RepoResult(
+            id = "1", name = "", fullName = "owner/", ownerLogin = "owner",
+            avatarUrl = null, description = null, stars = 0,
+        )
+
+        composeRule.setContent {
+            GitHubAutocompleteBarComponent(
+                uiState = AutocompleteUiState.Success(listOf(emptyNameRepo)),
+                onQueryChanged = {},
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+                initialActive = true,
+            )
+        }
+
+        // Doesn't crash on name.first(), and falls back to "?" instead.
+        composeRule.onNodeWithText("?").assertIsDisplayed()
+    }
+
+    @Test
     fun successState_displaysRepoAndUserContentCorrectly() {
         composeRule.setContent {
             GitHubAutocompleteBarComponent(

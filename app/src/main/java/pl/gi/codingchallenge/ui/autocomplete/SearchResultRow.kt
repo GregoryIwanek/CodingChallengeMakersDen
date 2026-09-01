@@ -58,7 +58,7 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        item.name.first().uppercase(),
+                        item.name.firstOrNull()?.uppercase() ?: "?",
                         color = colRes(R.color.autocomplete_accent),
                         fontWeight = FontWeight.Bold,
                         fontSize = spRes(R.dimen.autocomplete_item_title_text_size)
