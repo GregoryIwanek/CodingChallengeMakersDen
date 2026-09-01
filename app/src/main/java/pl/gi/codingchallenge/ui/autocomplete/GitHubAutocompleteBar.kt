@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -151,8 +152,14 @@ internal fun GitHubAutocompleteBarComponent(
                     is AutocompleteUiState.Success -> LazyColumn(
                         modifier = Modifier.heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height)),
                     ) {
-                        items(uiState.items, key = { it.id }) { item ->
+                        itemsIndexed(uiState.items, key = { _, item -> item.id }) { index, item ->
                             SearchResultRow(item, onClick = { onItemClick(item) })
+                            if (index < uiState.items.lastIndex) {
+                                HorizontalDivider(
+                                    color = colRes(R.color.autocomplete_divider),
+                                    modifier = Modifier.testTag(AutocompleteTestTags.resultDivider(index)),
+                                )
+                            }
                         }
                     }
                 }

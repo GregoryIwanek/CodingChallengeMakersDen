@@ -140,6 +140,24 @@ class GitHubAutocompleteBarTest {
     }
 
     @Test
+    fun successState_showsDividerBetweenRows_butNotAfterTheLastOne() {
+        composeRule.setContent {
+            GitHubAutocompleteBarComponent(
+                uiState = AutocompleteUiState.Success(sampleResults),
+                onQueryChanged = {},
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+                initialActive = true,
+            )
+        }
+
+        // sampleResults has 2 items, so exactly 1 divider between them.
+        composeRule.onNodeWithTag(AutocompleteTestTags.resultDivider(0)).assertExists()
+        composeRule.onNodeWithTag(AutocompleteTestTags.resultDivider(1)).assertDoesNotExist()
+    }
+
+    @Test
     fun successState_capsSuggestionPanelHeight_evenWithManyResults() {
         val manyResults = List(50) {
             SearchResultItem.RepoResult(
