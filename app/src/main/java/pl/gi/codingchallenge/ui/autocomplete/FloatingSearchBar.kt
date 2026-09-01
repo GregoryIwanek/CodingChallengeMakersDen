@@ -113,7 +113,7 @@ internal fun FloatingSearchBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag(AutocompleteTestTags.SEARCH_FIELD)
-                    .onFocusChanged { if (it.isFocused) onActiveChange(true) },
+                    .onFocusChanged { onActiveChange(it.isFocused) },
             )
         }
 
