@@ -22,7 +22,6 @@ import androidx.test.espresso.Espresso
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import pl.gi.codingchallenge.domain.AutocompleteUiState
 import pl.gi.codingchallenge.domain.model.SearchResultItem
 import pl.gi.codingchallenge.ui.autocomplete.testing.AutocompleteTestTags
 

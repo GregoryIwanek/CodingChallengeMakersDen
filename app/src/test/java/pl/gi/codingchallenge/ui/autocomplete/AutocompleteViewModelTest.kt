@@ -18,9 +18,10 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import pl.gi.codingchallenge.domain.AutocompleteUiState
 import pl.gi.codingchallenge.domain.QueryRequest
 import pl.gi.codingchallenge.domain.SearchAutocompleteUseCase
+import pl.gi.codingchallenge.domain.SearchOutcome
+import pl.gi.codingchallenge.domain.model.SearchResultItem
 
 /**
  * AutocompleteViewModel is a thin adapter — its
@@ -55,17 +56,30 @@ class AutocompleteViewModelTest {
     }
 
     @Test
-    fun `uiState reflects whatever the use case emits`() = runTest(dispatcher) {
+    fun `uiState maps every SearchOutcome to its AutocompleteUiState`() = runTest(dispatcher) {
         val useCase = mockk<SearchAutocompleteUseCase>()
-        val success = AutocompleteUiState.Success(emptyList())
-        every { useCase(any()) } returns flowOf(AutocompleteUiState.Loading, success)
+        val nonEmptyResults = listOf(
+            SearchResultItem.UserResult(
+                id = "1", login = "octocat", avatarUrl = null, htmlUrl = "https://github.com/octocat",
+            ),
+        )
+        every { useCase(any()) } returns flowOf(
+            SearchOutcome.Loading,
+            SearchOutcome.Success(nonEmptyResults),
+            SearchOutcome.Success(emptyList()),
+            SearchOutcome.Failure("boom"),
+        )
 
         val viewModel = AutocompleteViewModel(useCase)
 
         viewModel.uiState.test {
             assertEquals(AutocompleteUiState.Idle, awaitItem()) // stateIn's initial value
             assertEquals(AutocompleteUiState.Loading, awaitItem())
-            assertEquals(success, awaitItem())
+            assertEquals(AutocompleteUiState.Success(nonEmptyResults), awaitItem())
+            // No separate Empty outcome in the domain layer — this is where
+            // an empty Success list becomes the Empty UI state.
+            assertEquals(AutocompleteUiState.Empty, awaitItem())
+            assertEquals(AutocompleteUiState.Error("boom"), awaitItem())
         }
     }
 

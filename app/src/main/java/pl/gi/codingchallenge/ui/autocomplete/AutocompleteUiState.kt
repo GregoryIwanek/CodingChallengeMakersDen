@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge.domain
+package pl.gi.codingchallenge.ui.autocomplete
 
 import pl.gi.codingchallenge.domain.model.SearchResultItem
 

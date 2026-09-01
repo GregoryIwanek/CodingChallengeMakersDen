@@ -18,23 +18,19 @@ class SearchAutocompleteUseCase @Inject constructor(
     private val repository: GitHubSearchRepository,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    operator fun invoke(requests: Flow<QueryRequest>): Flow<AutocompleteUiState> =
+    operator fun invoke(requests: Flow<QueryRequest>): Flow<SearchOutcome> =
         requests
             .debounce(DEBOUNCE_MILLIS)
             .distinctUntilChanged()
             .flatMapLatest { request ->
                 val query = request.text
                 if (query.length < MIN_QUERY_LENGTH) {
-                    flowOf(AutocompleteUiState.Idle)
+                    flowOf(SearchOutcome.QueryTooShort)
                 } else {
                     flow {
-                        emit(AutocompleteUiState.Loading)
-                        val results = repository.search(query)
-                        emit(
-                            if (results.isEmpty()) AutocompleteUiState.Empty
-                            else AutocompleteUiState.Success(results),
-                        )
-                    }.catch { e -> emit(AutocompleteUiState.Error(e.message ?: "Unknown error")) }
+                        emit(SearchOutcome.Loading)
+                        emit(SearchOutcome.Success(repository.search(query)))
+                    }.catch { e -> emit(SearchOutcome.Failure(e.message ?: "Unknown error")) }
                 }
             }
 }
