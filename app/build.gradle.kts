@@ -87,3 +87,9 @@ tasks.withType<Test>().configureEach {
     // https://github.com/cashapp/paparazzi/issues/2111
     reports.html.required = false
 }
+
+tasks.named("check") {
+    // So a plain `./gradlew check` catches golden-image regressions too,
+    // not just behavioral test failures.
+    dependsOn("verifyPaparazziDebug")
+}
