@@ -1,0 +1,66 @@
+<resources>
+    <!-- GitHubAutocompleteBar — search bar -->
+    <dimen name="autocomplete_bar_height">52dp</dimen>
+    <dimen name="autocomplete_bar_elevation">6dp</dimen>
+    <dimen name="autocomplete_bar_corner_radius">26dp</dimen>
+    <dimen name="autocomplete_bar_inner_padding">6dp</dimen>
+    <dimen name="autocomplete_clear_button_size">32dp</dimen>
+    <dimen name="autocomplete_clear_circle_size">20dp</dimen>
+    <dimen name="autocomplete_clear_icon_size">11dp</dimen>
+    <dimen name="autocomplete_leading_spacer_width">6dp</dimen>
+    <dimen name="autocomplete_bar_to_panel_spacing">10dp</dimen>
+
+    <!-- GitHubAutocompleteBar — suggestion panel -->
+    <dimen name="autocomplete_panel_elevation">14dp</dimen>
+    <dimen name="autocomplete_panel_corner_radius">20dp</dimen>
+    <dimen name="autocomplete_panel_max_height">500dp</dimen>
+
+    <!-- GitHubAutocompleteBar — loading/empty/error states -->
+    <dimen name="autocomplete_short_state_box_height">150dp</dimen>
+    <dimen name="autocomplete_tall_state_box_height">180dp</dimen>
+    <dimen name="autocomplete_large_state_icon_size">28dp</dimen>
+    <dimen name="autocomplete_spinner_stroke_width">3dp</dimen>
+    <dimen name="autocomplete_state_message_horizontal_padding">24dp</dimen>
+    <dimen name="autocomplete_error_column_spacing">6dp</dimen>
+    <dimen name="autocomplete_error_icon_to_headline_spacing">2dp</dimen>
+    <dimen name="autocomplete_retry_horizontal_padding">12dp</dimen>
+    <dimen name="autocomplete_retry_vertical_padding">6dp</dimen>
+    <dimen name="autocomplete_retry_icon_size">12dp</dimen>
+    <dimen name="autocomplete_retry_icon_text_spacing">4dp</dimen>
+
+    <!-- GitHubAutocompleteBar — result rows -->
+    <dimen name="autocomplete_row_horizontal_padding">16dp</dimen>
+    <dimen name="autocomplete_row_vertical_padding">10dp</dimen>
+    <dimen name="autocomplete_avatar_size">34dp</dimen>
+    <dimen name="autocomplete_repo_avatar_corner_radius">8dp</dimen>
+    <dimen name="autocomplete_avatar_to_text_spacing">12dp</dimen>
+    <dimen name="autocomplete_star_icon_size">12dp</dimen>
+    <dimen name="autocomplete_star_icon_text_spacing">4dp</dimen>
+    <dimen name="autocomplete_person_icon_size">17dp</dimen>
+
+    <!-- GitHubAutocompleteBar — type scale. Genuinely sp, read via the
+         spResource() helper (ResourceUtil.kt) rather than
+         dimensionResource() — see that file for why a plain
+         dimensionResource(...).value.sp would double-apply the
+         device's font-scale accessibility setting. -->
+    <dimen name="autocomplete_input_text_size">15sp</dimen>
+    <dimen name="autocomplete_state_headline_text_size">13sp</dimen>
+    <dimen name="autocomplete_state_detail_text_size">11sp</dimen>
+    <dimen name="autocomplete_item_title_text_size">14sp</dimen>
+    <dimen name="autocomplete_small_label_text_size">12sp</dimen>
+
+    <!-- DemoScreen -->
+    <dimen name="demo_screen_padding">24dp</dimen>
+    <dimen name="demo_section_spacing">12dp</dimen>
+    <dimen name="demo_requirement_item_spacing">6dp</dimen>
+    <dimen name="demo_cta_spacer_height">8dp</dimen>
+    <dimen name="demo_component_content_spacing">16dp</dimen>
+    <dimen name="demo_overlay_bar_margin">16dp</dimen>
+    <!-- Clears the floating bar so the first feed card doesn't render under it. -->
+    <dimen name="demo_feed_top_clearance">88dp</dimen>
+    <dimen name="demo_feed_content_padding">16dp</dimen>
+    <dimen name="demo_feed_item_spacing">12dp</dimen>
+    <dimen name="demo_feed_card_corner_radius">12dp</dimen>
+    <dimen name="demo_feed_card_padding">16dp</dimen>
+    <dimen name="demo_feed_card_content_spacing">8dp</dimen>
+</resources>

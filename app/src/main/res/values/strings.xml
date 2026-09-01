@@ -1,3 +1,34 @@
 <resources>
     <string name="app_name">CodingChallenge</string>
+
+    <string name="autocomplete_search_placeholder">Search users &amp; repositories</string>
+    <string name="autocomplete_leading_icon_collapse">Collapse suggestions</string>
+    <string name="autocomplete_leading_icon_expand">Expand suggestions</string>
+    <string name="autocomplete_clear_icon">Clear</string>
+    <string name="autocomplete_empty_message">No matching users or repositories</string>
+    <string name="autocomplete_error_headline">Couldn’t load results</string>
+    <string name="autocomplete_retry_label">Retry</string>
+
+    <string name="demo_nav_overview">Overview</string>
+    <string name="demo_nav_component">Component</string>
+    <string name="demo_nav_overlay">Overlay</string>
+    <string name="demo_headline">GitHub Users &amp; Repositories Autocomplete</string>
+    <string name="demo_description">A reusable Jetpack Compose component that searches GitHub users and repositories as you type, merging both into one alphabetically-sorted list.</string>
+    <string name="demo_requirements_title">Requirements</string>
+    <string name="demo_cta">Open the Component or Overlay tab below to try it live.</string>
+    <string name="demo_component_panel_explanation">The suggestion panel above floats over whatever content sits below it — it never owns the backdrop, scrim, or navigation. Dropped inside a Box aligned over a real screen, the panel would overlay that screen’s content instead of pushing it down like it does here.</string>
+    <string name="demo_feed_item_title">Feed item %1$d</string>
+    <string name="demo_feed_item_body">Unrelated host content — the suggestion panel overlays this feed instead of pushing it down.</string>
+    <string name="demo_tapped_toast">Tapped %1$s</string>
+
+    <string-array name="demo_requirements">
+        <item>Search starts only once the query is at least 3 characters long</item>
+        <item>Searches both GitHub users and repositories</item>
+        <item>Merges both result types into a single, alphabetically-sorted list</item>
+        <item>Caps the combined result list at 50 items</item>
+        <item>Shows loading, empty, and error states</item>
+        <item>Handles rapid typing gracefully — debounced, cancels stale requests</item>
+        <item>Works as a reusable component, not hardcoded to one screen</item>
+        <item>Built without any autocomplete/search library</item>
+    </string-array>
 </resources>
