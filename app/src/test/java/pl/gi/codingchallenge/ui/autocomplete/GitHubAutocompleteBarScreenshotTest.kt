@@ -18,9 +18,13 @@ class GitHubAutocompleteBarScreenshotTest {
 
     @get:Rule
     val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_6,
+        // Pinned so goldens don't drift between machines (locale otherwise
+        // reads a JVM system property from the host).
+        deviceConfig = DeviceConfig.PIXEL_6.copy(fontScale = 1f, locale = "en"),
         renderingMode = SessionParams.RenderingMode.SHRINK,
         theme = "Theme.CodingChallenge",
+        // Small tolerance for cross-OS antialiasing; unverified, no CI yet.
+        maxPercentDifference = 0.1,
     )
 
     private val sampleResults = listOf(
