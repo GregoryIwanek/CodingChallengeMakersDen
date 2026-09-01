@@ -1,6 +1,11 @@
 package pl.gi.codingchallenge.ui.autocomplete
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -143,31 +148,39 @@ internal fun GitHubAutocompleteBarComponent(
 
         // Idle (< 3 chars) renders no panel at all — an empty SuggestionPanel
         // would still draw its shadow/background as an ownerless floating card.
-        if (active && hasSuggestions) {
-            Spacer(Modifier.height(dimRes(R.dimen.autocomplete_bar_to_panel_spacing)))
-            SuggestionPanel {
-                when (uiState) {
-                    AutocompleteUiState.Idle -> {}
-                    AutocompleteUiState.Loading -> LoadingIndicator()
-                    AutocompleteUiState.Empty -> EmptyState()
-                    is AutocompleteUiState.Error -> ErrorState(uiState.message, onRetry = onRetry)
+        AnimatedVisibility(
+            visible = active && hasSuggestions,
+            enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+            exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+        ) {
+            Column {
+                Spacer(Modifier.height(dimRes(R.dimen.autocomplete_bar_to_panel_spacing)))
+                SuggestionPanel {
+                    when (uiState) {
+                        AutocompleteUiState.Idle -> {}
+                        AutocompleteUiState.Loading -> LoadingIndicator()
+                        AutocompleteUiState.Empty -> EmptyState()
+                        is AutocompleteUiState.Error -> ErrorState(uiState.message, onRetry = onRetry)
 
-                    is AutocompleteUiState.Success -> LazyColumn(
-                        // Keyed on text (not the whole uiState) so a retry
-                        // of the same query keeps its scroll position, but
-                        // a genuinely new query starts scrolled to the top.
-                        state = remember(text) { LazyListState() },
-                        modifier = Modifier
-                            .heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height))
-                            .testTag(AutocompleteTestTags.RESULTS_LIST),
-                    ) {
-                        itemsIndexed(uiState.items, key = { _, item -> item.id }) { index, item ->
-                            SearchResultRow(item, onClick = { onItemClick(item) })
-                            if (index < uiState.items.lastIndex) {
-                                HorizontalDivider(
-                                    color = colRes(R.color.autocomplete_divider),
-                                    modifier = Modifier.testTag(AutocompleteTestTags.resultDivider(index)),
-                                )
+                        is AutocompleteUiState.Success -> LazyColumn(
+                            // Keyed on text (not the whole uiState) so a
+                            // retry of the same query keeps its scroll
+                            // position, but a genuinely new query starts
+                            // scrolled to the top.
+                            state = remember(text) { LazyListState() },
+                            modifier = Modifier
+                                .heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height))
+                                .testTag(AutocompleteTestTags.RESULTS_LIST),
+                        ) {
+                            itemsIndexed(uiState.items, key = { _, item -> item.id }) { index, item ->
+                                SearchResultRow(item, onClick = { onItemClick(item) })
+                                if (index < uiState.items.lastIndex) {
+                                    HorizontalDivider(
+                                        color = colRes(R.color.autocomplete_divider),
+                                        modifier = Modifier
+                                            .testTag(AutocompleteTestTags.resultDivider(index)),
+                                    )
+                                }
                             }
                         }
                     }
