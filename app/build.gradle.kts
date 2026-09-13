@@ -40,6 +40,10 @@ android {
 }
 
 dependencies {
+    // :shared's classes are constructor-called directly here for now -
+    // no DI framework wires it in yet (kmp-interview-prep step 4, Koin).
+    implementation(project(":shared"))
+
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)

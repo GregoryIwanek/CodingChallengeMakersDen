@@ -24,6 +24,19 @@
             </intent-filter>
         </activity>
 
+        <!--
+          Debug-only entry point for the :shared KMP toy feature
+          (kmp-interview-prep step 1). No LAUNCHER intent-filter, so it
+          stays out of the app drawer/real nav - start it manually:
+          adb shell am start -n pl.gi.codingchallenge/.UnitConverterActivity
+          exported="false" blocks even this adb command on current Android
+          versions (confirmed on this emulator), so exported="true" is
+          required here despite there being no intent-filter.
+        -->
+        <activity
+            android:name=".UnitConverterActivity"
+            android:exported="true" />
+
     </application>
 
 </manifest>
