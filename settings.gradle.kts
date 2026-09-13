@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "CodingChallenge"
 include(":app")
+include(":shared")
  
