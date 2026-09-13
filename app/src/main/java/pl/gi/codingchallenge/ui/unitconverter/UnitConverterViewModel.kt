@@ -19,11 +19,14 @@ import pl.gi.codingchallenge.shared.history.InMemoryConversionHistoryRepository
 import pl.gi.codingchallenge.shared.platformName
 import javax.inject.Inject
 
+// This ViewModel is the only place :app and :shared actually touch. Hilt still
+// provides the ViewModel itself (standard :app-side DI), but everything it calls
+// into on the :shared side - the repository and the pure conversion functions - is
+// constructor-called/imported directly, since no DI framework reaches into :shared
+// yet (kmp-interview-prep sequence step 4 introduces Koin for that).
 @HiltViewModel
 class UnitConverterViewModel @Inject constructor() : ViewModel() {
 
-    // Constructor-called directly - no DI framework wires :shared's classes
-    // in yet (kmp-interview-prep step 4 introduces Koin for this).
     private val historyRepository: ConversionHistoryRepository = InMemoryConversionHistoryRepository()
 
     private val _uiState = MutableStateFlow(

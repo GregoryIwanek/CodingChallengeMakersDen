@@ -30,6 +30,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.gi.codingchallenge.shared.history.ConversionRecord
 import pl.gi.codingchallenge.shared.history.ConversionType
 
+// Standalone screen, deliberately not wired into DemoScreen's real tab navigation -
+// only reachable via the debug-only UnitConverterActivity (kmp-interview-prep step
+// 1). Proves the :shared toy feature end-to-end without risking the real app's nav.
 @Composable
 fun UnitConverterScreen(viewModel: UnitConverterViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
