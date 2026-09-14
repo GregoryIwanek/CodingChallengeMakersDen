@@ -4,6 +4,17 @@ plugins {
     // Required for @Serializable - the kotlinx-serialization-json runtime dependency
     // alone isn't enough; this compiler plugin generates the serializers.
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.sqldelight)
+}
+
+// Persistence cache (kmp-interview-prep step 6, stretch goal). Empty pre-flight
+// skeleton only so far - no .sq schema file yet, see §0/§1 of that guide.
+sqldelight {
+    databases {
+        register("CacheDatabase") {
+            packageName.set("pl.gi.codingchallenge.shared.cache")
+        }
+    }
 }
 
 kotlin {
