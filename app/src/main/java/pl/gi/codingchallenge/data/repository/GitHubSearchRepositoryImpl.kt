@@ -4,9 +4,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import pl.gi.codingchallenge.data.model.toDomain
 import pl.gi.codingchallenge.data.remote.GitHubApi
-import pl.gi.codingchallenge.domain.mergeAndSort
-import pl.gi.codingchallenge.domain.model.SearchResultItem
-import pl.gi.codingchallenge.domain.repository.GitHubSearchRepository
+import pl.gi.codingchallenge.shared.domain.mergeAndSort
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
 import javax.inject.Inject
 
 class GitHubSearchRepositoryImpl @Inject constructor(

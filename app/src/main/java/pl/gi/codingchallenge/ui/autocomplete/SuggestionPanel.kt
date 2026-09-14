@@ -34,7 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import pl.gi.codingchallenge.R
-import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 import pl.gi.codingchallenge.ui.autocomplete.testing.AutocompleteTestTags
 import pl.gi.codingchallenge.util.colRes
 import pl.gi.codingchallenge.util.dimRes

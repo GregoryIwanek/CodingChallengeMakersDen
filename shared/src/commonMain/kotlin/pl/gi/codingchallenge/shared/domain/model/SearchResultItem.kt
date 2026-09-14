@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge.domain.model
+package pl.gi.codingchallenge.shared.domain.model
 
 sealed interface SearchResultItem {
     val id: String

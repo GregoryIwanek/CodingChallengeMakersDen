@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge.domain.model
+package pl.gi.codingchallenge.shared.domain.model
 
 /**
  * Single source of truth for the "50" result cap, shared by

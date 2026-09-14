@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
-import pl.gi.codingchallenge.domain.model.QueryRequest
-import pl.gi.codingchallenge.domain.model.SearchOutcome
-import pl.gi.codingchallenge.domain.repository.GitHubSearchRepository
+import pl.gi.codingchallenge.shared.domain.model.QueryRequest
+import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
+import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
 
 private const val DEBOUNCE_MILLIS = 350L
 private const val MIN_QUERY_LENGTH = 3

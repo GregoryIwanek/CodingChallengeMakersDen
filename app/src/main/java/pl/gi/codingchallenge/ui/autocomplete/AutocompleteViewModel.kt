@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import pl.gi.codingchallenge.domain.model.QueryRequest
-import pl.gi.codingchallenge.domain.model.SearchOutcome
+import pl.gi.codingchallenge.shared.domain.model.QueryRequest
+import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
 import pl.gi.codingchallenge.domain.usecase.SearchAutocompleteUseCase
 import javax.inject.Inject
 

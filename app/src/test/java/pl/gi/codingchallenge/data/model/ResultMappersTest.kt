@@ -5,7 +5,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 import pl.gi.codingchallenge.data.remote.dto.RepositoryDto
 import pl.gi.codingchallenge.data.remote.dto.UserDto
-import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 class ResultMappersTest {
 

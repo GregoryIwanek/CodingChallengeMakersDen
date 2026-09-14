@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge.domain.model
+package pl.gi.codingchallenge.shared.domain.model
 
 /**
  * Domain-only outcome of a search — no UI/presentation concepts. Notably

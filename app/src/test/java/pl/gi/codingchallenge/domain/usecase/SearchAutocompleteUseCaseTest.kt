@@ -15,9 +15,9 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import pl.gi.codingchallenge.domain.model.QueryRequest
-import pl.gi.codingchallenge.domain.model.SearchOutcome
-import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.model.QueryRequest
+import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 import pl.gi.codingchallenge.domain.repository.FakeGitHubSearchRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)

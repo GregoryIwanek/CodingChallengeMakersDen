@@ -1,6 +1,6 @@
 package pl.gi.codingchallenge.ui.autocomplete
 
-import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 sealed interface AutocompleteUiState {
     data object Idle : AutocompleteUiState // < 3 chars
