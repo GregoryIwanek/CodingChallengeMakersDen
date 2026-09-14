@@ -3,7 +3,6 @@ package pl.gi.codingchallenge.ui.unitconverter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,23 +16,19 @@ import pl.gi.codingchallenge.shared.converter.milesToKilometers
 import pl.gi.codingchallenge.shared.history.ConversionHistoryRepository
 import pl.gi.codingchallenge.shared.history.ConversionRecord
 import pl.gi.codingchallenge.shared.history.ConversionType
-import pl.gi.codingchallenge.shared.history.InMemoryConversionHistoryRepository
 import pl.gi.codingchallenge.shared.platformName
 import javax.inject.Inject
 
-// This ViewModel is the only place :app and :shared actually touch. Hilt still
-// provides the ViewModel itself (standard :app-side DI), but everything it calls
-// into on the :shared side - the repository and the pure conversion functions - is
-// constructor-called/imported directly, since no DI framework reaches into :shared
-// yet (Koin arrives in a later step).
+// This ViewModel is the only place :app and :shared actually touch. Hilt provides
+// the ViewModel itself and both :shared dependencies below - the latter by way of
+// SharedKoinBridgeModule, which pulls them out of Koin's graph. From here, they're
+// just two more @Inject constructor parameters, identical in shape to
+// AutocompleteViewModel's SearchAutocompleteUseCase.
 @HiltViewModel
-class UnitConverterViewModel @Inject constructor() : ViewModel() {
-
-    private val historyRepository: ConversionHistoryRepository = InMemoryConversionHistoryRepository()
-
-    // Real OkHttp-backed engine - CatFactApiTest injects a MockEngine instead, the
-    // same constructor seam used here for the real thing.
-    private val catFactApi = CatFactApi(OkHttp.create())
+class UnitConverterViewModel @Inject constructor(
+    private val historyRepository: ConversionHistoryRepository,
+    private val catFactApi: CatFactApi,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         UnitConverterUiState(
