@@ -69,6 +69,7 @@ ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref =
 # to hit the same hard-deprecated platform() error inside a KMP commonMain.dependencies
 # {} block; verify this prediction when building the pre-flight skeleton.
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 
 # Coroutines
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }

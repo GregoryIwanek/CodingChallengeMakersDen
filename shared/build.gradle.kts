@@ -47,6 +47,12 @@ kotlin {
             // here would fail the same way step 2's MockK exercise did, once a
             // genuine non-JVM target exists.
             implementation(libs.ktor.client.okhttp)
+
+            // koin-android adds Android-specific conveniences (androidContext(),
+            // lifecycle-aware scoping) on top of koin-core. This toy module doesn't
+            // need Android Context for anything yet, but this is how a real
+            // Android-facing KMP module's DI setup normally looks.
+            implementation(libs.koin.android)
         }
         commonTest.dependencies {
             // kotlin("test") is the multiplatform test-annotations artifact: the same

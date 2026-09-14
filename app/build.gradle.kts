@@ -40,8 +40,6 @@ android {
 }
 
 dependencies {
-    // :shared's classes are constructor-called directly here for now -
-    // no DI framework wires it in yet (Koin arrives in a later step).
     implementation(project(":shared"))
 
     implementation(libs.androidx.appcompat)
@@ -63,6 +61,9 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
+    // Hilt stays the DI system for Android-only classes; Koin owns :shared's own
+    // graph, bridged into Hilt by a small module (see di/SharedKoinBridgeModule).
+    implementation(libs.koin.android)
 
     // Networking
     implementation(libs.retrofit)
