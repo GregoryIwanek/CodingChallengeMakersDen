@@ -34,6 +34,9 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
+
+            // Koin DI. No BOM - see the version.ref comment in libs.versions.toml for why.
+            implementation(libs.koin.core)
         }
         androidMain.dependencies {
             // The HTTP engine is a thin wrapper around a platform-specific networking
