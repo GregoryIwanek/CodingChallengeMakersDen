@@ -1,8 +1,8 @@
-package pl.gi.codingchallenge.domain
+package pl.gi.codingchallenge.shared.domain
 
-import org.junit.Assert.assertEquals
-import pl.gi.codingchallenge.domain.model.SearchResultItem
-import org.junit.Test
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ResultMergerTest {
 
