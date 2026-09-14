@@ -11,7 +11,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import pl.gi.codingchallenge.ui.unitconverter.UnitConverterScreen
 
 /**
- * Debug-only entry point for the :shared KMP toy feature (kmp-interview-prep step 1).
+ * Debug-only entry point for the :shared KMP toy feature.
  * Not in the launcher or the real app navigation on purpose - start manually:
  * adb shell am start -n pl.gi.codingchallenge/.UnitConverterActivity
  */
