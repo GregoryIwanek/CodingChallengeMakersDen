@@ -16,17 +16,17 @@ import pl.gi.codingchallenge.data.remote.dto.RepositoryDto
 import pl.gi.codingchallenge.data.remote.dto.UserDto
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
-class GitHubSearchRepositoryImplTest {
+class GitHubSearchNetworkSourceImplTest {
 
     private val api = mockk<GitHubApi>()
-    private val repository = GitHubSearchRepositoryImpl(api)
+    private val networkSource = GitHubSearchNetworkSourceImpl(api)
 
     @Test
     fun `search calls both endpoints with the given query and perPage`() = runTest {
         coEvery { api.searchUsers(query = "kot", perPage = 10) } returns emptyUserResponse()
         coEvery { api.searchRepositories(query = "kot", perPage = 10) } returns emptyRepoResponse()
 
-        repository.search(query = "kot", perTypeLimit = 10)
+        networkSource.search(query = "kot", perTypeLimit = 10)
 
         coVerify(exactly = 1) { api.searchUsers(query = "kot", perPage = 10) }
         coVerify(exactly = 1) { api.searchRepositories(query = "kot", perPage = 10) }
@@ -59,7 +59,7 @@ class GitHubSearchRepositoryImplTest {
             ),
         )
 
-        val results = repository.search(query = "kot")
+        val results = networkSource.search(query = "kot", perTypeLimit = 50)
 
         assertEquals(2, results.size)
         assertEquals("aaa-repo", (results[0] as SearchResultItem.RepoResult).name)
@@ -78,7 +78,7 @@ class GitHubSearchRepositoryImplTest {
             emptyRepoResponse()
         }
 
-        repository.search(query = "kot")
+        networkSource.search(query = "kot", perTypeLimit = 50)
 
         // Sequential calls would take ~2000ms of virtual time; parallel async{} takes ~1000ms.
         assertTrue("expected ~1000ms elapsed, was ${currentTime}ms", currentTime < 2000)
