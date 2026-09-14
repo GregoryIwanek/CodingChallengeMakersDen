@@ -22,6 +22,12 @@ kotlin {
             // -android one :app uses — this has to compile for every target, so it
             // can't depend on anything Android-specific.
             implementation(libs.kotlinx.coroutines.core)
+
+            // Ktor networking spike (kmp-interview-prep step 3), pre-flight only so
+            // far. HttpClient itself is fully multiplatform Kotlin - the engine
+            // (step 2) is the only genuinely per-target piece. No BOM here - see the
+            // version.ref comment in libs.versions.toml for why.
+            implementation(libs.ktor.client.core)
         }
         commonTest.dependencies {
             // kotlin("test") is the multiplatform test-annotations artifact: the same
