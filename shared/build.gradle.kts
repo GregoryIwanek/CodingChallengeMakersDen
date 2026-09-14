@@ -91,6 +91,13 @@ kotlin {
             // implementation, not a mocking framework like MockK. Compiles and works
             // on every target by construction (step 2's "fakes, not mocks" lesson).
             implementation(libs.ktor.client.mock)
+
+            // JdbcSqliteDriver - JDBC-based, so genuinely JVM-only, unlike
+            // ktor-client-mock above. Fine here only because androidTarget is the
+            // sole target right now; expect this to need moving to a platform-specific
+            // test source set once a real non-JVM target exists (iosMain, step 8) -
+            // same category of constraint as MockK in step 2, confirm below.
+            implementation(libs.sqldelight.sqlite.driver)
         }
     }
 }
