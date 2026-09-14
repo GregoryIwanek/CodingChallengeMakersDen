@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import pl.gi.codingchallenge.shared.cache.SearchResultCache
 import pl.gi.codingchallenge.shared.catfact.CatFactApi
 import pl.gi.codingchallenge.shared.history.ConversionHistoryRepository
 
@@ -23,4 +24,7 @@ object SharedKoinBridgeModule : KoinComponent {
 
     @Provides
     fun provideCatFactApi(): CatFactApi = get()
+
+    @Provides
+    fun provideSearchResultCache(): SearchResultCache = get()
 }
