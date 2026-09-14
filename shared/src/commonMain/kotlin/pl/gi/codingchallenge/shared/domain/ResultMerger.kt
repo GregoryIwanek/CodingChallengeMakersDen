@@ -1,7 +1,7 @@
-package pl.gi.codingchallenge.domain
+package pl.gi.codingchallenge.shared.domain
 
-import pl.gi.codingchallenge.domain.model.MAX_RESULTS
-import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.model.MAX_RESULTS
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 fun mergeAndSort(
     users: List<SearchResultItem.UserResult>,
