@@ -4,6 +4,17 @@ plugins {
     // Required for @Serializable - the kotlinx-serialization-json runtime dependency
     // alone isn't enough; this compiler plugin generates the serializers.
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.sqldelight)
+}
+
+// Persistence cache, stretch goal - a small cache in front of the real
+// GitHubSearchRepository, network-first with cache-as-fallback-on-failure.
+sqldelight {
+    databases {
+        register("CacheDatabase") {
+            packageName.set("pl.gi.codingchallenge.shared.cache")
+        }
+    }
 }
 
 kotlin {
@@ -37,6 +48,16 @@ kotlin {
 
             // Koin DI. No BOM - see the version.ref comment in libs.versions.toml for why.
             implementation(libs.koin.core)
+
+            // SQLDelight cache. Runtime + coroutines-extensions are genuinely
+            // multiplatform Kotlin - the driver (see androidMain below) is the one
+            // per-target piece, same shape as Ktor's engine split above.
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines.extensions)
+
+            // SearchResultCache calls Json.encodeToString/decodeFromString directly,
+            // not just transitively via ktor-serialization-kotlinx-json.
+            implementation(libs.kotlinx.serialization.json)
         }
         androidMain.dependencies {
             // The HTTP engine is a thin wrapper around a platform-specific networking
@@ -53,6 +74,10 @@ kotlin {
             // need Android Context for anything yet, but this is how a real
             // Android-facing KMP module's DI setup normally looks.
             implementation(libs.koin.android)
+
+            // AndroidSqliteDriver - the platform-specific piece SQLDelight's runtime
+            // needs to actually talk to real SQLite on Android.
+            implementation(libs.sqldelight.android.driver)
         }
         commonTest.dependencies {
             // kotlin("test") is the multiplatform test-annotations artifact: the same
@@ -66,6 +91,13 @@ kotlin {
             // implementation, not a mocking framework like MockK. Compiles and works
             // on every target by construction (step 2's "fakes, not mocks" lesson).
             implementation(libs.ktor.client.mock)
+
+            // JdbcSqliteDriver - JDBC-based, so genuinely JVM-only, unlike
+            // ktor-client-mock above. Fine here only because androidTarget is the
+            // sole target right now; expect this to need moving to a platform-specific
+            // test source set once a real non-JVM target exists (iosMain, step 8) -
+            // same category of constraint as MockK in step 2, confirm below.
+            implementation(libs.sqldelight.sqlite.driver)
         }
     }
 }

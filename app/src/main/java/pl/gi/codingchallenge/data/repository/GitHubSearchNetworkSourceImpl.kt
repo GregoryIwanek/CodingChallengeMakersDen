@@ -6,12 +6,12 @@ import pl.gi.codingchallenge.data.model.toDomain
 import pl.gi.codingchallenge.data.remote.GitHubApi
 import pl.gi.codingchallenge.shared.domain.mergeAndSort
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
-import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
+import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchNetworkSource
 import javax.inject.Inject
 
-class GitHubSearchRepositoryImpl @Inject constructor(
+class GitHubSearchNetworkSourceImpl @Inject constructor(
     private val api: GitHubApi,
-) : GitHubSearchRepository {
+) : GitHubSearchNetworkSource {
 
     override suspend fun search(query: String, perTypeLimit: Int): List<SearchResultItem> = coroutineScope {
         val usersDeferred = async {

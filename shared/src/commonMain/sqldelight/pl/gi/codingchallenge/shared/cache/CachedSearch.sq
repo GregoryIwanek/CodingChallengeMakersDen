@@ -1,0 +1,10 @@
+CREATE TABLE cachedSearch (
+  query TEXT NOT NULL PRIMARY KEY,
+  resultsJson TEXT NOT NULL
+);
+
+selectByQuery:
+SELECT * FROM cachedSearch WHERE query = ?;
+
+upsert:
+INSERT OR REPLACE INTO cachedSearch(query, resultsJson) VALUES (?, ?);
