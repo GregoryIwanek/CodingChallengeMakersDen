@@ -184,6 +184,15 @@ search endpoints.
   per IP; hitting it mid-session falls into the same generic error
   state as any other failure, with no differentiated "rate limited,
   try again shortly" state.
+- A local cache now sits in front of search results (SQLDelight),
+  but it's network-first with cache-as-fallback-on-failure, not a
+  general offline mode — a query that's never been searched before
+  still fails with no network, and a cached result can still be
+  stale if GitHub's data changed since it was cached. Room's newer
+  Kotlin Multiplatform support was considered as an alternative to
+  SQLDelight and may be worth a second look later — it can read
+  better to teams already standardized on Android's Jetpack/Room
+  stack.
 
 ## Development notes
 
