@@ -3,11 +3,13 @@ package pl.gi.codingchallenge.ui.unitconverter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.gi.codingchallenge.shared.catfact.CatFactApi
 import pl.gi.codingchallenge.shared.converter.celsiusToFahrenheit
 import pl.gi.codingchallenge.shared.converter.fahrenheitToCelsius
 import pl.gi.codingchallenge.shared.converter.kilometersToMiles
@@ -23,11 +25,15 @@ import javax.inject.Inject
 // provides the ViewModel itself (standard :app-side DI), but everything it calls
 // into on the :shared side - the repository and the pure conversion functions - is
 // constructor-called/imported directly, since no DI framework reaches into :shared
-// yet (kmp-interview-prep sequence step 4 introduces Koin for that).
+// yet (Koin arrives in a later step).
 @HiltViewModel
 class UnitConverterViewModel @Inject constructor() : ViewModel() {
 
     private val historyRepository: ConversionHistoryRepository = InMemoryConversionHistoryRepository()
+
+    // Real OkHttp-backed engine - CatFactApiTest injects a MockEngine instead, the
+    // same constructor seam used here for the real thing.
+    private val catFactApi = CatFactApi(OkHttp.create())
 
     private val _uiState = MutableStateFlow(
         UnitConverterUiState(
@@ -36,6 +42,7 @@ class UnitConverterViewModel @Inject constructor() : ViewModel() {
             selectedType = ConversionType.CELSIUS_TO_FAHRENHEIT,
             result = null,
             history = emptyList(),
+            catFact = null,
         ),
     )
     val uiState: StateFlow<UnitConverterUiState> = _uiState.asStateFlow()
@@ -64,6 +71,13 @@ class UnitConverterViewModel @Inject constructor() : ViewModel() {
         _uiState.update { it.copy(result = output) }
         viewModelScope.launch {
             historyRepository.record(ConversionRecord(state.selectedType, input, output))
+        }
+    }
+
+    fun onLoadCatFactClicked() {
+        viewModelScope.launch {
+            val fact = catFactApi.fetchCatFact()
+            _uiState.update { it.copy(catFact = fact) }
         }
     }
 

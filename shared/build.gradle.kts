@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
-    // Required for @Serializable (kmp-interview-prep step 3) - the kotlinx-serialization-json
-    // runtime dependency alone isn't enough; this compiler plugin generates the serializers.
+    // Required for @Serializable - the kotlinx-serialization-json runtime dependency
+    // alone isn't enough; this compiler plugin generates the serializers.
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -26,11 +26,11 @@ kotlin {
             // can't depend on anything Android-specific.
             implementation(libs.kotlinx.coroutines.core)
 
-            // Ktor networking spike (kmp-interview-prep step 3). HttpClient itself,
-            // ContentNegotiation, and the kotlinx.serialization converter are all
-            // genuinely multiplatform Kotlin - no per-target code needed. The engine
-            // is the only genuinely per-target piece (see androidMain below). No BOM
-            // here - see the version.ref comment in libs.versions.toml for why.
+            // Ktor networking spike. HttpClient itself, ContentNegotiation, and the
+            // kotlinx.serialization converter are all genuinely multiplatform Kotlin -
+            // no per-target code needed. The engine is the only genuinely per-target
+            // piece (see androidMain below). No BOM here - see the version.ref comment
+            // in libs.versions.toml for why.
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)

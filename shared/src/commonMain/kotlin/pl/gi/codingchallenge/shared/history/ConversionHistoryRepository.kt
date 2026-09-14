@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.update
 
 // The "data layer" of this toy feature, coded to an interface even though only one
 // implementation exists. This previews the interface+DI pattern used for real
-// domain/data code once it migrates into :shared (kmp-interview-prep sequence step
-// 5) - the interface stays put in commonMain, but what implements it can change
-// (e.g. a persisted repository, sequence step 6) without touching any caller.
+// domain/data code once it migrates into :shared - the interface stays put in
+// commonMain, but what implements it can change (e.g. a persisted repository)
+// without touching any caller.
 interface ConversionHistoryRepository {
     val history: Flow<List<ConversionRecord>>
     suspend fun record(entry: ConversionRecord)

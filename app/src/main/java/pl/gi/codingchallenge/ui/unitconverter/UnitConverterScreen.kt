@@ -27,12 +27,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import pl.gi.codingchallenge.shared.catfact.CatFact
 import pl.gi.codingchallenge.shared.history.ConversionRecord
 import pl.gi.codingchallenge.shared.history.ConversionType
 
 // Standalone screen, deliberately not wired into DemoScreen's real tab navigation -
-// only reachable via the debug-only UnitConverterActivity (kmp-interview-prep step
-// 1). Proves the :shared toy feature end-to-end without risking the real app's nav.
+// only reachable via the debug-only UnitConverterActivity. Proves the :shared toy
+// feature end-to-end without risking the real app's nav.
 @Composable
 fun UnitConverterScreen(viewModel: UnitConverterViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -42,6 +43,7 @@ fun UnitConverterScreen(viewModel: UnitConverterViewModel = hiltViewModel()) {
         onInputChanged = viewModel::onInputChanged,
         onTypeSelected = viewModel::onTypeSelected,
         onConvertClicked = viewModel::onConvertClicked,
+        onLoadCatFactClicked = viewModel::onLoadCatFactClicked,
     )
 }
 
@@ -51,6 +53,7 @@ private fun UnitConverterContent(
     onInputChanged: (String) -> Unit,
     onTypeSelected: (ConversionType) -> Unit,
     onConvertClicked: () -> Unit,
+    onLoadCatFactClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -82,6 +85,13 @@ private fun UnitConverterContent(
         Button(onClick = onConvertClicked) {
             Text("Convert")
         }
+
+        HorizontalDivider()
+        Text("Ktor networking spike", style = MaterialTheme.typography.titleSmall)
+        Button(onClick = onLoadCatFactClicked) {
+            Text("Get Cat Fact")
+        }
+        uiState.catFact?.let { CatFactRow(it) }
 
         HorizontalDivider()
         Text("History", style = MaterialTheme.typography.titleSmall)
@@ -120,4 +130,9 @@ private fun ConversionTypeDropdown(
 @Composable
 private fun HistoryRow(record: ConversionRecord) {
     Text("${record.type.label}:  ${record.input} → ${record.output}")
+}
+
+@Composable
+private fun CatFactRow(fact: CatFact) {
+    Text("${fact.fact} (${fact.length} chars)", style = MaterialTheme.typography.bodyMedium)
 }

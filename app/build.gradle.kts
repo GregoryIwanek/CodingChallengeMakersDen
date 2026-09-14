@@ -41,7 +41,7 @@ android {
 
 dependencies {
     // :shared's classes are constructor-called directly here for now -
-    // no DI framework wires it in yet (kmp-interview-prep step 4, Koin).
+    // no DI framework wires it in yet (Koin arrives in a later step).
     implementation(project(":shared"))
 
     implementation(libs.androidx.appcompat)
@@ -70,6 +70,8 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
+    // To construct the real engine for :shared's CatFactApi
+    implementation(libs.ktor.client.okhttp)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
