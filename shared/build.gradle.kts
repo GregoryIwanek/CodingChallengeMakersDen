@@ -7,8 +7,8 @@ plugins {
     alias(libs.plugins.sqldelight)
 }
 
-// Persistence cache (kmp-interview-prep step 6, stretch goal). Empty pre-flight
-// skeleton only so far - no .sq schema file yet, see §0/§1 of that guide.
+// Persistence cache, stretch goal - a small cache in front of the real
+// GitHubSearchRepository, network-first with cache-as-fallback-on-failure.
 sqldelight {
     databases {
         register("CacheDatabase") {
@@ -48,6 +48,16 @@ kotlin {
 
             // Koin DI. No BOM - see the version.ref comment in libs.versions.toml for why.
             implementation(libs.koin.core)
+
+            // SQLDelight cache. Runtime + coroutines-extensions are genuinely
+            // multiplatform Kotlin - the driver (see androidMain below) is the one
+            // per-target piece, same shape as Ktor's engine split above.
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines.extensions)
+
+            // SearchResultCache calls Json.encodeToString/decodeFromString directly,
+            // not just transitively via ktor-serialization-kotlinx-json.
+            implementation(libs.kotlinx.serialization.json)
         }
         androidMain.dependencies {
             // The HTTP engine is a thin wrapper around a platform-specific networking
@@ -64,6 +74,10 @@ kotlin {
             // need Android Context for anything yet, but this is how a real
             // Android-facing KMP module's DI setup normally looks.
             implementation(libs.koin.android)
+
+            // AndroidSqliteDriver - the platform-specific piece SQLDelight's runtime
+            // needs to actually talk to real SQLite on Android.
+            implementation(libs.sqldelight.android.driver)
         }
         commonTest.dependencies {
             // kotlin("test") is the multiplatform test-annotations artifact: the same
