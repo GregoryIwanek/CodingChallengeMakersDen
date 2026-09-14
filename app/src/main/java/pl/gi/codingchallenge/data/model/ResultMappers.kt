@@ -2,7 +2,7 @@ package pl.gi.codingchallenge.data.model
 
 import pl.gi.codingchallenge.data.remote.dto.RepositoryDto
 import pl.gi.codingchallenge.data.remote.dto.UserDto
-import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 fun RepositoryDto.toDomain(): SearchResultItem.RepoResult = SearchResultItem.RepoResult(
     id = id.toString(),

@@ -5,7 +5,7 @@ import app.cash.paparazzi.Paparazzi
 import com.android.ide.common.rendering.api.SessionParams
 import org.junit.Rule
 import org.junit.Test
-import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 /**
  * Golden-image tests for GitHubAutocompleteBarComponent's five UI states —

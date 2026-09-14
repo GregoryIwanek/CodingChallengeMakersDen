@@ -1,7 +1,8 @@
 package pl.gi.codingchallenge.domain.repository
 
 import kotlinx.coroutines.delay
-import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
 
 class FakeGitHubSearchRepository : GitHubSearchRepository {
 

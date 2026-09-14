@@ -43,7 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.gi.codingchallenge.R
-import pl.gi.codingchallenge.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 import pl.gi.codingchallenge.ui.autocomplete.GitHubAutocompleteBarComponent
 import pl.gi.codingchallenge.util.dimRes
 import pl.gi.codingchallenge.util.strRes

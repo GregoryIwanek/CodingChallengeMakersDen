@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pl.gi.codingchallenge.data.repository.GitHubSearchRepositoryImpl
-import pl.gi.codingchallenge.domain.repository.GitHubSearchRepository
+import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
