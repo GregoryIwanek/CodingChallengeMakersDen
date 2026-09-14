@@ -23,11 +23,24 @@ kotlin {
             // can't depend on anything Android-specific.
             implementation(libs.kotlinx.coroutines.core)
 
-            // Ktor networking spike (kmp-interview-prep step 3), pre-flight only so
-            // far. HttpClient itself is fully multiplatform Kotlin - the engine
-            // (step 2) is the only genuinely per-target piece. No BOM here - see the
-            // version.ref comment in libs.versions.toml for why.
+            // Ktor networking spike (kmp-interview-prep step 3). HttpClient itself,
+            // ContentNegotiation, and the kotlinx.serialization converter are all
+            // genuinely multiplatform Kotlin - no per-target code needed. The engine
+            // is the only genuinely per-target piece (see androidMain below). No BOM
+            // here - see the version.ref comment in libs.versions.toml for why.
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+        }
+        androidMain.dependencies {
+            // The HTTP engine is a thin wrapper around a platform-specific networking
+            // stack (OkHttp here) - unlike everything else Ktor-related above, this
+            // has to be declared per-target. When iosMain arrives (step 8), that
+            // source set gets ktor-client-darwin instead; commonMain's code calling
+            // HttpClient(...) never changes. Misplacing this in commonMain instead of
+            // here would fail the same way step 2's MockK exercise did, once a
+            // genuine non-JVM target exists.
+            implementation(libs.ktor.client.okhttp)
         }
         commonTest.dependencies {
             // kotlin("test") is the multiplatform test-annotations artifact: the same
@@ -37,6 +50,10 @@ kotlin {
             implementation(kotlin("test"))
             // Gives commonTest access to runTest {} for testing suspend functions/Flow.
             implementation(libs.kotlinx.coroutines.test)
+            // Ktor's fake HTTP engine for tests - a real, minimal HttpClientEngine
+            // implementation, not a mocking framework like MockK. Compiles and works
+            // on every target by construction (step 2's "fakes, not mocks" lesson).
+            implementation(libs.ktor.client.mock)
         }
     }
 }

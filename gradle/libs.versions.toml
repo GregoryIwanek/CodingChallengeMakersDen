@@ -55,12 +55,14 @@ okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhtt
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
-# Ktor (pre-flight only, step 1 of the step-3 checklist — engine/content-negotiation
-# entries added in step 2). No BOM: platform()/ktor-bom inside a Kotlin Multiplatform
-# commonMain.dependencies {} block hits a hard-deprecated (error-level) API — KT-58759 —
-# so every io.ktor:* artifact gets its own version.ref instead, same as everything
-# else in this catalog.
+# Ktor. No BOM: platform()/ktor-bom inside a Kotlin Multiplatform commonMain.dependencies
+# {} block hits a hard-deprecated (error-level) API — KT-58759 — so every io.ktor:*
+# artifact gets its own version.ref instead, same as everything else in this catalog.
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
 
 # Coroutines
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
