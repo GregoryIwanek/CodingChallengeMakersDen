@@ -18,6 +18,13 @@ sqldelight {
 }
 
 kotlin {
+    // Confirmed while adding iOS targets (step 8): this plugin combination doesn't
+    // auto-create the iosMain/iosTest intermediate source sets the way a plain
+    // org.jetbrains.kotlin.multiplatform module does - without this call, only the
+    // per-target iosArm64Main/iosSimulatorArm64Main source sets exist, with no
+    // shared place to put code common to both iOS targets.
+    applyDefaultHierarchyTemplate()
+
     android {
         namespace = "pl.gi.codingchallenge.shared"
         compileSdk = 37
@@ -25,11 +32,23 @@ kotlin {
 
         withHostTestBuilder {}
     }
-    // iosMain targets intentionally NOT added yet — that's step 8.
+
+    // Step 8: iOS targets. Empty skeleton for now — no iosMain code yet, this pass
+    // only proves the Gradle/Kotlin-Native toolchain resolves for this project's
+    // existing android.kotlin.multiplatform.library plugin combination.
+    iosArm64()
+    iosSimulatorArm64()
+
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.binaries.framework {
+            baseName = "Shared"
+            isStatic = true
+        }
+    }
 
     // Kotlin source sets = per-target source folders. commonMain/commonTest here compile
-    // against every target this module declares (just androidMain for now); androidMain
-    // would get its own dependencies block if it needed Android-only libraries.
+    // against every target this module declares; androidMain/iosMain get their own
+    // dependencies blocks for platform-only libraries.
     sourceSets {
         commonMain.dependencies {
             // The multiplatform coroutines artifact (-core), not the Android-only
@@ -91,13 +110,16 @@ kotlin {
             // implementation, not a mocking framework like MockK. Compiles and works
             // on every target by construction (step 2's "fakes, not mocks" lesson).
             implementation(libs.ktor.client.mock)
-
-            // JdbcSqliteDriver - JDBC-based, so genuinely JVM-only, unlike
-            // ktor-client-mock above. Fine here only because androidTarget is the
-            // sole target right now; expect this to need moving to a platform-specific
-            // test source set once a real non-JVM target exists (iosMain, step 8) -
-            // same category of constraint as MockK in step 2, confirm below.
-            implementation(libs.sqldelight.sqlite.driver)
+        }
+        // JdbcSqliteDriver moved here from commonTest (step 8): JDBC is JVM-only,
+        // so it can't resolve for iosArm64/iosSimulatorArm64 test compilation once
+        // those targets genuinely exist - confirmed via a real dependency-resolution
+        // failure (not a compiler error) the moment iOS targets were added, same
+        // category of constraint MockK hit in step 2.
+        getByName("androidHostTest") {
+            dependencies {
+                implementation(libs.sqldelight.sqlite.driver)
+            }
         }
     }
 }
