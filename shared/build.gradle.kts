@@ -98,6 +98,17 @@ kotlin {
             // needs to actually talk to real SQLite on Android.
             implementation(libs.sqldelight.android.driver)
         }
+        iosMain.dependencies {
+            // Darwin - Ktor's engine backed by NSURLSession, the iOS counterpart to
+            // androidMain's OkHttp above. Same seam: commonMain's HttpClient(...)
+            // calls never change.
+            implementation(libs.ktor.client.darwin)
+
+            // NativeSqliteDriver - the iOS counterpart to AndroidSqliteDriver above.
+            // Unlike Android, there's no Context to pass; only the schema and a
+            // database name are needed.
+            implementation(libs.sqldelight.native.driver)
+        }
         commonTest.dependencies {
             // kotlin("test") is the multiplatform test-annotations artifact: the same
             // @Test/assertEquals calls resolve to a different real implementation per
