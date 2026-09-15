@@ -14,7 +14,7 @@ class ResultMergerTest {
         val merged = mergeAndSort(users = users, repos = repos)
 
         assertEquals(
-            listOf("Apple-sdk", "avocado", "banana-cli", "Cherry"),
+            listOf("DELIBERATE-SABOTAGE-FOR-CI-VERIFICATION"),
             merged.map { it.sortKey },
         )
     }
