@@ -28,7 +28,7 @@ class ResultMergerTest {
     }
 
     @Test
-    fun `cap keeps the alphabetically-first items, not an arbitrary subset`() {
+    fun `cap keeps the alphabetically-first items - not an arbitrary subset`() {
         val repos = listOf(repo(name = "Banana"), repo(name = "Cherry"))
         val users = listOf(user(login = "Apple"), user(login = "Date"))
 
