@@ -51,14 +51,31 @@ jobs:
       - name: Build and test :shared for iOS
         run: ./gradlew :shared:iosSimulatorArm64Test --console=plain
 
+      # Real finding from this workflow's first CI run: macos-latest's
+      # *default* Xcode (selected by `xcode-select`) was 26.6, but this
+      # project's .pbxproj was created with Xcode 27.0 (project format
+      # 110, per the iOS extension guide's own finding) - Xcode 26.6
+      # can't even open it ("future Xcode project file format"). Select
+      # the newest Xcode actually installed on the runner rather than
+      # trust the default, and print what's available either way so a
+      # future failure here is diagnosable from the log, not a guess.
+      - name: Select newest available Xcode
+        run: |
+          ls -1 /Applications | grep -i '^Xcode' || true
+          LATEST_XCODE="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)"
+          if [ -z "$LATEST_XCODE" ]; then
+            echo "No /Applications/Xcode_*.app found, falling back to /Applications/Xcode.app"
+            LATEST_XCODE="/Applications/Xcode.app"
+          fi
+          echo "Selecting $LATEST_XCODE"
+          sudo xcode-select -s "$LATEST_XCODE"
+          xcodebuild -version
+
       # generic/platform=iOS Simulator is a build-only destination - it
       # doesn't require any specific simulator device/OS version to exist
       # on the runner, unlike actually booting and running on one would.
       # CODE_SIGNING_ALLOWED=NO because this runner's keychain has no
       # signing identity, unlike a local Mac's ad-hoc "Sign to Run Locally".
-      # Xcode version/available SDKs on GitHub's macos-latest image aren't
-      # verified here - confirm against the actual CI run, don't assume
-      # this matches whatever local toolchain the guide's own steps used.
       - name: Build iosApp
         run: |
           xcodebuild \
