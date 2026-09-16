@@ -6,7 +6,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import pl.gi.codingchallenge.shared.catfact.CatFactApi
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchCache
 
 // The entire Hilt/Koin bridge: Hilt generates its graph at compile time via
@@ -17,9 +16,6 @@ import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchCache
 @Module
 @InstallIn(SingletonComponent::class)
 object SharedKoinBridgeModule : KoinComponent {
-
-    @Provides
-    fun provideCatFactApi(): CatFactApi = get()
 
     @Provides
     fun provideGitHubSearchCache(): GitHubSearchCache = get()
