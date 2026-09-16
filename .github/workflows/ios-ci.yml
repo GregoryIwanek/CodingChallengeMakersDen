@@ -1,0 +1,80 @@
+name: iOS CI
+
+# Scoped to paths that can actually break the iOS side, unlike ci.yml's
+# Android job which runs on every push/PR to main/develop - macOS runners
+# bill at a 10x minute multiplier, so this shouldn't fire on unrelated work
+# (see kmp-interview-prep/execution-plan's step 8 iOS guide, §7).
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "shared/**"
+      - "iosApp/**"
+      - "gradle/libs.versions.toml"
+      - "gradle.properties"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - ".github/workflows/ios-ci.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "shared/**"
+      - "iosApp/**"
+      - "gradle/libs.versions.toml"
+      - "gradle.properties"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - ".github/workflows/ios-ci.yml"
+
+jobs:
+  ios-build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Compiles :shared for iosArm64/iosSimulatorArm64 and runs its
+      # commonTest suite on the simulator target - run first so the
+      # Kotlin/Native toolchain download (a real, one-time few-hundred-MB
+      # cost, per the iOS extension guide's own §1) is shared with, not
+      # duplicated by, the Xcode build's embed step below.
+      - name: Build and test :shared for iOS
+        run: ./gradlew :shared:iosSimulatorArm64Test --console=plain
+
+      # generic/platform=iOS Simulator is a build-only destination - it
+      # doesn't require any specific simulator device/OS version to exist
+      # on the runner, unlike actually booting and running on one would.
+      # CODE_SIGNING_ALLOWED=NO because this runner's keychain has no
+      # signing identity, unlike a local Mac's ad-hoc "Sign to Run Locally".
+      # Xcode version/available SDKs on GitHub's macos-latest image aren't
+      # verified here - confirm against the actual CI run, don't assume
+      # this matches whatever local toolchain the guide's own steps used.
+      - name: Build iosApp
+        run: |
+          xcodebuild \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Upload reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ci-reports
+          path: |
+            shared/build/reports/tests/iosSimulatorArm64Test/
+            shared/build/test-results/iosSimulatorArm64Test/
+          retention-days: 7
