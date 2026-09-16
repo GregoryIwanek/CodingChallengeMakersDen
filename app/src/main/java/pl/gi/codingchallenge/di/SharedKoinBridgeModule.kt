@@ -8,7 +8,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import pl.gi.codingchallenge.shared.catfact.CatFactApi
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchCache
-import pl.gi.codingchallenge.shared.history.ConversionHistoryRepository
 
 // The entire Hilt/Koin bridge: Hilt generates its graph at compile time via
 // annotation processing and has no way to reach into Koin's runtime-built graph on
@@ -18,9 +17,6 @@ import pl.gi.codingchallenge.shared.history.ConversionHistoryRepository
 @Module
 @InstallIn(SingletonComponent::class)
 object SharedKoinBridgeModule : KoinComponent {
-
-    @Provides
-    fun provideConversionHistoryRepository(): ConversionHistoryRepository = get()
 
     @Provides
     fun provideCatFactApi(): CatFactApi = get()

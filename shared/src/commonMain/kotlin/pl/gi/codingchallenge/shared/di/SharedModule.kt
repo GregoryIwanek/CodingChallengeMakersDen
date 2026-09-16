@@ -4,11 +4,8 @@ import org.koin.dsl.module
 import pl.gi.codingchallenge.shared.cache.SearchResultCache
 import pl.gi.codingchallenge.shared.catfact.CatFactApi
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchCache
-import pl.gi.codingchallenge.shared.history.ConversionHistoryRepository
-import pl.gi.codingchallenge.shared.history.InMemoryConversionHistoryRepository
 
 val sharedModule = module {
-    single<ConversionHistoryRepository> { InMemoryConversionHistoryRepository() }
     // get() resolves whatever HttpClientEngine binding a platform module registers
     // (androidPlatformModule today, an iosPlatformModule once iosMain exists) -
     // this module never needs to know or import anything platform-specific.
