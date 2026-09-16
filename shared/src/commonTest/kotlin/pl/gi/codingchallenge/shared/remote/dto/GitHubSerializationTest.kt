@@ -1,10 +1,10 @@
-package pl.gi.codingchallenge.data.remote.dto
+package pl.gi.codingchallenge.shared.remote.dto
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 /** Decodes real (trimmed) GitHub payloads to catch a wrong @SerialName. */
 class GitHubSerializationTest {
@@ -12,7 +12,7 @@ class GitHubSerializationTest {
     private val json = Json { ignoreUnknownKeys = true }
 
     @Test
-    fun `decodes a repository search response`() {
+    fun decodesARepositorySearchResponse() {
         val response = json.decodeFromString<GitHubSearchResponse<RepositoryDto>>(
             """
             {
@@ -54,7 +54,7 @@ class GitHubSerializationTest {
     }
 
     @Test
-    fun `decodes a user search response, with a null avatarUrl when absent`() {
+    fun decodesAUserSearchResponseWithANullAvatarUrlWhenAbsent() {
         val response = json.decodeFromString<GitHubSearchResponse<UserDto>>(
             """
             {

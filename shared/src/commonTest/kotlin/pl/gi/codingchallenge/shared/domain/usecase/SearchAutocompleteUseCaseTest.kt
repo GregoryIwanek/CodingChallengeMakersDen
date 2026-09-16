@@ -1,7 +1,6 @@
-package pl.gi.codingchallenge.domain.usecase
+package pl.gi.codingchallenge.shared.domain.usecase
 
 import app.cash.turbine.test
-import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,14 +10,14 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
 import pl.gi.codingchallenge.shared.domain.model.QueryRequest
 import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
-import pl.gi.codingchallenge.domain.repository.FakeGitHubSearchRepository
+import pl.gi.codingchallenge.shared.domain.repository.FakeGitHubSearchRepository
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SearchAutocompleteUseCaseTest {
@@ -28,7 +27,7 @@ class SearchAutocompleteUseCaseTest {
     private lateinit var useCase: SearchAutocompleteUseCase
     private lateinit var query: MutableStateFlow<QueryRequest>
 
-    @Before
+    @BeforeTest
     fun setUp() {
         Dispatchers.setMain(dispatcher)
         fakeRepo = FakeGitHubSearchRepository()
@@ -36,11 +35,11 @@ class SearchAutocompleteUseCaseTest {
         query = MutableStateFlow(QueryRequest(text = ""))
     }
 
-    @After
+    @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
     @Test
-    fun `query under 3 chars stays QueryTooShort and never calls repository`() = runTest(dispatcher) {
+    fun queryUnder3CharsStaysQueryTooShortAndNeverCallsRepository() = runTest(dispatcher) {
         useCase(query).test {
             assertEquals(SearchOutcome.QueryTooShort, awaitItem())
 
@@ -57,7 +56,7 @@ class SearchAutocompleteUseCaseTest {
     }
 
     @Test
-    fun `rapid typing only triggers a search for the final debounced query`() = runTest(dispatcher) {
+    fun rapidTypingOnlyTriggersASearchForTheFinalDebouncedQuery() = runTest(dispatcher) {
         fakeRepo.enqueueResult(query = "kot", results = listOf(fakeRepo.sampleRepo("kotlin")))
 
         useCase(query).test {
@@ -76,7 +75,7 @@ class SearchAutocompleteUseCaseTest {
     }
 
     @Test
-    fun `new query cancels in-flight previous search (flatMapLatest)`() = runTest(dispatcher) {
+    fun newQueryCancelsInFlightPreviousSearch() = runTest(dispatcher) {
         fakeRepo.enqueueDelayedResult(
             "first",
             delayMs = 1000,
@@ -101,7 +100,7 @@ class SearchAutocompleteUseCaseTest {
     }
 
     @Test
-    fun `empty results map to Success with an empty list`() = runTest(dispatcher) {
+    fun emptyResultsMapToSuccessWithAnEmptyList() = runTest(dispatcher) {
         fakeRepo.enqueueResult(query = "zzz", results = emptyList())
         useCase(query).test {
             awaitItem() // QueryTooShort
@@ -115,8 +114,8 @@ class SearchAutocompleteUseCaseTest {
     }
 
     @Test
-    fun `repository failure maps to Failure outcome`() = runTest(dispatcher) {
-        fakeRepo.enqueueError(query = "boom", error = IOException("network down"))
+    fun repositoryFailureMapsToFailureOutcome() = runTest(dispatcher) {
+        fakeRepo.enqueueError(query = "boom", error = RuntimeException("network down"))
         useCase(query).test {
             awaitItem() // QueryTooShort
             query.value = QueryRequest(text = "boom")
@@ -128,8 +127,8 @@ class SearchAutocompleteUseCaseTest {
     }
 
     @Test
-    fun `retrying the same query re-triggers a search`() = runTest(dispatcher) {
-        fakeRepo.enqueueError(query = "boom", error = IOException("network down"))
+    fun retryingTheSameQueryReTriggersASearch() = runTest(dispatcher) {
+        fakeRepo.enqueueError(query = "boom", error = RuntimeException("network down"))
 
         useCase(query).test {
             awaitItem() // QueryTooShort

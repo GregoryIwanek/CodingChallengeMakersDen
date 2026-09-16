@@ -21,7 +21,7 @@ import org.junit.Test
 import pl.gi.codingchallenge.shared.domain.model.QueryRequest
 import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
-import pl.gi.codingchallenge.domain.usecase.SearchAutocompleteUseCase
+import pl.gi.codingchallenge.shared.domain.usecase.SearchAutocompleteUseCase
 
 /**
  * Covers only the ViewModel's own wiring (forwards queries, exposes

@@ -1,4 +1,4 @@
-package pl.gi.codingchallenge.domain.usecase
+package pl.gi.codingchallenge.shared.domain.usecase
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import javax.inject.Inject
 import pl.gi.codingchallenge.shared.domain.model.QueryRequest
 import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
@@ -17,7 +16,7 @@ import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
 private const val DEBOUNCE_MILLIS = 350L
 private const val MIN_QUERY_LENGTH = 3
 
-class SearchAutocompleteUseCase @Inject constructor(
+class SearchAutocompleteUseCase(
     private val repository: GitHubSearchRepository,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)

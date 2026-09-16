@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.paparazzi)
@@ -65,13 +64,10 @@ dependencies {
     // graph, bridged into Hilt by a small module (see di/SharedKoinBridgeModule).
     implementation(libs.koin.android)
 
-    // Networking
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.kotlinx.serialization)
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging.interceptor)
-    implementation(libs.kotlinx.serialization.json)
-    // To construct the real engine for :shared's CatFactApi
+    // Networking - Retrofit/OkHttp are gone (GitHub-search networking moved into
+    // :shared onto Ktor, step 9's search-unification work). ktor-client-okhttp
+    // remains: it's the real HttpClientEngine :shared's GitHubApi/CatFactApi-shaped
+    // classes resolve via Koin on Android (see androidPlatformModule).
     implementation(libs.ktor.client.okhttp)
 
     // Coroutines

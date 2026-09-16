@@ -1,16 +1,16 @@
-package pl.gi.codingchallenge.data.model
+package pl.gi.codingchallenge.shared.remote
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
-import pl.gi.codingchallenge.data.remote.dto.RepositoryDto
-import pl.gi.codingchallenge.data.remote.dto.UserDto
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.remote.dto.RepositoryDto
+import pl.gi.codingchallenge.shared.remote.dto.UserDto
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class ResultMappersTest {
 
     @Test
-    fun `RepositoryDto toDomain maps every field, converting id to a String`() {
+    fun repositoryDtoToDomainMapsEveryFieldConvertingIdToAString() {
         val dto = RepositoryDto(
             id = 123L,
             name = "kotlin",
@@ -42,7 +42,7 @@ class ResultMappersTest {
     }
 
     @Test
-    fun `RepositoryDto toDomain preserves a null description`() {
+    fun repositoryDtoToDomainPreservesANullDescription() {
         val dto = RepositoryDto(
             id = 1L,
             name = "repo",
@@ -56,7 +56,7 @@ class ResultMappersTest {
     }
 
     @Test
-    fun `UserDto toDomain maps every field, converting id to a String`() {
+    fun userDtoToDomainMapsEveryFieldConvertingIdToAString() {
         val dto = UserDto(
             id = 789L,
             login = "octocat",
@@ -78,7 +78,7 @@ class ResultMappersTest {
     }
 
     @Test
-    fun `UserDto toDomain preserves a null avatarUrl`() {
+    fun userDtoToDomainPreservesANullAvatarUrl() {
         val dto = UserDto(id = 1L, login = "octocat", avatarUrl = null, htmlUrl = "https://github.com/octocat")
 
         assertNull(dto.toDomain().avatarUrl)

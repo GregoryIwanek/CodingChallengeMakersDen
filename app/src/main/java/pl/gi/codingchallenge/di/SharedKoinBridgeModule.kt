@@ -7,6 +7,8 @@ import dagger.hilt.components.SingletonComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchCache
+import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
+import pl.gi.codingchallenge.shared.domain.usecase.SearchAutocompleteUseCase
 
 // The entire Hilt/Koin bridge: Hilt generates its graph at compile time via
 // annotation processing and has no way to reach into Koin's runtime-built graph on
@@ -19,4 +21,10 @@ object SharedKoinBridgeModule : KoinComponent {
 
     @Provides
     fun provideGitHubSearchCache(): GitHubSearchCache = get()
+
+    @Provides
+    fun provideGitHubSearchRepository(): GitHubSearchRepository = get()
+
+    @Provides
+    fun provideSearchAutocompleteUseCase(): SearchAutocompleteUseCase = get()
 }
