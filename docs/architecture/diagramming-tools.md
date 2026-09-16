@@ -19,16 +19,24 @@ settles on one and wants it enforced.
 
 ## Worked example
 
-**[GitHub Autocomplete Architecture](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6)** — a
+**[GitHub Autocomplete Architecture](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6)** (v2) — a
 layer + dependency diagram built with the Artifact method (see below), showing how a search
-request crosses the `:app`/`:shared` module boundary: the domain-facing interfaces declared in
-`:shared` invert the dependency, `:app`'s Hilt graph supplies the Retrofit network source,
-`:shared`'s Koin graph supplies the SQLDelight cache, and one bridge module connects the two DI
-containers where they share the cache singleton.
+request crosses the `:app` / `:shared` / `iosApp` boundaries: the domain-facing interfaces
+declared in `:shared` invert the dependency, `:shared`'s own Koin graph supplies both the
+Ktor-backed network source and the SQLDelight-backed cache, `:app`'s Hilt graph resolves the
+search use case through one Koin↔Hilt bridge, and iOS calls `GitHubSearchRepository` directly,
+bypassing the use case entirely.
 
-This is the same mechanism `docs/architecture/github-search-caching-decision.md` describes in
-prose — the diagram exists because a cold reader can see the module boundary, the two DI
-containers, and where the bridge crosses it faster than assembling that from the write-up alone.
+This is the same mechanism `docs/architecture/github-search-caching-decision.md` originally
+decided (that doc's "what actually changed" section is now superseded — see its own callout for
+current file locations).
+
+**This is v2, redrawn after v1 went stale.** The original version of this diagram put the network
+source and caching decorator in `:app`, labeled "Retrofit" — accurate when drawn, but a later Ktor
+migration moved both into `:shared`, and nothing caught the drift for a while because the diagram
+lives outside git with no diff to flag it (see `docs/backlog.md` AT-8, in Resolved). Same
+tradeoff the recommendation below already names for this method — **if you keep a diagram like
+this, re-verify it against the code every so often; a link doesn't age itself for you.**
 
 ## The Artifact method
 
@@ -58,7 +66,9 @@ No single tool fits every case here:
   prose (like the caching decision doc), reach for **Mermaid** first — lowest friction, versioned
   as text, no external dependency.
 - For a genuinely polished, onboarding-facing diagram worth linking from the README or a PR, the
-  **Artifact method** used above is a reasonable choice — see the worked example.
+  **Artifact method** used above is a reasonable choice — see the worked example. Just budget for
+  the maintenance cost the row above already names: it went stale once (see the worked example's
+  own note) precisely because nothing in git flags it when the architecture moves.
 - **Structurizr** is worth adopting only if the team wants formal C4-style diagrams enforced
   across multiple docs, not for a single one-off.
 - **draw.io** is the fallback when a diagram needs manual layout control Mermaid can't express

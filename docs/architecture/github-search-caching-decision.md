@@ -1,5 +1,13 @@
 # Design Discussion: Caching Architecture for `GitHubSearchRepository`
 
+> **Superseded, partially:** the *decision* below (segregated interfaces, decorator pattern, why
+> Option 2 over 1/3) is still accurate and still the reasoning behind the current design. But the
+> **"What actually changed"/"Verification" sections describe a Hilt-based end state that no longer
+> exists** — a later Ktor migration moved `GitHubSearchNetworkSourceImpl` and
+> `CachingGitHubSearchRepository` from `:app`/Hilt into `:shared`/Koin (Retrofit is gone
+> entirely; `RepositoryModule.kt`/`NetworkModule.kt` no longer exist). For current file locations
+> and wiring, see `docs/kmp-knowledge/kmp-knowledge-base.md` §4 and §6.
+
 **Status:** decided and implemented. **Context:** after adding a SQLDelight-backed cache in
 front of `GitHubSearchRepository` (to soften GitHub's documented 10 req/min rate limit — see the
 README's "Known limitations"), the caching logic was implemented as a `CachingGitHubSearchRepository`

@@ -341,18 +341,47 @@ the single highest-density interview-answer material in this document.
 
 ## 13. Still open — things to learn more about
 
+**Concepts to rehearse:**
+
 - **Kotlin/Native memory model** — a one-sentence answer exists, but articulating it live,
   unprompted, still needs rehearsal — nothing in the code *forces* you to explain it.
-- **Compose Multiplatform** — never explored; this project deliberately went all-native (Compose
-  Android + SwiftUI iOS). Know *when* a team would reach for it instead, even without having built
-  with it.
-- **Napier** (multiplatform logging) and **multiplatform-settings** (key-value storage) — named in
-  the original gap table, never came up because the project never needed them.
+- **multiplatform-settings** (key-value storage) — named in the original gap table, never came up
+  because the project never needed it. No concrete hook into this codebase yet.
 - **A second memorized migration case study** — one real-world case is covered in depth; having a
   second one memorized would round this out.
 - **Production-scale competency** — explicitly *not* closeable by any amount of solo prep. Frame
   honestly in an interview rather than overstating it.
 - **Non-KMP gaps** (mobile security/auth, SAFe, etc.) — entirely out of scope for this document.
+
+**Concrete extension ideas, grounded in this codebase (not generic tutorial ideas):**
+
+- **A typed `SearchError` sealed hierarchy across the `@Throws` boundary.** `GitHubApi.kt`
+  currently never checks HTTP status (see `docs/backlog.md` AT-11) — fixing that by mapping
+  GitHub's 403/422/5xx responses to a sealed `RateLimited`/`Unauthorized`/`NotFound`/`ServerError`
+  type, then getting Swift to pattern-match on the *specific* case via the bridged `NSError`, is a
+  genuinely harder `@Throws` interop case than the one this doc's §9 currently documents (which
+  only names the base `Exception` type).
+- **A real second `expect`/`actual`: connectivity detection.** §2 above notes
+  `Platform.platformName()` is "the one genuinely trivial case" — `ConnectivityManager` (Android)
+  vs. `NWPathMonitor` (iOS) is a real platform-API divergence, and it has an immediate use:
+  `CachingGitHubSearchRepository.search()` currently always tries the network first and reacts to
+  failure after the fact; checking connectivity first would let it skip straight to cache when
+  clearly offline — a motivated use for the new `expect`/`actual`, not a bolt-on demo.
+- **`supervisorScope` rewrite of `GitHubSearchNetworkSourceImpl`.** Fixes a real bug
+  (`docs/backlog.md` AT-12: one failing type discards the other's already-successful
+  results) while exercising `coroutineScope` vs. `supervisorScope` — a common coroutines interview
+  question, with a real bug in this exact file motivating the answer instead of a contrived example.
+- **Napier's first real use: the cache-fallback path.** `CachingGitHubSearchRepository.search()`'s
+  `catch (e: Exception) { cache.get(query) ?: throw e }` has zero logging today — there's no way to
+  tell how often the fallback actually fires in practice. Adding
+  `Napier.w { "network failed for query=$query, falling back to cache" }` here is small, real, and
+  touches the actual KMP-relevant part of logging (Napier abstracting `android.util.Log` vs.
+  `NSLog`/`os_log`), not a generic "add a logger somewhere."
+- **Compose Multiplatform, using the exact screen that already exists twice.** This project
+  deliberately went all-native (Compose Android + SwiftUI iOS) — `GitHubAutocompleteBar` (`:app`)
+  and `ContentView.swift` (`iosApp`) are already two independent implementations of the *same*
+  screen against the *same* `GitHubSearchRepository`. Sharing the Compose UI to iOS via CMP instead
+  of hand-maintaining both would be a direct, measurable before/after, not a from-scratch toy.
 
 ---
 
