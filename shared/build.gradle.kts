@@ -121,6 +121,9 @@ kotlin {
             // implementation, not a mocking framework like MockK. Compiles and works
             // on every target by construction (step 2's "fakes, not mocks" lesson).
             implementation(libs.ktor.client.mock)
+            // Turbine is genuinely multiplatform (unlike MockK) - used to assert on
+            // Flow emissions in SearchAutocompleteUseCaseTest.
+            implementation(libs.turbine)
         }
         // JdbcSqliteDriver moved here from commonTest (step 8): JDBC is JVM-only,
         // so it can't resolve for iosArm64/iosSimulatorArm64 test compilation once
