@@ -382,6 +382,18 @@ the single highest-density interview-answer material in this document.
   and `ContentView.swift` (`iosApp`) are already two independent implementations of the *same*
   screen against the *same* `GitHubSearchRepository`. Sharing the Compose UI to iOS via CMP instead
   of hand-maintaining both would be a direct, measurable before/after, not a from-scratch toy.
+- **Self-hosted GitHub Actions runner on a local Mac, to remove the iOS CI cost problem entirely.**
+  Checked against this repo's own Actions run history: `ios-ci.yml` has run only 4 times total but
+  already cost ~140 billed minutes at GitHub-hosted macOS's 10× multiplier — more than `ci.yml`'s
+  21 Android runs cost combined (~94 minutes, 1× multiplier). A self-hosted runner isn't billed by
+  Actions minutes at all, which removes the multiplier problem structurally instead of just
+  triggering less often (`ios-ci.yml`'s own comment documents the two free trigger/path-filter
+  mitigations already applied). It also incidentally fixes the Xcode-version-skew problem
+  documented in §9/§11 and `docs/backlog.md`'s Resolved section — a local Mac already has the
+  correct 27.x Xcode, so the scaled-back `:shared`-only CI job could go back to building the real
+  `iosApp` Xcode project too. Real, hands-on GitHub Actions infrastructure knowledge (`actions-runner`
+  registration, keeping it available, security implications of a self-hosted runner on a personal
+  machine) — not KMP-specific, but a natural next step from where this project's CI already is.
 
 ---
 
