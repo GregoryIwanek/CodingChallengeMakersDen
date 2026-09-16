@@ -16,6 +16,7 @@ class CachingGitHubSearchRepository(
     private val cache: GitHubSearchCache,
 ) : GitHubSearchRepository {
 
+    @Throws(Exception::class)
     override suspend fun search(query: String, perTypeLimit: Int): List<SearchResultItem> =
         try {
             val fresh = network.search(query, perTypeLimit)

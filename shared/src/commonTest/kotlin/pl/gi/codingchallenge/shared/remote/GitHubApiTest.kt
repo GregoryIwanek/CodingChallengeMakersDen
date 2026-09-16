@@ -11,6 +11,11 @@ import kotlin.test.assertEquals
 
 class GitHubApiTest {
 
+    // Both fixtures below include real unmodeled fields (node_id, private, language,
+    // score, type, ...) on purpose - the real GitHub API sends these and a strict
+    // Json rejects them with "Encountered an unknown key" (a real regression this
+    // suite didn't catch before it shipped; caught live against the real API
+    // instead). ignoreUnknownKeys=true in GitHubApi.kt is what these prove.
     @Test
     fun searchRepositories_hitsTheRightEndpointAndParsesResponse() = runTest {
         var requestedPath = ""
@@ -21,10 +26,11 @@ class GitHubApiTest {
             respond(
                 content = """
                     {"total_count":1,"incomplete_results":false,"items":[
-                      {"id":1,"name":"cool-repo","full_name":"octocat/cool-repo",
-                       "owner":{"id":2,"login":"octocat","avatar_url":"https://a.co/u.png",
-                                "html_url":"https://github.com/octocat"},
-                       "description":"A cool repo","stargazers_count":42}
+                      {"id":1,"node_id":"R_kgDOA","name":"cool-repo","full_name":"octocat/cool-repo",
+                       "private":false,"language":"Kotlin",
+                       "owner":{"id":2,"node_id":"U_kgDOA","login":"octocat","avatar_url":"https://a.co/u.png",
+                                "html_url":"https://github.com/octocat","type":"User"},
+                       "description":"A cool repo","stargazers_count":42,"score":1.0}
                     ]}
                 """.trimIndent(),
                 status = HttpStatusCode.OK,
@@ -53,8 +59,8 @@ class GitHubApiTest {
             respond(
                 content = """
                     {"total_count":1,"incomplete_results":false,"items":[
-                      {"id":2,"login":"octocat","avatar_url":"https://a.co/u.png",
-                       "html_url":"https://github.com/octocat"}
+                      {"id":2,"node_id":"U_kgDOA","login":"octocat","avatar_url":"https://a.co/u.png",
+                       "html_url":"https://github.com/octocat","type":"User","score":1.0}
                     ]}
                 """.trimIndent(),
                 status = HttpStatusCode.OK,

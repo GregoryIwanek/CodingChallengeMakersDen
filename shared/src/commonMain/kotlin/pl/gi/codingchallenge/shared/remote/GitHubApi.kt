@@ -7,6 +7,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import pl.gi.codingchallenge.shared.remote.dto.GitHubSearchResponse
 import pl.gi.codingchallenge.shared.remote.dto.RepositoryDto
 import pl.gi.codingchallenge.shared.remote.dto.UserDto
@@ -22,7 +23,14 @@ class GitHubApi(engine: HttpClientEngine) {
 
     private val client = HttpClient(engine) {
         install(ContentNegotiation) {
-            json()
+            // ignoreUnknownKeys is load-bearing, not a nicety: the real GitHub API
+            // response has many fields RepositoryDto/UserDto don't model (node_id,
+            // private, language, score, ...) - the default strict Json rejects the
+            // very first real response with "Encountered an unknown key". Caught
+            // live against the real API on iOS (MockEngine tests' hand-crafted JSON
+            // never included an unmodeled field, so they never exercised this path).
+            // Mirrors the old Retrofit NetworkModule's provideJson().
+            json(Json { ignoreUnknownKeys = true })
         }
     }
 
