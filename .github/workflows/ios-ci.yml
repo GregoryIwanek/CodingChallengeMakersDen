@@ -1,0 +1,78 @@
+name: iOS CI
+
+# Scoped to paths that can actually break :shared's iOS compile, unlike
+# ci.yml's Android job which runs on every push/PR to main/develop - macOS
+# runners bill at a 10x minute multiplier, so this shouldn't fire on
+# unrelated work (see kmp-interview-prep/execution-plan's step 8 iOS guide,
+# §7). Deliberately excludes iosApp/** - this job doesn't build the Xcode
+# project (see the job's own comment for why), so changes there wouldn't
+# be verified by anything this job actually runs.
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "shared/**"
+      - "gradle/libs.versions.toml"
+      - "gradle.properties"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - ".github/workflows/ios-ci.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "shared/**"
+      - "gradle/libs.versions.toml"
+      - "gradle.properties"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - ".github/workflows/ios-ci.yml"
+
+jobs:
+  shared-ios-build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Compiles :shared for iosArm64/iosSimulatorArm64 and runs its
+      # commonTest suite on the simulator target - pure Gradle/Kotlin-Native,
+      # no Xcode involved at all.
+      - name: Build and test :shared for iOS
+        run: ./gradlew :shared:iosSimulatorArm64Test --console=plain
+
+      # Deliberately NOT building iosApp itself here - real finding from
+      # this workflow's first two CI runs: this project's .pbxproj needs
+      # Xcode 27.0+ (objectVersion 110, per the iOS extension guide's own
+      # finding), but every Xcode on GitHub's macos-latest image tops out
+      # at 26.6 ("cannot be opened because it is in a future Xcode project
+      # file format"). No already-installed version on the runner works
+      # around this, and guessing a lower objectVersion to hand-edit the
+      # project down to isn't safe without a real Xcode 26.x install to
+      # verify against (violates this project's own "verify, don't guess"
+      # discipline). This also matches how most KMP projects actually draw
+      # this CI line: Kotlin/Native's iOS compilation is pure Gradle/no
+      # Xcode, so :shared can be verified in plain CI; the Xcode app-shell
+      # build is commonly left to Xcode Cloud (always on Apple's current
+      # Xcode, no lag) or manual verification instead, specifically because
+      # of this exact class of GitHub-hosted-runner/Xcode-version gap.
+      # Revisit once GitHub's runner image adds Xcode 27.x.
+
+      - name: Upload reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ci-reports
+          path: |
+            shared/build/reports/tests/iosSimulatorArm64Test/
+            shared/build/test-results/iosSimulatorArm64Test/
+          retention-days: 7
