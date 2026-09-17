@@ -64,10 +64,9 @@ dependencies {
     // graph, bridged into Hilt by a small module (see di/SharedKoinBridgeModule).
     implementation(libs.koin.android)
 
-    // Networking - Retrofit/OkHttp are gone (GitHub-search networking moved into
-    // :shared onto Ktor, step 9's search-unification work). ktor-client-okhttp
-    // remains: it's the real HttpClientEngine :shared's GitHubApi/CatFactApi-shaped
-    // classes resolve via Koin on Android (see androidPlatformModule).
+    // Networking - Retrofit/OkHttp are gone; GitHub-search networking moved into
+    // :shared onto Ktor. ktor-client-okhttp remains: it's the real HttpClientEngine
+    // :shared's GitHubApi resolves via Koin on Android (see androidPlatformModule).
     implementation(libs.ktor.client.okhttp)
 
     // Coroutines

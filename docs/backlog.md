@@ -116,24 +116,6 @@ properly was deferred to happen once the KMP work stabilized — which it now ha
 (`domain/`, `data/`-equivalent `remote/`/`cache/` packages), which packages live where now, and
 the Hilt/Koin bridge. No longer blocked on KMP work stabilizing — it already has.
 
-### AT-6 — `shared/build.gradle.kts`'s iOS-targets comment is stale
-
-| | |
-|---|---|
-| **Priority** | Low |
-| **Component** | `:shared` — `build.gradle.kts` |
-
-**Problem:** the comment above `iosArm64()`/`iosSimulatorArm64()` still reads "Step 8: iOS
-targets. Empty skeleton for now — no iosMain code yet, this pass only proves the
-Gradle/Kotlin-Native toolchain resolves." `shared/src/iosMain/` now has four real files
-(`Platform.ios.kt`, `IosPlatformModule.kt`, `KoinBootstrap.kt`, `KoinHelper.kt`) — it's no longer
-an empty skeleton.
-
-**Why deferred:** noticed during a docs-accuracy review pass, not the iOS work itself; the comment
-was accurate when written and just wasn't revisited once later steps filled `iosMain` in.
-
-**Fix:** a one-line comment update — the cheapest item in this file to close out.
-
 ### AT-7 — `:shared` has no lint report task
 
 | | |
@@ -298,5 +280,9 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
 - **AT-10** — `docs/architecture/github-search-caching-decision.md` now has a "Superseded,
   partially" callout at the top pointing to `docs/kmp-knowledge/kmp-knowledge-base.md` §4/§6 for
   current file locations; the decision/reasoning body left untouched as valid history.
+- **AT-6** — fixed in the same pass that removed "step N" guide references from source comments
+  (the guides no longer exist in the repo): the `iosArm64()`/`iosSimulatorArm64()` comment in
+  `shared/build.gradle.kts` no longer claims an "empty skeleton," and correctly describes what the
+  targets actually compile now.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*

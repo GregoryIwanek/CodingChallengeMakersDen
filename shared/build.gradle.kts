@@ -18,7 +18,7 @@ sqldelight {
 }
 
 kotlin {
-    // Confirmed while adding iOS targets (step 8): this plugin combination doesn't
+    // Confirmed while adding iOS targets: this plugin combination doesn't
     // auto-create the iosMain/iosTest intermediate source sets the way a plain
     // org.jetbrains.kotlin.multiplatform module does - without this call, only the
     // per-target iosArm64Main/iosSimulatorArm64Main source sets exist, with no
@@ -33,9 +33,8 @@ kotlin {
         withHostTestBuilder {}
     }
 
-    // Step 8: iOS targets. Empty skeleton for now — no iosMain code yet, this pass
-    // only proves the Gradle/Kotlin-Native toolchain resolves for this project's
-    // existing android.kotlin.multiplatform.library plugin combination.
+    // iOS targets - compile :shared for iosArm64/iosSimulatorArm64 via this
+    // project's existing android.kotlin.multiplatform.library plugin combination.
     iosArm64()
     iosSimulatorArm64()
 
@@ -81,11 +80,10 @@ kotlin {
         androidMain.dependencies {
             // The HTTP engine is a thin wrapper around a platform-specific networking
             // stack (OkHttp here) - unlike everything else Ktor-related above, this
-            // has to be declared per-target. When iosMain arrives (step 8), that
-            // source set gets ktor-client-darwin instead; commonMain's code calling
-            // HttpClient(...) never changes. Misplacing this in commonMain instead of
-            // here would fail the same way step 2's MockK exercise did, once a
-            // genuine non-JVM target exists.
+            // has to be declared per-target. iosMain's source set gets ktor-client-darwin
+            // instead; commonMain's code calling HttpClient(...) never changes.
+            // Misplacing this in commonMain instead of here would fail the same way
+            // MockK does, once a genuine non-JVM target exists.
             implementation(libs.ktor.client.okhttp)
 
             // koin-android adds Android-specific conveniences (androidContext(),
@@ -119,17 +117,17 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
             // Ktor's fake HTTP engine for tests - a real, minimal HttpClientEngine
             // implementation, not a mocking framework like MockK. Compiles and works
-            // on every target by construction (step 2's "fakes, not mocks" lesson).
+            // on every target by construction, unlike MockK.
             implementation(libs.ktor.client.mock)
             // Turbine is genuinely multiplatform (unlike MockK) - used to assert on
             // Flow emissions in SearchAutocompleteUseCaseTest.
             implementation(libs.turbine)
         }
-        // JdbcSqliteDriver moved here from commonTest (step 8): JDBC is JVM-only,
-        // so it can't resolve for iosArm64/iosSimulatorArm64 test compilation once
-        // those targets genuinely exist - confirmed via a real dependency-resolution
-        // failure (not a compiler error) the moment iOS targets were added, same
-        // category of constraint MockK hit in step 2.
+        // JdbcSqliteDriver moved here from commonTest: JDBC is JVM-only, so it can't
+        // resolve for iosArm64/iosSimulatorArm64 test compilation once those targets
+        // genuinely exist - confirmed via a real dependency-resolution failure (not a
+        // compiler error) the moment iOS targets were added, same category of
+        // constraint MockK hits.
         getByName("androidHostTest") {
             dependencies {
                 implementation(libs.sqldelight.sqlite.driver)
