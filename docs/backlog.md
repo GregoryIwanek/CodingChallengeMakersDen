@@ -56,26 +56,6 @@ gap (Android Lint on `:shared`) isn't independently actionable (AGP plugin limit
 workaround), but ktlint + `.editorconfig` are recommended as a near-zero-cost addition regardless,
 and would cover `:shared` the moment they're added since they're not Android-Lint-shaped.
 
-### AT-13 — Whitespace-only/padded search queries aren't trimmed
-
-| | |
-|---|---|
-| **Priority** | Low |
-| **Component** | `:shared` — `domain/usecase/SearchAutocompleteUseCase.kt`; `:app` — `AutocompleteViewModel.kt` |
-
-**Problem:** no `.trim()` exists anywhere in the query path (confirmed via repo-wide grep). A
-3-space query (`"   "`) satisfies `query.length >= MIN_QUERY_LENGTH` (3), skips the `QueryTooShort`
-gate, and gets sent to GitHub as `q="   "` — likely triggering AT-11's error-handling gap.
-Separately, `"kotlin"` and `"kotlin "` are different cache keys (`CachedSearch.sq`'s primary key is
-the raw query string) and trigger separate debounced network calls, silently fragmenting the cache.
-
-**Why deferred:** found during a source-code bug-hunting pass; minor UX/cache-hygiene issue, not a
-crash.
-
-**Fix:** `.trim()` the query in `AutocompleteViewModel.onQueryChanged` (Android) and
-`ContentView.scheduleSearch` (iOS) — or centrally in `SearchAutocompleteUseCase` so both platforms
-get it for free — before the length check and before it reaches the cache key.
-
 ### AT-14 — "Alphabetical top-50" isn't actually guaranteed; GitHub's relevance ranking caps the candidate pool first
 
 | | |
@@ -175,5 +155,12 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
 - **AT-9** — `docs/kmp-knowledge-base.md` moved up from `docs/kmp-knowledge/` (the now-empty
   subfolder removed); all cross-references in `README.md`, this file, and the three
   `docs/architecture/*.md` docs updated to the new path.
+- **AT-13** — trimmed in both real entry points, not just one: `SearchAutocompleteUseCase.kt`
+  (Android's path) and `ContentView.swift`'s `scheduleSearch` (iOS's separate path, since iOS
+  bypasses the use case entirely — the ticket's own "or centrally in `SearchAutocompleteUseCase`
+  so both platforms get it for free" suggestion turned out to be outdated advice from before that
+  bypass was discovered; fixing only the use case would have silently missed iOS). New tests:
+  `whitespaceOnlyQueryStaysQueryTooShortAndNeverCallsRepository` and
+  `paddedQueryIsTrimmedBeforeReachingTheRepository` in `SearchAutocompleteUseCaseTest.kt`.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*

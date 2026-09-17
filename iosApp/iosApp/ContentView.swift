@@ -5,6 +5,7 @@
 //  Created by Grzegorz Iwanek on 16/09/2026.
 //
 
+import Foundation
 import SwiftUI
 import Shared
 
@@ -91,7 +92,14 @@ struct ContentView: View {
     private func scheduleSearch(for text: String) {
         searchTask?.cancel()
 
-        guard text.count >= minQueryLength else {
+        // Trimmed before the length check and before it reaches the repository/cache key -
+        // a whitespace-only or padded query otherwise passes the length gate as-is and
+        // fragments the cache ("kotlin" vs "kotlin " being different cache rows). Mirrors
+        // the same fix in SearchAutocompleteUseCase.kt on the Android side - this view
+        // bypasses that use case entirely (see the comment at the top of this file), so it
+        // needs its own copy of the fix, not just a shared one.
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count >= minQueryLength else {
             uiState = .idle
             return
         }
@@ -106,7 +114,7 @@ struct ContentView: View {
 
             uiState = .loading
             do {
-                let results = try await repository.search(query: text, perTypeLimit: perTypeLimit)
+                let results = try await repository.search(query: trimmed, perTypeLimit: perTypeLimit)
                 guard !Task.isCancelled else { return }
                 uiState = results.isEmpty ? .empty : .success(results)
             } catch {

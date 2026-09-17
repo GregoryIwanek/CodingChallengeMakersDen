@@ -56,6 +56,39 @@ class SearchAutocompleteUseCaseTest {
         }
     }
 
+    // Locks in the fix for docs/backlog.md AT-13: a whitespace-only query used to pass the raw
+    // length check (3 spaces has length 3) and reach the repository/GitHub API as-is.
+    @Test
+    fun whitespaceOnlyQueryStaysQueryTooShortAndNeverCallsRepository() = runTest(dispatcher) {
+        useCase(query).test {
+            assertEquals(SearchOutcome.QueryTooShort, awaitItem())
+
+            query.value = QueryRequest(text = "   ") // 3 spaces - passes the raw length check
+            advanceTimeBy(500)
+
+            assertEquals(SearchOutcome.QueryTooShort, awaitItem())
+            assertEquals(0, fakeRepo.searchCallCount)
+        }
+    }
+
+    // The other half of AT-13: a padded (not just whitespace-only) query must reach the
+    // repository already trimmed, or "kotlin" and "kotlin " become different cache keys.
+    @Test
+    fun paddedQueryIsTrimmedBeforeReachingTheRepository() = runTest(dispatcher) {
+        fakeRepo.enqueueResult(query = "kot", results = listOf(fakeRepo.sampleRepo("kotlin")))
+
+        useCase(query).test {
+            assertEquals(SearchOutcome.QueryTooShort, awaitItem())
+
+            query.value = QueryRequest(text = "  kot  ")
+            advanceTimeBy(400)
+
+            assertEquals(SearchOutcome.Loading, awaitItem())
+            val success = awaitItem() as SearchOutcome.Success
+            assertEquals(1, success.items.size)
+        }
+    }
+
     @Test
     fun rapidTypingOnlyTriggersASearchForTheFinalDebouncedQuery() = runTest(dispatcher) {
         fakeRepo.enqueueResult(query = "kot", results = listOf(fakeRepo.sampleRepo("kotlin")))
