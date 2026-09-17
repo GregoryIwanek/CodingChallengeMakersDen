@@ -12,33 +12,6 @@ it would actually involve.
 
 ## Open
 
-### AT-2 — `CachingGitHubSearchRepository` can swallow `CancellationException`
-
-| | |
-|---|---|
-| **Priority** | Medium |
-| **Component** | `:shared` — `domain/repository/CachingGitHubSearchRepository.kt` |
-
-**Problem:** `CachingGitHubSearchRepository.search()` wraps the network call in
-`try { ... } catch (e: Exception) { cache.get(query) ?: throw e }`. `kotlinx.coroutines
-.CancellationException` is a subtype of `Exception`, so it's caught here too. This path is live in
-normal use: `SearchAutocompleteUseCase` runs searches through `flatMapLatest`, which cancels the
-in-flight search for the previous keystroke as soon as a new one arrives. A search cancelled
-mid-flight gets treated as an ordinary failure and falls through to a cache lookup for the
-now-stale query, instead of propagating the cancellation — a well-known coroutines correctness
-pitfall (swallowing `CancellationException` breaks structured concurrency). No test currently
-exercises this path; `CachingGitHubSearchRepositoryTest` only covers `RuntimeException`.
-
-**Why deferred:** found during a codebase-wide bug sweep. Low visible impact today (the merged
-`flatMapLatest` flow already discards the stale coroutine's result either way), but it's a latent
-correctness issue that would bite harder if this fallback logic is ever reused somewhere the
-result of a swallowed cancellation is actually observed.
-
-**Fix:** re-throw cancellation before the generic catch, e.g.
-`catch (e: CancellationException) { throw e } catch (e: Exception) { cache.get(query) ?: throw e }`,
-plus a test asserting a cancelled `search()` propagates cancellation instead of returning a cached
-value.
-
 ### AT-3 — SQLDelight search cache has no eviction or size cap
 
 | | |
@@ -217,5 +190,11 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
   domain model rather than duplicating a per-platform key workaround. New test:
   `SearchResultItemTest.kt` (`:shared/commonTest`) proves a repo and a user sharing the same `id`
   still get distinct `uniqueKey`s.
+- **AT-2** — `CachingGitHubSearchRepository.search()` now catches `CancellationException` before
+  the generic `catch (e: Exception)` and rethrows it. New test cancels a real in-flight coroutine
+  mid-search (the fake network source now genuinely suspends via `delay`, not a synchronous
+  throw) and asserts `CancellationException` propagates and `cache.get()` was never called —
+  verified as a real regression test by confirming it fails without the fix, not just that it
+  passes with it.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*

@@ -1,5 +1,6 @@
 package pl.gi.codingchallenge.shared.domain.repository
 
+import kotlinx.coroutines.CancellationException
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 // Network-first, cache-as-fallback-on-failure - not a TTL/staleness cache. Directly
@@ -22,6 +23,13 @@ class CachingGitHubSearchRepository(
             val fresh = network.search(query, perTypeLimit)
             cache.put(query, fresh)
             fresh
+        } catch (e: CancellationException) {
+            // CancellationException is a subtype of Exception - a plain catch (e: Exception)
+            // below would swallow it and fall back to a stale cache entry instead of letting
+            // the cancellation propagate, breaking structured concurrency. SearchAutocompleteUseCase's
+            // flatMapLatest cancels the in-flight search for every keystroke that supersedes it,
+            // so this path is live in normal use, not a hypothetical.
+            throw e
         } catch (e: Exception) {
             cache.get(query) ?: throw e
         }
