@@ -71,30 +71,6 @@ holds multiple docs and earns its subfolder. Purely cosmetic.
 **Fix:** `git mv docs/kmp-knowledge/kmp-knowledge-base.md docs/kmp-knowledge-base.md` next time
 this area is touched for another reason.
 
-### AT-12 — `GitHubSearchNetworkSourceImpl` is fail-fast across two independent calls, discarding real results
-
-| | |
-|---|---|
-| **Priority** | Medium |
-| **Component** | `:shared` — `remote/GitHubSearchNetworkSourceImpl.kt` |
-
-**Problem:** `search()` runs the users and repos calls as two `async {}` inside a plain
-`coroutineScope` (lines 13-22), then `.await()`s both. Structured concurrency's standard fail-fast
-semantics apply: if the repos call 4xx's/5xx's, `coroutineScope` cancels the users `async` too —
-even if it had already completed successfully — and the whole `search()` call throws, discarding
-real data the user would have benefited from. Nothing in the file explains this as a deliberate
-choice, and no test exercises "one type fails, the other succeeds" at this layer —
-`CachingGitHubSearchRepositoryTest` only covers total success or total failure, one layer up.
-
-**Why deferred:** found during a source-code bug-hunting pass; low-frequency (both calls usually
-succeed or both hit the same outage), but a real, silent, undocumented behavior.
-
-**Fix:** replace `coroutineScope` with `supervisorScope` and wrap each `async` body in
-`runCatching`, returning whatever partial results are available plus a signal that the search was
-partial — genuinely exercises the `coroutineScope` vs. `supervisorScope` distinction, a common
-coroutines interview question with a real bug in this exact file motivating it (see the matching
-entry in `docs/kmp-knowledge/kmp-knowledge-base.md` §13).
-
 ### AT-13 — Whitespace-only/padded search queries aren't trimmed
 
 | | |
@@ -196,5 +172,20 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
   throw) and asserts `CancellationException` propagates and `cache.get()` was never called —
   verified as a real regression test by confirming it fails without the fix, not just that it
   passes with it.
+- **AT-12** — `GitHubSearchNetworkSourceImpl.search()` now uses `supervisorScope` +
+  a per-branch `catchingCancellationAware` (a `runCatching` that doesn't swallow
+  `CancellationException`) instead of a plain `coroutineScope`, so one branch failing no longer
+  discards the other's real, already-fetched results. New `GitHubSearchNetworkSourceImplTest.kt`
+  (didn't exist before) covers users-fail/repos-succeed, repos-fail/users-succeed, both-fail
+  (throws), and cancellation. **Scoped down from the ticket's original fix text:** implemented
+  "return partial results instead of discarding them" but not "plus a signal that the search was
+  partial" — that would mean threading a new partial/degraded state through
+  `GitHubSearchRepository`, `SearchOutcome`, and both platforms' UI, which is a real design
+  decision (worth its own ADR, like `docs/architecture/github-search-caching-decision.md`) rather
+  than folding into this fix. Also verified empirically, not just by rule: for this exact
+  await-both shape, a plain `runCatching` turns out to be behaviorally identical to the
+  cancellation-aware version, because a cancelled `Deferred`'s `.await()` throws regardless of
+  what its own coroutine body caught and returned — see `catchingCancellationAware`'s comment for
+  why it's kept anyway.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*
