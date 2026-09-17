@@ -14,6 +14,7 @@ import pl.gi.codingchallenge.shared.domain.model.QueryRequest
 import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 import pl.gi.codingchallenge.shared.domain.repository.FakeGitHubSearchRepository
+import pl.gi.codingchallenge.shared.remote.GitHubApiException
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -123,6 +124,28 @@ class SearchAutocompleteUseCaseTest {
             awaitItem() // Loading
             val failure = awaitItem() as SearchOutcome.Failure
             assertEquals("network down", failure.message)
+        }
+    }
+
+    // The test above uses a generic RuntimeException. This one uses the real
+    // GitHubApiException type instead, proving its specific, human-readable message
+    // (not just "some message") reaches SearchOutcome.Failure unchanged.
+    @Test
+    fun gitHubApiExceptionMessageReachesFailureOutcomeUnchanged() = runTest(dispatcher) {
+        fakeRepo.enqueueError(
+            query = "kot",
+            error = GitHubApiException.RateLimited(statusCode = 403),
+        )
+        useCase(query).test {
+            awaitItem() // QueryTooShort
+            query.value = QueryRequest(text = "kot")
+            advanceTimeBy(400)
+            awaitItem() // Loading
+            val failure = awaitItem() as SearchOutcome.Failure
+            assertEquals(
+                "GitHub API rate limit exceeded (HTTP 403) - try again shortly",
+                failure.message,
+            )
         }
     }
 

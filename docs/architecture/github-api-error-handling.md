@@ -56,8 +56,8 @@ check `HttpResponse.status` before attempting to deserialize a body, mapping non
 a specific, human-readable case instead of letting deserialization fail with an unrelated error:
 
 - `RateLimited` — 403 or 429 (GitHub's search API returns 403 for its primary rate limit; 429 is
-  the secondary-rate-limit status GitHub's docs describe for other endpoints — handling both here
-  costs nothing and is honest about not having tested the 429 path against a real response).
+  the secondary-rate-limit status GitHub's docs describe for other endpoints — both paths are
+  covered by a test, see Verification).
 - `Unauthorized` — 401 (this client sends no `Authorization` header today, so this shouldn't occur
   in practice, but it's a real GitHub API status worth naming rather than falling into a generic
   bucket).
@@ -83,11 +83,19 @@ serialization error, since the whole chain propagates `.message` as a plain `Str
   a body read can itself fail) and maps the status code to a `GitHubApiException` case: 401 →
   `Unauthorized`, 403/429 → `RateLimited`, 404 → `NotFound`, 5xx → `ServerError`, anything else →
   `Unknown(statusCode, rawBody)`.
-- **`GitHubApiTest.kt`:** three new cases — a 403 rate-limit response (asserts the thrown
-  exception is `RateLimited` and its message mentions "rate limit"), a 500 response (asserts
-  `ServerError`, message mentions "500"), and a 422 validation response (asserts `Unknown`,
-  message contains both the status code and GitHub's own error text) — the exact two status codes
-  (403, 422) named in the original bug report, plus 500 for the server-error branch.
+- **`GitHubApiTest.kt`:** nine cases total covering this fix. The first pass (3 tests) only
+  covered the two status codes named in the original bug report (403, 422) plus 500. A follow-up
+  pass closed the gaps that left: 404 → `NotFound`, 401 → `Unauthorized`, and 429 → `RateLimited`
+  (proving the "403 and 429 both mean rate-limited" decision above actually holds, not just 403)
+  each got their own test, since nothing had exercised those `when` branches at all; plus one test
+  for a non-JSON (HTML) error body on a 503, since a real outage can return plain text instead of
+  GitHub's normal JSON shape, and `bodyOrThrow()` deliberately reads the error body as plain text
+  rather than JSON specifically so that doesn't crash a second time on top of the original error.
+- **`CachingGitHubSearchRepositoryTest.kt` and `SearchAutocompleteUseCaseTest.kt`:** both already
+  had failure-path tests, but only using a generic `RuntimeException` to stand in for "some
+  failure." One test added to each, using the real `GitHubApiException` type, proving the
+  cache-fallback path and the use-case's failure-message propagation both work with this specific
+  type too — not just with exceptions in general.
 - **No changes needed** to `GitHubSearchRepository.kt`'s `@Throws(Exception::class)`,
   `CachingGitHubSearchRepository`'s catch-and-fall-back-to-cache logic, or
   `SearchAutocompleteUseCase`'s `.catch { e -> emit(SearchOutcome.Failure(e.message ...)) }` — all
@@ -98,9 +106,12 @@ serialization error, since the whole chain propagates `.message` as a plain `Str
 
 ## Verification
 
-- `./gradlew :shared:testAndroidHostTest --tests "*GitHubApiTest*"` — 5/5 pass.
-- `./gradlew :shared:iosSimulatorArm64Test --tests "*GitHubApiTest*"` — 5/5 pass (the new
-  exception hierarchy compiles and behaves identically on the Kotlin/Native target).
+- `./gradlew :shared:testAndroidHostTest --tests "*GitHubApiTest*" --tests
+  "*CachingGitHubSearchRepositoryTest*" --tests "*SearchAutocompleteUseCaseTest*"` —
+  `GitHubApiTest` 9/9, `CachingGitHubSearchRepositoryTest` 4/4, `SearchAutocompleteUseCaseTest`
+  7/7, all pass.
+- `./gradlew :shared:iosSimulatorArm64Test` (full `commonTest` suite, not just this fix's tests)
+  — passes on the Kotlin/Native target too.
 - `./gradlew :app:compileDebugKotlin :app:testDebugUnitTest` — compiles clean, full existing
   suite still green (no regression from `GitHubApiException` now being a possible thrown type
   anywhere `GitHubSearchRepository.search()` is called).

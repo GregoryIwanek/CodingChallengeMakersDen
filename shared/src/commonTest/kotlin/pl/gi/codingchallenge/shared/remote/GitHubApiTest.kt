@@ -131,4 +131,76 @@ class GitHubApiTest {
         assertTrue(exception.message!!.contains("422"))
         assertTrue(exception.message!!.contains("Validation Failed"))
     }
+
+    // The four below close gaps the three above left: every named case in
+    // GitHubApiException gets its own proof, not just the two the original bug
+    // report happened to mention.
+
+    @Test
+    fun searchUsers_notFound_throwsNotFound() = runTest {
+        val engine = MockEngine { _ ->
+            respond(
+                content = """{"message":"Not Found"}""",
+                status = HttpStatusCode.NotFound,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        assertFailsWith<GitHubApiException.NotFound> {
+            GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
+        }
+    }
+
+    @Test
+    fun searchRepositories_unauthorized_throwsUnauthorized() = runTest {
+        val engine = MockEngine { _ ->
+            respond(
+                content = """{"message":"Bad credentials"}""",
+                status = HttpStatusCode.Unauthorized,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        assertFailsWith<GitHubApiException.Unauthorized> {
+            GitHubApi(engine).searchRepositories(query = "kot", perPage = 10)
+        }
+    }
+
+    // GitHub uses two different status codes for "you're being rate-limited" - 403 for the
+    // primary search-API limit (covered above) and 429 for the secondary rate limit its docs
+    // describe for other endpoints. Both must map to the same RateLimited case.
+    @Test
+    fun searchRepositories_tooManyRequests_alsoThrowsRateLimited() = runTest {
+        val engine = MockEngine { _ ->
+            respond(
+                content = """{"message":"You have exceeded a secondary rate limit"}""",
+                status = HttpStatusCode.TooManyRequests,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        assertFailsWith<GitHubApiException.RateLimited> {
+            GitHubApi(engine).searchRepositories(query = "kot", perPage = 10)
+        }
+    }
+
+    // A real outage can return plain text or an HTML error page instead of GitHub's normal
+    // JSON error body (e.g. a load balancer's own 503 page). bodyOrThrow() reads the error
+    // body as plain text, not as JSON, specifically so this doesn't crash a second time on
+    // top of the original error - this proves that choice actually holds.
+    @Test
+    fun searchUsers_nonJsonErrorBody_stillThrowsClearlyInsteadOfCrashingOnParse() = runTest {
+        val engine = MockEngine { _ ->
+            respond(
+                content = "<html><body>503 Service Unavailable</body></html>",
+                status = HttpStatusCode.ServiceUnavailable,
+                headers = headersOf(HttpHeaders.ContentType, "text/html"),
+            )
+        }
+
+        val exception = assertFailsWith<GitHubApiException.ServerError> {
+            GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
+        }
+        assertTrue(exception.message!!.contains("503"))
+    }
 }
