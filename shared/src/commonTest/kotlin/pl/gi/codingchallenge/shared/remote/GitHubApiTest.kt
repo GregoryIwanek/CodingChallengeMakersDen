@@ -8,6 +8,8 @@ import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class GitHubApiTest {
 
@@ -75,5 +77,58 @@ class GitHubApiTest {
         assertEquals(1, result.items.size)
         assertEquals("octocat", result.items[0].login)
         assertEquals("https://github.com/octocat", result.items[0].htmlUrl)
+    }
+
+    // These three lock in the fix for the bug docs/architecture/github-api-error-handling.md
+    // describes: a non-2xx response used to be deserialized as if it were a successful
+    // GitHubSearchResponse, failing with a misleading "Field 'total_count' is required"
+    // instead of a clear, typed error.
+    @Test
+    fun searchRepositories_rateLimited_throwsRateLimitedWithClearMessage() = runTest {
+        val engine = MockEngine { _ ->
+            respond(
+                content = """{"message":"API rate limit exceeded for 1.2.3.4 (but here's the good news...)"}""",
+                status = HttpStatusCode.Forbidden,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        val exception = assertFailsWith<GitHubApiException.RateLimited> {
+            GitHubApi(engine).searchRepositories(query = "kot", perPage = 10)
+        }
+        assertTrue(exception.message!!.contains("rate limit", ignoreCase = true))
+    }
+
+    @Test
+    fun searchUsers_serverError_throwsServerError() = runTest {
+        val engine = MockEngine { _ ->
+            respond(
+                content = """{"message":"Internal Server Error"}""",
+                status = HttpStatusCode.InternalServerError,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        val exception = assertFailsWith<GitHubApiException.ServerError> {
+            GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
+        }
+        assertTrue(exception.message!!.contains("500"))
+    }
+
+    @Test
+    fun searchRepositories_validationError_throwsUnknownWithStatusAndBody() = runTest {
+        val engine = MockEngine { _ ->
+            respond(
+                content = """{"message":"Validation Failed","errors":[{"code":"invalid"}]}""",
+                status = HttpStatusCode.UnprocessableEntity,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        val exception = assertFailsWith<GitHubApiException.Unknown> {
+            GitHubApi(engine).searchRepositories(query = "   ", perPage = 10)
+        }
+        assertTrue(exception.message!!.contains("422"))
+        assertTrue(exception.message!!.contains("Validation Failed"))
     }
 }
