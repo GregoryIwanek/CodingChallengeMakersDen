@@ -155,32 +155,6 @@ holds multiple docs and earns its subfolder. Purely cosmetic.
 **Fix:** `git mv docs/kmp-knowledge/kmp-knowledge-base.md docs/kmp-knowledge-base.md` next time
 this area is touched for another reason.
 
-### AT-11 — `GitHubApi` never checks HTTP status; a rate-limit/error response reads as a JSON parse crash
-
-| | |
-|---|---|
-| **Priority** | High |
-| **Component** | `:shared` — `remote/GitHubApi.kt` |
-
-**Problem:** Ktor 3.5.2 defaults `expectSuccess = false` and nothing in this codebase overrides it
-(confirmed — no `expectSuccess`/`HttpResponseValidator` anywhere in the repo), so `.body()` runs
-against every HTTP status code, not just 2xx. GitHub's real error body for a 403 rate-limit or 422
-validation failure is `{"message": ..., "documentation_url": ...}`, which has none of
-`GitHubSearchResponse`'s three required, no-default fields (`total_count`, `incomplete_results`,
-`items`). kotlinx.serialization throws `MissingFieldException` on that, and the raw message
-("Field 'total_count' is required") ends up in `SearchOutcome.Failure.message` and gets shown to
-the user verbatim — instead of a clear "rate limited, try again shortly." `GitHubApiTest.kt` only
-ever constructs `HttpStatusCode.OK` responses; no test builds a non-2xx one.
-
-**Why deferred:** found during a source-code bug-hunting pass, not hit through the UI yet — needs a
-real 403/422 from GitHub to surface, which is exactly the rate-limit scenario the README's "Known
-limitations" already flags as a real, expected occurrence for this app.
-
-**Fix:** add explicit status handling in `GitHubApi.kt` (either `expectSuccess = true` +
-`HttpResponseValidator`, or inspect `response.status` before `.body()`), map non-2xx responses to a
-clear error distinct from "the JSON didn't parse," and add a `GitHubApiTest` case constructing a
-403/422 `MockEngine` response to lock the behavior in.
-
 ### AT-12 — `GitHubSearchNetworkSourceImpl` is fail-fast across two independent calls, discarding real results
 
 | | |
@@ -285,5 +259,9 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
   (the guides no longer exist in the repo): the `iosArm64()`/`iosSimulatorArm64()` comment in
   `shared/build.gradle.kts` no longer claims an "empty skeleton," and correctly describes what the
   targets actually compile now.
+- **AT-11** — fixed via PR #5 (`kmp_github_api_error_handling`, merged into `develop`).
+  `GitHubApi.kt` now checks HTTP status before deserializing, mapping non-2xx responses to a new
+  `GitHubApiException` sealed hierarchy instead of letting them fail `GitHubSearchResponse`'s
+  required fields. Full record in `docs/architecture/github-api-error-handling.md`.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*

@@ -1,6 +1,6 @@
 # Ticket: `GitHubApi` never checks HTTP status
 
-**Status:** fixed on branch `kmp_github_api_error_handling`, not yet merged. **Origin:**
+**Status:** fixed and merged (PR #5). **Origin:**
 `docs/backlog.md` AT-11, found during a source-code
 bug-hunting pass and verified against the actual code before being written up. This file exists so
 the original problem record survives in git history even if the backlog entry is later edited or
