@@ -126,8 +126,7 @@ the Hilt/Koin bridge. No longer blocked on KMP work stabilizing — it already h
 **Problem:** `com.android.kotlin.multiplatform.library` (the plugin `:shared` uses) doesn't wire
 up a full `lint`/`lintDebug`-equivalent report-generating task the way `com.android.library` does
 for `:app`. `:shared` only has `lintAnalyzeAndroidHostTest`, an internal analysis step with no
-standalone HTML report — confirmed via `./gradlew :shared:tasks --all` while writing the step 7 CI
-guide.
+standalone HTML report — confirmed via `./gradlew :shared:tasks --all`.
 
 **Why deferred:** this looks like expected behavior of the plugin (a newer, KMP-flavored Android
 Gradle plugin variant with a narrower feature set), not a misconfiguration — `:shared`'s Kotlin
@@ -135,9 +134,11 @@ code still gets compiled and type-checked either way, and Detekt/ktlint-style st
 ever added) wouldn't depend on this task family. No evidence yet that the missing report is
 actually costing anything.
 
-**Fix:** would need research into whether the AGP KMP library plugin gains full lint support in a
-future version, or whether a separate static-analysis tool should be added to `:shared` directly
-instead of chasing parity with `:app`'s lint setup.
+**Fix:** the research this originally called for is now done — see
+`docs/architecture/static-analysis-tools.md` for the full comparison. Short version: this specific
+gap (Android Lint on `:shared`) isn't independently actionable (AGP plugin limitation, no
+workaround), but ktlint + `.editorconfig` are recommended as a near-zero-cost addition regardless,
+and would cover `:shared` the moment they're added since they're not Android-Lint-shaped.
 
 ### AT-9 — `docs/kmp-knowledge/kmp-knowledge-base.md` is the only file in its subdirectory
 
