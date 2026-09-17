@@ -132,20 +132,22 @@ alphabetized — not a true alphabetical top-50), or fetch more pages when `tota
   cancellation-aware version, because a cancelled `Deferred`'s `.await()` throws regardless of
   what its own coroutine body caught and returned — see `catchingCancellationAware`'s comment for
   why it's kept anyway.
-- **AT-9** — `docs/kmp-knowledge-base.md` moved up from `docs/kmp-knowledge/` (the now-empty
+- **AT-9** — fixed via PR #10 (`kmp_bundle_at13_at15_at9`, merged into `develop`).
+  `docs/kmp-knowledge-base.md` moved up from `docs/kmp-knowledge/` (the now-empty
   subfolder removed); all cross-references in `README.md`, this file, and the three
   `docs/architecture/*.md` docs updated to the new path.
-- **AT-13** — trimmed in both real entry points, not just one: `SearchAutocompleteUseCase.kt`
-  (Android's path) and `ContentView.swift`'s `scheduleSearch` (iOS's separate path, since iOS
-  bypasses the use case entirely — the ticket's own "or centrally in `SearchAutocompleteUseCase`
-  so both platforms get it for free" suggestion turned out to be outdated advice from before that
-  bypass was discovered; fixing only the use case would have silently missed iOS). New tests:
+- **AT-13** — fixed via PR #10 (`kmp_bundle_at13_at15_at9`, merged into `develop`). Trimmed in
+  both real entry points, not just one: `SearchAutocompleteUseCase.kt` (Android's path) and
+  `ContentView.swift`'s `scheduleSearch` (iOS's separate path, since iOS bypasses the use case
+  entirely — the ticket's own "or centrally in `SearchAutocompleteUseCase` so both platforms get
+  it for free" suggestion turned out to be outdated advice from before that bypass was
+  discovered; fixing only the use case would have silently missed iOS). New tests:
   `whitespaceOnlyQueryStaysQueryTooShortAndNeverCallsRepository` and
   `paddedQueryIsTrimmedBeforeReachingTheRepository` in `SearchAutocompleteUseCaseTest.kt`.
-- **AT-15** — added a retry `Button` to `ContentView.swift`'s `.error` case, calling
-  `scheduleSearch(for: queryText)` — the same path a text-field edit would trigger. Verified by
-  actually building the iOS app (`xcodebuild ... -destination 'platform=iOS Simulator,name=iPhone
-  17'`, matching this Mac's arm64 `Shared.framework` build) since no CI or test suite exercises
-  `ContentView.swift` at all.
+- **AT-15** — fixed via PR #10 (`kmp_bundle_at13_at15_at9`, merged into `develop`). Added a retry
+  `Button` to `ContentView.swift`'s `.error` case, calling `scheduleSearch(for: queryText)` — the
+  same path a text-field edit would trigger. Verified by actually building the iOS app
+  (`xcodebuild ... -destination 'platform=iOS Simulator,name=iPhone 17'`, matching this Mac's
+  arm64 `Shared.framework` build) since no CI or test suite exercises `ContentView.swift` at all.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*
