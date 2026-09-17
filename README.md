@@ -166,7 +166,7 @@ pl.gi.codingchallenge
 Run everything: `./gradlew check` (unit tests + lint + Paparazzi) and
 `./gradlew connectedDebugAndroidTest` (needs a device/emulator). CI
 runs `./gradlew check` on every push and pull request to `main` and
-`develop` — see `.github/workflows/ci.yml`.
+`develop` — see `.github/workflows/android-ci.yml`.
 
 ## Running it
 

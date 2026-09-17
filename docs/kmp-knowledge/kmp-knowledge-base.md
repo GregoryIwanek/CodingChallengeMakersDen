@@ -293,7 +293,7 @@ had to happen in the same step as the deletion, not deferred.
 one expensive macOS job to only fire on iOS-relevant changes, while a cheap Android job keeps
 firing on everything, requires two separate workflow files (or a `paths-filter` action + `if:`
 condition) — not a `paths:` block on just one job within a shared workflow file. This repo uses
-two files: `ci.yml` (Android, `ubuntu-latest`, every push/PR) and `ios-ci.yml` (`:shared`'s iOS
+two files: `android-ci.yml` (Android, `ubuntu-latest`, every push/PR) and `ios-ci.yml` (`:shared`'s iOS
 target, `macos-latest`, path-filtered to `shared/**` and the root Gradle files).
 
 **Real finding #3 — the Xcode-version-skew problem, live, twice:** the first `ios-ci.yml` run
@@ -313,7 +313,7 @@ hosted-runner/Xcode-version gap is a known, common pain point, not something spe
 **macOS runner cost:** GitHub-hosted macOS runners bill at a **10× minute multiplier** versus
 `ubuntu-latest` — a real, concrete number worth having on hand when asked about KMP rollout costs.
 
-**Where it lives:** `.github/workflows/ci.yml`, `.github/workflows/ios-ci.yml`.
+**Where it lives:** `.github/workflows/android-ci.yml`, `.github/workflows/ios-ci.yml`.
 
 ---
 
@@ -384,7 +384,7 @@ the single highest-density interview-answer material in this document.
   of hand-maintaining both would be a direct, measurable before/after, not a from-scratch toy.
 - **Self-hosted GitHub Actions runner on a local Mac, to remove the iOS CI cost problem entirely.**
   Checked against this repo's own Actions run history: `ios-ci.yml` has run only 4 times total but
-  already cost ~140 billed minutes at GitHub-hosted macOS's 10× multiplier — more than `ci.yml`'s
+  already cost ~140 billed minutes at GitHub-hosted macOS's 10× multiplier — more than `android-ci.yml`'s
   21 Android runs cost combined (~94 minutes, 1× multiplier). A self-hosted runner isn't billed by
   Actions minutes at all, which removes the multiplier problem structurally instead of just
   triggering less often (`ios-ci.yml`'s own comment documents the two free trigger/path-filter
@@ -416,5 +416,5 @@ A quick-lookup table for "where do I go to refresh my memory on X by re-reading 
 | Debounce/search policy (iOS, re-implemented) | `iosApp/iosApp/ContentView.swift` |
 | Fakes-not-mocks test examples | `shared/src/commonTest/.../domain/repository/{CachingGitHubSearchRepositoryTest,FakeGitHubSearchRepository}.kt` |
 | `MockEngine` HTTP test example | `shared/src/commonTest/.../remote/GitHubApiTest.kt` |
-| Android CI | `.github/workflows/ci.yml` |
+| Android CI | `.github/workflows/android-ci.yml` |
 | iOS CI | `.github/workflows/ios-ci.yml` |

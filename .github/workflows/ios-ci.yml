@@ -1,7 +1,7 @@
 name: iOS CI
 
 # Scoped to paths that can actually break :shared's iOS compile, unlike
-# ci.yml's Android job which runs on every push/PR to main/develop - macOS
+# android-ci.yml's Android job which runs on every push/PR to main/develop - macOS
 # runners bill at a 10x minute multiplier, so this shouldn't fire on
 # unrelated work. Deliberately excludes iosApp/** - this job doesn't build
 # the Xcode project (see the job's own comment for why), so changes there
@@ -9,7 +9,7 @@ name: iOS CI
 #
 # Two cost-driven choices, checked against this workflow's own run history
 # (4 runs so far, ~140 billed minutes at the 10x multiplier - more than
-# ci.yml's 21 runs cost in total, at 1x):
+# android-ci.yml's 21 runs cost in total, at 1x):
 #
 # 1. No `push` trigger. Only `pull_request` runs this job. A `push` trigger
 #    on main/develop re-runs the exact same tree a second time the moment an
