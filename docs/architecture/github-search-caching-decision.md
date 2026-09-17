@@ -6,7 +6,7 @@
 > exists** — a later Ktor migration moved `GitHubSearchNetworkSourceImpl` and
 > `CachingGitHubSearchRepository` from `:app`/Hilt into `:shared`/Koin (Retrofit is gone
 > entirely; `RepositoryModule.kt`/`NetworkModule.kt` no longer exist). For current file locations
-> and wiring, see `docs/kmp-knowledge/kmp-knowledge-base.md` §4 and §6.
+> and wiring, see `docs/kmp-knowledge-base.md` §4 and §6.
 
 **Status:** decided and implemented. **Context:** after adding a SQLDelight-backed cache in
 front of `GitHubSearchRepository` (to soften GitHub's documented 10 req/min rate limit — see the

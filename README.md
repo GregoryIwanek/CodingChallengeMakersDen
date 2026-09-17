@@ -136,7 +136,7 @@ Hilt's annotation processor can't run on Kotlin/Native.
 
 The tree above is `commonMain` — the code that compiles for both platforms. `androidMain`/
 `iosMain` hold the small per-target pieces it needs (SQL driver, HTTP engine, Koin bootstrap) —
-see `docs/kmp-knowledge/kmp-knowledge-base.md` §1 for the full source-set breakdown.
+see `docs/kmp-knowledge-base.md` §1 for the full source-set breakdown.
 
 - `SearchAutocompleteUseCase` returns a domain-only `SearchOutcome`
   (`QueryTooShort` / `Loading` / `Success` / `Failure`) — deliberately

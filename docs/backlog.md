@@ -56,21 +56,6 @@ gap (Android Lint on `:shared`) isn't independently actionable (AGP plugin limit
 workaround), but ktlint + `.editorconfig` are recommended as a near-zero-cost addition regardless,
 and would cover `:shared` the moment they're added since they're not Android-Lint-shaped.
 
-### AT-9 — `docs/kmp-knowledge/kmp-knowledge-base.md` is the only file in its subdirectory
-
-| | |
-|---|---|
-| **Priority** | Low |
-| **Component** | Docs — `docs/kmp-knowledge/` |
-
-**Problem:** it's the sole file under `docs/kmp-knowledge/`, unlike `docs/architecture/` which
-holds multiple docs and earns its subfolder. Purely cosmetic.
-
-**Why deferred:** noticed during a docs-accuracy review pass; not worth a churn commit on its own.
-
-**Fix:** `git mv docs/kmp-knowledge/kmp-knowledge-base.md docs/kmp-knowledge-base.md` next time
-this area is touched for another reason.
-
 ### AT-13 — Whitespace-only/padded search queries aren't trimmed
 
 | | |
@@ -139,13 +124,13 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
 ## Resolved
 
 - **AT-5** — `docs/PROJECT_ANALYSIS.md` deleted outright (superseded by
-  `docs/kmp-knowledge/kmp-knowledge-base.md` + this file, which are actively maintained).
+  `docs/kmp-knowledge-base.md` + this file, which are actively maintained).
 - **AT-8** — the linked Artifact republished at the same URL as v2, redrawn to match current
   `develop` (network source/decorator/GitHub API box moved to the `:shared` swimlane, a third
   `iosApp` swimlane added for iOS's direct-call bypass of the use case). `diagramming-tools.md`'s
   own prose updated to match and to flag the re-verify-periodically lesson for next time.
 - **AT-10** — `docs/architecture/github-search-caching-decision.md` now has a "Superseded,
-  partially" callout at the top pointing to `docs/kmp-knowledge/kmp-knowledge-base.md` §4/§6 for
+  partially" callout at the top pointing to `docs/kmp-knowledge-base.md` §4/§6 for
   current file locations; the decision/reasoning body left untouched as valid history.
 - **AT-6** — fixed in the same pass that removed "step N" guide references from source comments
   (the guides no longer exist in the repo): the `iosArm64()`/`iosSimulatorArm64()` comment in
@@ -159,7 +144,7 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
   architecture section rewritten to show the real `:app`/`:shared` split (`ui/`/`di/`/`util/` in
   `:app`; `domain/`/`remote/`/`cache/` in `:shared`), replacing the tree that described a package
   layout that no longer exists. Also added a note on `androidMain`/`iosMain` pointing to
-  `docs/kmp-knowledge/kmp-knowledge-base.md` §1 for the full source-set breakdown.
+  `docs/kmp-knowledge-base.md` §1 for the full source-set breakdown.
 - **AT-1** — fixed by adding `SearchResultItem.uniqueKey` (a `"repo:$id"`/`"user:$id"`-prefixed
   key) in `:shared`'s domain model, used by both `SuggestionPanel.kt`'s `LazyColumn` (Android) and
   `ContentView.swift`'s `List` (iOS) instead of the raw, collidable `id`. Fixed once in the shared
@@ -187,5 +172,8 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
   cancellation-aware version, because a cancelled `Deferred`'s `.await()` throws regardless of
   what its own coroutine body caught and returned — see `catchingCancellationAware`'s comment for
   why it's kept anyway.
+- **AT-9** — `docs/kmp-knowledge-base.md` moved up from `docs/kmp-knowledge/` (the now-empty
+  subfolder removed); all cross-references in `README.md`, this file, and the three
+  `docs/architecture/*.md` docs updated to the new path.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*
