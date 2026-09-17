@@ -78,33 +78,19 @@ typing in one tab never leaks into the other.
 
 ## Architecture
 
-Clean Architecture + MVVM. Dependencies point inward: `ui/` and
-`data/` both depend on `domain/`, never the other way around.
+Clean Architecture + MVVM, split across two Gradle modules. `:app` holds
+Android/Compose-only code; `:shared` holds the multiplatform domain and
+data layers, compiled for both Android and iOS. Dependencies still point
+inward — `:app`'s `ui/` depends on `:shared`'s `domain/` interfaces, and
+`:shared`'s own `remote/`/`cache/` depend on its `domain/`, never the
+other way around. `:app` reaches `:shared` through a small Koin→Hilt
+bridge (`SharedKoinBridgeModule.kt`), since `:shared` is Koin-only —
+Hilt's annotation processor can't run on Kotlin/Native.
 
 ```
-pl.gi.codingchallenge
-├── di/                                  # Hilt modules
-│   ├── NetworkModule.kt
-│   └── RepositoryModule.kt
-├── domain/                              # plain Kotlin, no Android/Compose imports
-│   ├── model/
-│   │   ├── SearchResultItem.kt          # sealed interface: UserResult / RepoResult
-│   │   ├── SearchOutcome.kt             # sealed interface: the use case's output
-│   │   ├── QueryRequest.kt              # query text + retry counter
-│   │   └── SearchLimits.kt              # MAX_RESULTS
-│   ├── usecase/
-│   │   └── SearchAutocompleteUseCase.kt # debounce, min-length gate, cancel-on-new-input
-│   ├── repository/
-│   │   └── GitHubSearchRepository.kt    # interface only
-│   └── ResultMerger.kt                  # merges + sorts + caps both result types
-├── data/                                # the only layer that knows about Retrofit/GitHub's REST shape
-│   ├── remote/
-│   │   ├── GitHubApi.kt                 # Retrofit interface
-│   │   └── dto/                         # UserDto, RepositoryDto, GitHubSearchResponse<T>
-│   ├── model/
-│   │   └── ResultMappers.kt             # DTO -> domain
-│   └── repository/
-│       └── GitHubSearchRepositoryImpl.kt  # parallel fetch via async; implements domain/repository
+:app (pl.gi.codingchallenge)
+├── di/
+│   └── SharedKoinBridgeModule.kt        # bridges Koin (:shared) into Hilt (:app)
 ├── ui/
 │   ├── autocomplete/                    # the reusable component
 │   │   ├── AutocompleteViewModel.kt     # maps SearchOutcome -> AutocompleteUiState
@@ -117,18 +103,53 @@ pl.gi.codingchallenge
 │   └── DemoScreen.kt                    # 3-tab demo host — see Demo above
 ├── util/
 │   └── ResourceUtil.kt                  # dimRes/strRes/colRes/spRes helpers
-├── CodingChallengeApp.kt                # @HiltAndroidApp
+├── CodingChallengeApp.kt                # @HiltAndroidApp, starts Koin before Hilt resolves anything
 └── MainActivity.kt
+
+:shared (pl.gi.codingchallenge.shared) — commonMain, compiles for Android + iOS
+├── di/
+│   └── SharedModule.kt                  # Koin module (+ per-target AndroidPlatformModule/IosPlatformModule)
+├── domain/
+│   ├── model/
+│   │   ├── SearchResultItem.kt          # sealed interface: UserResult / RepoResult
+│   │   ├── SearchOutcome.kt             # sealed interface: the use case's output
+│   │   ├── QueryRequest.kt              # query text + retry counter
+│   │   └── SearchLimits.kt              # MAX_RESULTS
+│   ├── usecase/
+│   │   └── SearchAutocompleteUseCase.kt # debounce, min-length gate, cancel-on-new-input
+│   ├── repository/
+│   │   ├── GitHubSearchRepository.kt        # the interface the use case (and iOS) depend on
+│   │   ├── GitHubSearchNetworkSource.kt     # narrower interface: raw network access
+│   │   ├── GitHubSearchCache.kt             # narrower interface: storage only
+│   │   └── CachingGitHubSearchRepository.kt # network-first, cache-as-fallback-on-failure
+│   └── ResultMerger.kt                  # merges + sorts + caps both result types
+├── remote/
+│   ├── GitHubApi.kt                     # Ktor client - the only thing that knows GitHub's REST shape
+│   ├── GitHubApiException.kt            # typed errors: RateLimited/Unauthorized/NotFound/...
+│   ├── GitHubSearchNetworkSourceImpl.kt # implements GitHubSearchNetworkSource via GitHubApi
+│   ├── ResultMappers.kt                 # DTO -> domain
+│   └── dto/                             # UserDto, RepositoryDto, GitHubSearchResponse<T>
+├── cache/
+│   └── SearchResultCache.kt             # implements GitHubSearchCache via SQLDelight
+└── Platform.kt                          # expect/actual demo (+ Platform.android.kt/Platform.ios.kt)
 ```
+
+The tree above is `commonMain` — the code that compiles for both platforms. `androidMain`/
+`iosMain` hold the small per-target pieces it needs (SQL driver, HTTP engine, Koin bootstrap) —
+see `docs/kmp-knowledge/kmp-knowledge-base.md` §1 for the full source-set breakdown.
 
 - `SearchAutocompleteUseCase` returns a domain-only `SearchOutcome`
   (`QueryTooShort` / `Loading` / `Success` / `Failure`) — deliberately
   no `Empty` variant, since an empty result set is just
   `Success(emptyList())`; deciding to render that as an "empty state"
   is a UI concern, left to `AutocompleteViewModel`.
-- `GitHubSearchRepositoryImpl` implements the `domain/repository`
-  interface (dependency inversion) rather than `domain/` depending on
-  `data/`.
+- `CachingGitHubSearchRepository` is the only class that implements
+  `GitHubSearchRepository` — `:app`'s Hilt graph never sees a concrete
+  network or cache class directly, only this decorator, resolved
+  through the Koin bridge. See
+  `docs/architecture/github-search-caching-decision.md` for why it's
+  split into `GitHubSearchNetworkSource`/`GitHubSearchCache` instead of
+  one interface.
 
 ## Testing
 

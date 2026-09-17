@@ -89,33 +89,6 @@ but distinct gap (unbounded growth, not staleness).
 column checked on read, or deliberately deciding unbounded growth is acceptable for this cache's
 realistic lifetime and documenting that choice.
 
-### AT-4 — README architecture section describes packages that no longer exist
-
-| | |
-|---|---|
-| **Priority** | High |
-| **Component** | Docs — `README.md` |
-
-**Problem:** the README's architecture/module-tree section shows `domain/` and `data/` living
-under `pl.gi.codingchallenge` (`:app`), with named files like `di/NetworkModule.kt`,
-`data/remote/GitHubApi.kt # Retrofit interface`, and `data/repository/GitHubSearchRepositoryImpl.kt`.
-Re-verified after the showcase-removal/Ktor migration work: this is worse than "doesn't mention
-`:shared`" — `app/src/main/java/pl/gi/codingchallenge/` now only has `ui/`, `di/`, `util/`.
-`domain/` and `data/` don't exist in `:app` at all anymore; that code moved into
-`shared/src/commonMain` entirely, and Retrofit itself is gone from the project (replaced by Ktor —
-see `docs/kmp-knowledge/kmp-knowledge-base.md` §4). The README's tree describes a package layout
-that's gone, not one that's merely incomplete.
-
-**Why deferred:** noticed while updating README's "Known limitations" section during the
-persistence (step 6) work, when the gap was smaller (just "doesn't mention `:shared`"). Fixing the
-limitations note was a small, self-contained correction; rewriting the architecture section
-properly was deferred to happen once the KMP work stabilized — which it now has (showcase removal
-+ iOS CI both merged to `develop`).
-
-**Fix:** an accurate module/layer diagram reflecting `:app` (`ui/`, `di/`, `util/`) + `:shared`
-(`domain/`, `data/`-equivalent `remote/`/`cache/` packages), which packages live where now, and
-the Hilt/Koin bridge. No longer blocked on KMP work stabilizing — it already has.
-
 ### AT-7 — `:shared` has no lint report task
 
 | | |
@@ -263,5 +236,10 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
   `GitHubApi.kt` now checks HTTP status before deserializing, mapping non-2xx responses to a new
   `GitHubApiException` sealed hierarchy instead of letting them fail `GitHubSearchResponse`'s
   required fields. Full record in `docs/architecture/github-api-error-handling.md`.
+- **AT-4** — fixed on branch `kmp_readme_architecture_fix`, not yet merged. README's architecture
+  section rewritten to show the real `:app`/`:shared` split (`ui/`/`di/`/`util/` in `:app`;
+  `domain/`/`remote/`/`cache/` in `:shared`), replacing the tree that described a package layout
+  that no longer exists. Also added a note on `androidMain`/`iosMain` pointing to
+  `docs/kmp-knowledge/kmp-knowledge-base.md` §1 for the full source-set breakdown.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*
