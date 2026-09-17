@@ -79,26 +79,6 @@ crash.
 alphabetized — not a true alphabetical top-50), or fetch more pages when `total_count` exceeds
 `perPage` and merge across them before capping, if a true top-50 is actually wanted.
 
-### AT-15 — iOS's error state has no retry; Android's does
-
-| | |
-|---|---|
-| **Priority** | Medium |
-| **Component** | `iosApp` — `ContentView.swift` |
-
-**Problem:** `ContentView.swift`'s `.error(let message)` case (lines 67-69) renders red text with
-no interactive affordance. Android's equivalent (`AutocompleteViewModel.retry()`) is wired to a
-real button in `SuggestionPanel.kt`'s `ErrorState`. On iOS the only way to re-trigger a failed
-query is to edit the text field away and back, since `scheduleSearch` only fires from
-`.onChange(of: queryText)`. No iOS tests exist at all (`find iosApp -iname "*Test*"` returns
-nothing), so this platform asymmetry is invisible to any test suite.
-
-**Why deferred:** found during a source-code bug-hunting pass; a real feature-parity gap, not a
-crash — the iOS app is otherwise fully functional, just missing this one affordance.
-
-**Fix:** add a retry `Button` to the `.error` case in `ContentView.swift`, calling the same
-`scheduleSearch(for: queryText)` path a text-field edit would trigger.
-
 ---
 
 ## Resolved
@@ -162,5 +142,10 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
   bypass was discovered; fixing only the use case would have silently missed iOS). New tests:
   `whitespaceOnlyQueryStaysQueryTooShortAndNeverCallsRepository` and
   `paddedQueryIsTrimmedBeforeReachingTheRepository` in `SearchAutocompleteUseCaseTest.kt`.
+- **AT-15** — added a retry `Button` to `ContentView.swift`'s `.error` case, calling
+  `scheduleSearch(for: queryText)` — the same path a text-field edit would trigger. Verified by
+  actually building the iOS app (`xcodebuild ... -destination 'platform=iOS Simulator,name=iPhone
+  17'`, matching this Mac's arm64 `Shared.framework` build) since no CI or test suite exercises
+  `ContentView.swift` at all.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*

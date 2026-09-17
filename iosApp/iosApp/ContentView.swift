@@ -66,7 +66,13 @@ struct ContentView: View {
             Text("No results").foregroundStyle(.secondary)
             Spacer()
         case .error(let message):
-            Text("Error: \(message)").foregroundStyle(.red).padding()
+            VStack(spacing: 12) {
+                Text("Error: \(message)").foregroundStyle(.red)
+                Button("Retry") {
+                    scheduleSearch(for: queryText)
+                }
+            }
+            .padding()
             Spacer()
         case .success(let items):
             List(items, id: \.uniqueKey) { resultRow($0) }
