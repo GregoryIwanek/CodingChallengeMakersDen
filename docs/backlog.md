@@ -12,36 +12,6 @@ it would actually involve.
 
 ## Open
 
-### AT-1 — `SuggestionPanel`'s LazyColumn key can collide across result types (crash)
-
-| | |
-|---|---|
-| **Priority** | High |
-| **Component** | `:app` — `ui/autocomplete/SuggestionPanel.kt` |
-
-**Problem:** `SuggestionPanel` merges users and repos into one list and keys each `itemsIndexed`
-row on `item.id` alone (`key = { _, item -> item.id }`). `RepositoryDto.id` and `UserDto.id` are
-both plain `Long`s from GitHub's REST API, but users and repos are independent entity types with
-their own ID sequences — a user and a repository can legitimately share the same numeric ID. Any
-search whose merged, top-50 result set contains such a pair throws `IllegalArgumentException: Key
-... was already used` from Compose's `LazyColumn`, crashing the screen. Nothing in the current
-fixtures/tests uses colliding IDs across the two types, so this hasn't surfaced in
-`GitHubAutocompleteBarTest` or the Paparazzi goldens.
-
-**Why deferred:** found during a codebase-wide bug sweep, not hit organically yet — needs a live
-query that happens to return a colliding pair to reproduce, which is a matter of when, not if,
-against real GitHub data.
-
-**Fix:** disambiguate the key by result type, e.g.
-`key = { _, item -> "${item::class.simpleName}:${item.id}" }`, or add a type discriminator to
-`SearchResultItem.id` itself so downstream consumers don't have to remember the collision risk.
-
-**Cross-platform note:** `iosApp/iosApp/ContentView.swift:71` keys SwiftUI's `List` on the same
-`item.id` — identical root cause. SwiftUI's `List` doesn't hard-crash on a duplicate identifier the
-way Compose's `LazyColumn` does, but produces undefined diffing/identity behavior instead (a known
-SwiftUI foot-gun) — not run live to confirm the exact symptom, so treat as plausible-but-unconfirmed
-rather than a second verified crash. Worth applying the same fix on both platforms together.
-
 ### AT-2 — `CachingGitHubSearchRepository` can swallow `CancellationException`
 
 | | |
@@ -236,10 +206,16 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
   `GitHubApi.kt` now checks HTTP status before deserializing, mapping non-2xx responses to a new
   `GitHubApiException` sealed hierarchy instead of letting them fail `GitHubSearchResponse`'s
   required fields. Full record in `docs/architecture/github-api-error-handling.md`.
-- **AT-4** — fixed on branch `kmp_readme_architecture_fix`, not yet merged. README's architecture
-  section rewritten to show the real `:app`/`:shared` split (`ui/`/`di/`/`util/` in `:app`;
-  `domain/`/`remote/`/`cache/` in `:shared`), replacing the tree that described a package layout
-  that no longer exists. Also added a note on `androidMain`/`iosMain` pointing to
+- **AT-4** — fixed via PR #6 (`kmp_readme_architecture_fix`, merged into `develop`). README's
+  architecture section rewritten to show the real `:app`/`:shared` split (`ui/`/`di/`/`util/` in
+  `:app`; `domain/`/`remote/`/`cache/` in `:shared`), replacing the tree that described a package
+  layout that no longer exists. Also added a note on `androidMain`/`iosMain` pointing to
   `docs/kmp-knowledge/kmp-knowledge-base.md` §1 for the full source-set breakdown.
+- **AT-1** — fixed by adding `SearchResultItem.uniqueKey` (a `"repo:$id"`/`"user:$id"`-prefixed
+  key) in `:shared`'s domain model, used by both `SuggestionPanel.kt`'s `LazyColumn` (Android) and
+  `ContentView.swift`'s `List` (iOS) instead of the raw, collidable `id`. Fixed once in the shared
+  domain model rather than duplicating a per-platform key workaround. New test:
+  `SearchResultItemTest.kt` (`:shared/commonTest`) proves a repo and a user sharing the same `id`
+  still get distinct `uniqueKey`s.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*

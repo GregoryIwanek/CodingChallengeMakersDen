@@ -11,6 +11,13 @@ sealed interface SearchResultItem {
     val id: String
     val sortKey: String
 
+    // id alone isn't unique across subtypes - RepoResult and UserResult each get their id
+    // from GitHub's own independent id sequences (repo ids, user ids), so a user and a repo
+    // can legitimately share the same numeric id. List/LazyColumn keys (Android's
+    // SuggestionPanel, iOS's ContentView) must use this instead of id directly, or a merged
+    // list containing such a pair crashes Compose's LazyColumn with "Key ... was already used".
+    val uniqueKey: String
+
     @Serializable
     data class RepoResult(
         override val id: String,
@@ -22,6 +29,7 @@ sealed interface SearchResultItem {
         val stars: Int,
     ) : SearchResultItem {
         override val sortKey: String get() = name
+        override val uniqueKey: String get() = "repo:$id"
     }
 
     @Serializable
@@ -32,5 +40,6 @@ sealed interface SearchResultItem {
         val htmlUrl: String,
     ) : SearchResultItem {
         override val sortKey: String get() = login
+        override val uniqueKey: String get() = "user:$id"
     }
 }
