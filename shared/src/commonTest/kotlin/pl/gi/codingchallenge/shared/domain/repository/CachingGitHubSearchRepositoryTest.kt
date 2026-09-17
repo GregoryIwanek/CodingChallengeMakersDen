@@ -2,6 +2,7 @@ package pl.gi.codingchallenge.shared.domain.repository
 
 import kotlinx.coroutines.test.runTest
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.remote.GitHubApiException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -51,6 +52,20 @@ class CachingGitHubSearchRepositoryTest {
         assertFailsWith<RuntimeException> {
             repository.search(query = "kot", perTypeLimit = 50)
         }
+    }
+
+    // The two tests above use a generic RuntimeException to stand in for "the network call
+    // failed, whatever the reason." This one uses the real GitHubApiException type instead -
+    // proving the fallback-to-cache path (catch (e: Exception)) genuinely catches this specific
+    // sealed subtype too, not just exceptions in general.
+    @Test
+    fun searchFailureFromGitHubApiExceptionSpecificallyStillFallsBackToCache() = runTest {
+        network.error = GitHubApiException.RateLimited(statusCode = 403)
+        cache.stored["kot"] = results
+
+        val actual = repository.search(query = "kot", perTypeLimit = 50)
+
+        assertEquals(results, actual)
     }
 
     private class FakeNetworkSource : GitHubSearchNetworkSource {

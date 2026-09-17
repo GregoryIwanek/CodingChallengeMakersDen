@@ -6,6 +6,9 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import pl.gi.codingchallenge.shared.remote.dto.GitHubSearchResponse
@@ -38,11 +41,29 @@ class GitHubApi(engine: HttpClientEngine) {
         client.get("$GITHUB_BASE_URL/search/repositories") {
             parameter("q", query)
             parameter("per_page", perPage)
-        }.body()
+        }.bodyOrThrow()
 
     suspend fun searchUsers(query: String, perPage: Int): GitHubSearchResponse<UserDto> =
         client.get("$GITHUB_BASE_URL/search/users") {
             parameter("q", query)
             parameter("per_page", perPage)
-        }.body()
+        }.bodyOrThrow()
+}
+
+// Ktor 3.5.2 defaults expectSuccess = false, so .body() alone runs against every status code,
+// not just 2xx - see docs/architecture/github-api-error-handling.md for the real bug this
+// caused (a rate-limit response's error JSON failed GitHubSearchResponse's required fields,
+// surfacing as a misleading "Field 'total_count' is required" instead of a clear rate-limit
+// message). This checks status explicitly before ever attempting to deserialize a search response.
+private suspend inline fun <reified T> HttpResponse.bodyOrThrow(): T {
+    if (status.isSuccess()) return body()
+    throw statusToException(status.value, runCatching { bodyAsText() }.getOrDefault(""))
+}
+
+private fun statusToException(statusCode: Int, rawBody: String): GitHubApiException = when (statusCode) {
+    401 -> GitHubApiException.Unauthorized()
+    403, 429 -> GitHubApiException.RateLimited(statusCode)
+    404 -> GitHubApiException.NotFound()
+    in 500..599 -> GitHubApiException.ServerError(statusCode)
+    else -> GitHubApiException.Unknown(statusCode, rawBody)
 }
