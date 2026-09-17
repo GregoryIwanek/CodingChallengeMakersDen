@@ -75,7 +75,7 @@ internal fun SuggestionPanel(
                     .heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height))
                     .testTag(AutocompleteTestTags.RESULTS_LIST),
             ) {
-                itemsIndexed(uiState.items, key = { _, item -> item.id }) { index, item ->
+                itemsIndexed(uiState.items, key = { _, item -> item.uniqueKey }) { index, item ->
                     SearchResultRow(item, onClick = { onItemClick(item) })
                     if (index < uiState.items.lastIndex) {
                         HorizontalDivider(

@@ -68,7 +68,7 @@ struct ContentView: View {
             Text("Error: \(message)").foregroundStyle(.red).padding()
             Spacer()
         case .success(let items):
-            List(items, id: \.id) { resultRow($0) }
+            List(items, id: \.uniqueKey) { resultRow($0) }
                 .listStyle(.plain)
         }
     }
