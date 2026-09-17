@@ -35,7 +35,7 @@ not a formality.
 - **`.editorconfig` — yes, add it alongside ktlint.** Costs one file, no reason not to.
 - **detekt — not yet, revisit later.** At ~3,100 lines with one active contributor, the default
   ruleset's complexity/smell warnings are more likely to be noise than signal — this codebase has
-  been kept deliberately simple on purpose (see `docs/kmp-knowledge/kmp-knowledge-base.md`'s
+  been kept deliberately simple on purpose (see `docs/kmp-knowledge-base.md`'s
   "no premature abstraction" thread throughout). Worth reconsidering once the codebase is large
   enough, or has enough contributors, that a style/complexity drift could plausibly go unnoticed in
   review. A cheap trial run: enable it with just the `style` rule set, skip `complexity`/`coroutines`

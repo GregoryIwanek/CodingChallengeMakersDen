@@ -25,7 +25,12 @@ class SearchAutocompleteUseCase(
             .debounce(DEBOUNCE_MILLIS)
             .distinctUntilChanged()
             .flatMapLatest { request ->
-                val query = request.text
+                // Trimmed before the length check and before it reaches the repository/cache
+                // key - a whitespace-only or padded query otherwise passes the length gate
+                // as-is and fragments the cache ("kotlin" vs "kotlin " being different cache
+                // rows). iOS's ContentView.swift bypasses this use case entirely (Flow doesn't
+                // export cleanly to Swift) and needs its own copy of this same fix.
+                val query = request.text.trim()
                 if (query.length < MIN_QUERY_LENGTH) {
                     flowOf(SearchOutcome.QueryTooShort)
                 } else {

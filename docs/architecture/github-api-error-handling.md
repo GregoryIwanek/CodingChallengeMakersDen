@@ -70,7 +70,7 @@ a specific, human-readable case instead of letting deserialization fail with an 
 since `GitHubApiException` is an `Exception` subtype, no change is needed there; the existing
 annotation already covers it. Swift will still see a generic `NSError` rather than being able to
 pattern-match on the specific case (a harder interop problem than this fix takes on — see
-`docs/kmp-knowledge/kmp-knowledge-base.md` §13 for that as a distinct, deferred idea). What
+`docs/kmp-knowledge-base.md` §13 for that as a distinct, deferred idea). What
 *does* change for both platforms: the exception's `.message` is now accurate instead of a raw
 serialization error, since the whole chain propagates `.message` as a plain `String` already.
 
@@ -124,4 +124,4 @@ serialization error, since the whole chain propagates `.message` as a plain `Str
   which already fixes the actual bug (a clear message instead of a parse-failure message) — but
   doesn't let `ContentView.swift` branch on "was this a rate limit specifically." Left as the
   separate, harder extension idea already tracked in
-  `docs/kmp-knowledge/kmp-knowledge-base.md` §13.
+  `docs/kmp-knowledge-base.md` §13.

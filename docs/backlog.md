@@ -56,41 +56,6 @@ gap (Android Lint on `:shared`) isn't independently actionable (AGP plugin limit
 workaround), but ktlint + `.editorconfig` are recommended as a near-zero-cost addition regardless,
 and would cover `:shared` the moment they're added since they're not Android-Lint-shaped.
 
-### AT-9 — `docs/kmp-knowledge/kmp-knowledge-base.md` is the only file in its subdirectory
-
-| | |
-|---|---|
-| **Priority** | Low |
-| **Component** | Docs — `docs/kmp-knowledge/` |
-
-**Problem:** it's the sole file under `docs/kmp-knowledge/`, unlike `docs/architecture/` which
-holds multiple docs and earns its subfolder. Purely cosmetic.
-
-**Why deferred:** noticed during a docs-accuracy review pass; not worth a churn commit on its own.
-
-**Fix:** `git mv docs/kmp-knowledge/kmp-knowledge-base.md docs/kmp-knowledge-base.md` next time
-this area is touched for another reason.
-
-### AT-13 — Whitespace-only/padded search queries aren't trimmed
-
-| | |
-|---|---|
-| **Priority** | Low |
-| **Component** | `:shared` — `domain/usecase/SearchAutocompleteUseCase.kt`; `:app` — `AutocompleteViewModel.kt` |
-
-**Problem:** no `.trim()` exists anywhere in the query path (confirmed via repo-wide grep). A
-3-space query (`"   "`) satisfies `query.length >= MIN_QUERY_LENGTH` (3), skips the `QueryTooShort`
-gate, and gets sent to GitHub as `q="   "` — likely triggering AT-11's error-handling gap.
-Separately, `"kotlin"` and `"kotlin "` are different cache keys (`CachedSearch.sq`'s primary key is
-the raw query string) and trigger separate debounced network calls, silently fragmenting the cache.
-
-**Why deferred:** found during a source-code bug-hunting pass; minor UX/cache-hygiene issue, not a
-crash.
-
-**Fix:** `.trim()` the query in `AutocompleteViewModel.onQueryChanged` (Android) and
-`ContentView.scheduleSearch` (iOS) — or centrally in `SearchAutocompleteUseCase` so both platforms
-get it for free — before the length check and before it reaches the cache key.
-
 ### AT-14 — "Alphabetical top-50" isn't actually guaranteed; GitHub's relevance ranking caps the candidate pool first
 
 | | |
@@ -114,38 +79,18 @@ crash.
 alphabetized — not a true alphabetical top-50), or fetch more pages when `total_count` exceeds
 `perPage` and merge across them before capping, if a true top-50 is actually wanted.
 
-### AT-15 — iOS's error state has no retry; Android's does
-
-| | |
-|---|---|
-| **Priority** | Medium |
-| **Component** | `iosApp` — `ContentView.swift` |
-
-**Problem:** `ContentView.swift`'s `.error(let message)` case (lines 67-69) renders red text with
-no interactive affordance. Android's equivalent (`AutocompleteViewModel.retry()`) is wired to a
-real button in `SuggestionPanel.kt`'s `ErrorState`. On iOS the only way to re-trigger a failed
-query is to edit the text field away and back, since `scheduleSearch` only fires from
-`.onChange(of: queryText)`. No iOS tests exist at all (`find iosApp -iname "*Test*"` returns
-nothing), so this platform asymmetry is invisible to any test suite.
-
-**Why deferred:** found during a source-code bug-hunting pass; a real feature-parity gap, not a
-crash — the iOS app is otherwise fully functional, just missing this one affordance.
-
-**Fix:** add a retry `Button` to the `.error` case in `ContentView.swift`, calling the same
-`scheduleSearch(for: queryText)` path a text-field edit would trigger.
-
 ---
 
 ## Resolved
 
 - **AT-5** — `docs/PROJECT_ANALYSIS.md` deleted outright (superseded by
-  `docs/kmp-knowledge/kmp-knowledge-base.md` + this file, which are actively maintained).
+  `docs/kmp-knowledge-base.md` + this file, which are actively maintained).
 - **AT-8** — the linked Artifact republished at the same URL as v2, redrawn to match current
   `develop` (network source/decorator/GitHub API box moved to the `:shared` swimlane, a third
   `iosApp` swimlane added for iOS's direct-call bypass of the use case). `diagramming-tools.md`'s
   own prose updated to match and to flag the re-verify-periodically lesson for next time.
 - **AT-10** — `docs/architecture/github-search-caching-decision.md` now has a "Superseded,
-  partially" callout at the top pointing to `docs/kmp-knowledge/kmp-knowledge-base.md` §4/§6 for
+  partially" callout at the top pointing to `docs/kmp-knowledge-base.md` §4/§6 for
   current file locations; the decision/reasoning body left untouched as valid history.
 - **AT-6** — fixed in the same pass that removed "step N" guide references from source comments
   (the guides no longer exist in the repo): the `iosArm64()`/`iosSimulatorArm64()` comment in
@@ -159,7 +104,7 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
   architecture section rewritten to show the real `:app`/`:shared` split (`ui/`/`di/`/`util/` in
   `:app`; `domain/`/`remote/`/`cache/` in `:shared`), replacing the tree that described a package
   layout that no longer exists. Also added a note on `androidMain`/`iosMain` pointing to
-  `docs/kmp-knowledge/kmp-knowledge-base.md` §1 for the full source-set breakdown.
+  `docs/kmp-knowledge-base.md` §1 for the full source-set breakdown.
 - **AT-1** — fixed by adding `SearchResultItem.uniqueKey` (a `"repo:$id"`/`"user:$id"`-prefixed
   key) in `:shared`'s domain model, used by both `SuggestionPanel.kt`'s `LazyColumn` (Android) and
   `ContentView.swift`'s `List` (iOS) instead of the raw, collidable `id`. Fixed once in the shared
@@ -187,5 +132,20 @@ crash — the iOS app is otherwise fully functional, just missing this one affor
   cancellation-aware version, because a cancelled `Deferred`'s `.await()` throws regardless of
   what its own coroutine body caught and returned — see `catchingCancellationAware`'s comment for
   why it's kept anyway.
+- **AT-9** — `docs/kmp-knowledge-base.md` moved up from `docs/kmp-knowledge/` (the now-empty
+  subfolder removed); all cross-references in `README.md`, this file, and the three
+  `docs/architecture/*.md` docs updated to the new path.
+- **AT-13** — trimmed in both real entry points, not just one: `SearchAutocompleteUseCase.kt`
+  (Android's path) and `ContentView.swift`'s `scheduleSearch` (iOS's separate path, since iOS
+  bypasses the use case entirely — the ticket's own "or centrally in `SearchAutocompleteUseCase`
+  so both platforms get it for free" suggestion turned out to be outdated advice from before that
+  bypass was discovered; fixing only the use case would have silently missed iOS). New tests:
+  `whitespaceOnlyQueryStaysQueryTooShortAndNeverCallsRepository` and
+  `paddedQueryIsTrimmedBeforeReachingTheRepository` in `SearchAutocompleteUseCaseTest.kt`.
+- **AT-15** — added a retry `Button` to `ContentView.swift`'s `.error` case, calling
+  `scheduleSearch(for: queryText)` — the same path a text-field edit would trigger. Verified by
+  actually building the iOS app (`xcodebuild ... -destination 'platform=iOS Simulator,name=iPhone
+  17'`, matching this Mac's arm64 `Shared.framework` build) since no CI or test suite exercises
+  `ContentView.swift` at all.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*
