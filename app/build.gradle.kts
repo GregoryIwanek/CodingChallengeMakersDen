@@ -4,6 +4,13 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.paparazzi)
+    alias(libs.plugins.ktlint)
+}
+
+ktlint {
+    // Android Kotlin Style Guide compatibility (e.g. import-order handling)
+    // rather than the plain Kotlin style guide.
+    android.set(true)
 }
 
 android {

@@ -5,6 +5,13 @@ plugins {
     // alone isn't enough; this compiler plugin generates the serializers.
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.ktlint)
+}
+
+ktlint {
+    // Android Kotlin Style Guide compatibility (e.g. import-order handling)
+    // rather than the plain Kotlin style guide.
+    android.set(true)
 }
 
 // Persistence cache, stretch goal - a small cache in front of the real
