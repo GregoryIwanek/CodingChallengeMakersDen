@@ -125,7 +125,8 @@ alphabetized — not a true alphabetical top-50), or fetch more pages when `tota
   same path a text-field edit would trigger. Verified by actually building the iOS app
   (`xcodebuild ... -destination 'platform=iOS Simulator,name=iPhone 17'`, matching this Mac's
   arm64 `Shared.framework` build) since no CI or test suite exercises `ContentView.swift` at all.
-- **AT-7** — the literal ask (an Android Lint report task on `:shared`) stays blocked, same as
+- **AT-7** — fixed via PR #11 (`kmp_ktlint_editorconfig`, merged into `develop`). The literal ask
+  (an Android Lint report task on `:shared`) stays blocked, same as
   before: `com.android.kotlin.multiplatform.library` still doesn't expose the full `lint`/
   `lintDebug` task family, and there's no config workaround (AGP plugin limitation). Resolved via
   the practical mitigation `docs/architecture/static-analysis-tools.md` already recommended:
