@@ -32,30 +32,6 @@ but distinct gap (unbounded growth, not staleness).
 column checked on read, or deliberately deciding unbounded growth is acceptable for this cache's
 realistic lifetime and documenting that choice.
 
-### AT-7 — `:shared` has no lint report task
-
-| | |
-|---|---|
-| **Priority** | Low |
-| **Component** | `:shared` — `build.gradle.kts` / Gradle plugin |
-
-**Problem:** `com.android.kotlin.multiplatform.library` (the plugin `:shared` uses) doesn't wire
-up a full `lint`/`lintDebug`-equivalent report-generating task the way `com.android.library` does
-for `:app`. `:shared` only has `lintAnalyzeAndroidHostTest`, an internal analysis step with no
-standalone HTML report — confirmed via `./gradlew :shared:tasks --all`.
-
-**Why deferred:** this looks like expected behavior of the plugin (a newer, KMP-flavored Android
-Gradle plugin variant with a narrower feature set), not a misconfiguration — `:shared`'s Kotlin
-code still gets compiled and type-checked either way, and Detekt/ktlint-style static analysis (if
-ever added) wouldn't depend on this task family. No evidence yet that the missing report is
-actually costing anything.
-
-**Fix:** the research this originally called for is now done — see
-`docs/architecture/static-analysis-tools.md` for the full comparison. Short version: this specific
-gap (Android Lint on `:shared`) isn't independently actionable (AGP plugin limitation, no
-workaround), but ktlint + `.editorconfig` are recommended as a near-zero-cost addition regardless,
-and would cover `:shared` the moment they're added since they're not Android-Lint-shaped.
-
 ### AT-14 — "Alphabetical top-50" isn't actually guaranteed; GitHub's relevance ranking caps the candidate pool first
 
 | | |
@@ -149,5 +125,13 @@ alphabetized — not a true alphabetical top-50), or fetch more pages when `tota
   same path a text-field edit would trigger. Verified by actually building the iOS app
   (`xcodebuild ... -destination 'platform=iOS Simulator,name=iPhone 17'`, matching this Mac's
   arm64 `Shared.framework` build) since no CI or test suite exercises `ContentView.swift` at all.
+- **AT-7** — the literal ask (an Android Lint report task on `:shared`) stays blocked, same as
+  before: `com.android.kotlin.multiplatform.library` still doesn't expose the full `lint`/
+  `lintDebug` task family, and there's no config workaround (AGP plugin limitation). Resolved via
+  the practical mitigation `docs/architecture/static-analysis-tools.md` already recommended:
+  ktlint (`org.jlleitschuh.gradle.ktlint`, `android_studio` code style) + `.editorconfig` added to
+  both `:app` and `:shared`, wired into `check` and `android-ci.yml` as its own fast-fail step —
+  this covers `:shared` (and `iosMain`/`commonMain`/`commonTest`) since it's plain Kotlin lint, not
+  Android-Lint-shaped. detekt/SwiftLint/Konsist remain deliberately deferred (see that doc).
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*
