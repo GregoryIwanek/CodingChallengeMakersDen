@@ -114,7 +114,8 @@ alphabetized — not a true alphabetical top-50), or fetch more pages when `tota
   both `:app` and `:shared`, wired into `check` and `android-ci.yml` as its own fast-fail step —
   this covers `:shared` (and `iosMain`/`commonMain`/`commonTest`) since it's plain Kotlin lint, not
   Android-Lint-shaped. detekt/SwiftLint/Konsist remain deliberately deferred (see that doc).
-- **AT-3** — row cap with LRU eviction, the first of the ticket's own suggested fixes. No new
+- **AT-3** — fixed via PR #12 (`kmp_at3_cache_eviction`, merged into `develop`). Row cap with LRU
+  eviction, the first of the ticket's own suggested fixes. No new
   timestamp column: `CachedSearch.sq`'s `evictOldestBeyondCap` deletes rows outside the top
   `MAX_CACHED_QUERIES` (50) by `rowid`, relying on documented SQLite behavior that `INSERT OR
   REPLACE` deletes+reinserts on a conflicting key — so a fresh distinct query gets the next rowid,
