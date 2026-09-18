@@ -102,11 +102,12 @@ it would actually involve.
   ordering for free. Called from `SearchResultCache.put()` after every `upsert`. New tests:
   `put_beyondCap_evictsOldestQueriesFirst` (confirmed to fail without the fix, not just pass with
   it) and `put_reUpsertingAnExistingQuery_refreshesItsRecency`.
-- **AT-14** — closed as won't-fix (the real fix — fetching multiple pages to guarantee a true
-  alphabetical top-50 — adds complexity and rate-limit exposure not worth it for a low-priority,
-  large-match-count-only edge case), but the misleading claim it found was real, so that part is
-  fixed: `SearchLimits.kt`'s doc comment now states the actual guarantee (a true alphabetical
-  top-50 *within GitHub's own relevance-ranked candidate pool*, not a true alphabetical top-50
-  overall) instead of overstating it. No behavior change.
+- **AT-14** — fixed via PR #13 (`kmp_at14_fix_comment`, merged into `develop`). Closed as won't-fix
+  on the real fix (fetching multiple pages to guarantee a true alphabetical top-50 adds complexity
+  and rate-limit exposure not worth it for a low-priority, large-match-count-only edge case), but
+  the misleading claim it found was real, so that part is fixed: `SearchLimits.kt`'s doc comment
+  now states the actual guarantee (a true alphabetical top-50 *within GitHub's own relevance-ranked
+  candidate pool*, not a true alphabetical top-50 overall) instead of overstating it. No behavior
+  change.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*
