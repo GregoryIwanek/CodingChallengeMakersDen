@@ -14,16 +14,16 @@ import pl.gi.codingchallenge.shared.domain.model.QueryRequest
 import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
 import pl.gi.codingchallenge.shared.domain.usecase.SearchAutocompleteUseCase
 
-private const val STOP_TIMEOUT_MILLIS = 5_000L
+private const val STOP_TIMEOUT_MILLIS: Long = 5_000L
 
 @HiltViewModel
 class AutocompleteViewModel @Inject constructor(
     private val searchAutocompleteUseCase: SearchAutocompleteUseCase
 ) : ViewModel() {
 
-    private val query = MutableStateFlow(QueryRequest(text = ""))
+    private val query: MutableStateFlow<QueryRequest> = MutableStateFlow(QueryRequest(text = ""))
 
-    private val _uiState = observeUiState()
+    private val _uiState: StateFlow<AutocompleteUiState> = observeUiState()
     val uiState: StateFlow<AutocompleteUiState> = _uiState
 
     private fun observeUiState(): StateFlow<AutocompleteUiState> =

@@ -5,14 +5,14 @@ import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 class FakeGitHubSearchRepository : GitHubSearchRepository {
 
-    private val responses = mutableMapOf<String, Response>()
+    private val responses: MutableMap<String, Response> = mutableMapOf<String, Response>()
 
-    var searchCallCount = 0
+    var searchCallCount: Int = 0
         private set
 
     override suspend fun search(query: String, perTypeLimit: Int): List<SearchResultItem> {
         searchCallCount++
-        val response = responses[query] ?: return emptyList()
+        val response: Response = responses[query] ?: return emptyList()
         if (response.delayMs > 0) delay(response.delayMs)
         response.error?.let { throw it }
         return response.results

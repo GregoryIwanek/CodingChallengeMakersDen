@@ -4,6 +4,7 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
+import org.koin.core.module.Module
 import org.koin.dsl.module
 import pl.gi.codingchallenge.shared.cache.CacheDatabase
 
@@ -11,7 +12,7 @@ import pl.gi.codingchallenge.shared.cache.CacheDatabase
 // the Ktor engine, and now the SQLDelight driver. An iosPlatformModule would supply
 // Darwin.create() and a NativeSqliteDriver instead once iosMain exists - commonMain
 // code never changes either way.
-val androidPlatformModule = module {
+val androidPlatformModule: Module = module {
     single<HttpClientEngine> { OkHttp.create() }
     // get() resolves the Context koin-android's androidContext() registered in
     // CodingChallengeApp's startKoin {} call - no separate Context-provisioning

@@ -38,6 +38,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,8 +49,8 @@ import pl.gi.codingchallenge.ui.autocomplete.GitHubAutocompleteBarComponent
 import pl.gi.codingchallenge.util.dimRes
 import pl.gi.codingchallenge.util.strRes
 
-private const val COMPONENT_TAB_VIEW_MODEL_KEY = "component_tab"
-private const val OVERLAY_TAB_VIEW_MODEL_KEY = "overlay_tab"
+private const val COMPONENT_TAB_VIEW_MODEL_KEY: String = "component_tab"
+private const val OVERLAY_TAB_VIEW_MODEL_KEY: String = "overlay_tab"
 
 /**
  * Three-tab demo: Overview describes the assignment and requirements; Component
@@ -58,7 +59,7 @@ private const val OVERLAY_TAB_VIEW_MODEL_KEY = "overlay_tab"
  */
 @Composable
 fun DemoScreen() {
-    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    var selectedTab: Int by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -120,8 +121,8 @@ private fun OverviewScreen(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ComponentScreen(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
+    val context: Context = LocalContext.current
+    val focusManager: FocusManager = LocalFocusManager.current
 
     Column(
         modifier = modifier
@@ -144,8 +145,8 @@ private fun ComponentScreen(modifier: Modifier = Modifier) {
 
 @Composable
 private fun OverlayScreen(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
+    val context: Context = LocalContext.current
+    val focusManager: FocusManager = LocalFocusManager.current
 
     Box(modifier.clearFocusOnTap(focusManager)) {
         MockFeed(Modifier.fillMaxSize())
@@ -165,7 +166,7 @@ private fun Modifier.clearFocusOnTap(focusManager: FocusManager): Modifier =
     pointerInput(Unit) { detectTapGestures { focusManager.clearFocus() } }
 
 private fun showTappedToast(context: Context, item: SearchResultItem) {
-    val label = when (item) {
+    val label: String = when (item) {
         is SearchResultItem.RepoResult -> item.fullName
         is SearchResultItem.UserResult -> item.login
     }
@@ -178,7 +179,7 @@ private fun showTappedToast(context: Context, item: SearchResultItem) {
 
 @Composable
 private fun MockFeed(modifier: Modifier = Modifier) {
-    val feedContentPadding = dimRes(R.dimen.demo_feed_content_padding)
+    val feedContentPadding: Dp = dimRes(R.dimen.demo_feed_content_padding)
 
     LazyColumn(
         modifier = modifier,

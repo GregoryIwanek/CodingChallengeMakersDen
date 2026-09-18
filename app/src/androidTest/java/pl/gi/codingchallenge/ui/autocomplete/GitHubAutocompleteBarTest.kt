@@ -9,6 +9,7 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -34,9 +35,9 @@ import pl.gi.codingchallenge.ui.autocomplete.testing.AutocompleteTestTags
 class GitHubAutocompleteBarTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private val sampleResults = listOf(
+    private val sampleResults: List<SearchResultItem> = listOf(
         SearchResultItem.RepoResult(
             id = "1",
             name = "kotlin",
@@ -109,7 +110,7 @@ class GitHubAutocompleteBarTest {
 
     @Test
     fun errorState_showsMessage_andRetryButtonInvokesOnRetry() {
-        var retryInvoked = false
+        var retryInvoked: Boolean = false
 
         composeRule.setContent {
             GitHubAutocompleteBarComponent(
@@ -174,7 +175,7 @@ class GitHubAutocompleteBarTest {
 
     @Test
     fun successState_resetsScrollPosition_whenTheQueryTextChanges() {
-        val firstBatch = List(20) {
+        val firstBatch: List<SearchResultItem> = List(20) {
             SearchResultItem.RepoResult(
                 id = "first-$it",
                 name = "first-repo-$it",
@@ -185,7 +186,7 @@ class GitHubAutocompleteBarTest {
                 stars = 0
             )
         }
-        val secondBatch = List(20) {
+        val secondBatch: List<SearchResultItem> = List(20) {
             SearchResultItem.RepoResult(
                 id = "second-$it",
                 name = "second-repo-$it",
@@ -201,7 +202,7 @@ class GitHubAutocompleteBarTest {
             // Stands in for the ViewModel/use case: as soon as the query
             // text changes, "results" for the new query are available
             // immediately (no real debounce/network in this test).
-            var uiState by remember {
+            var uiState: AutocompleteUiState by remember {
                 mutableStateOf<AutocompleteUiState>(AutocompleteUiState.Success(firstBatch))
             }
 
@@ -230,7 +231,7 @@ class GitHubAutocompleteBarTest {
 
     @Test
     fun successState_capsSuggestionPanelHeight_evenWithManyResults() {
-        val manyResults = List(50) {
+        val manyResults: List<SearchResultItem> = List(50) {
             SearchResultItem.RepoResult(
                 id = "$it",
                 name = "repo-$it",
@@ -263,7 +264,7 @@ class GitHubAutocompleteBarTest {
 
     @Test
     fun successState_showsFallbackAvatarInitial_whenRepoNameIsEmpty() {
-        val emptyNameRepo = SearchResultItem.RepoResult(
+        val emptyNameRepo: SearchResultItem.RepoResult = SearchResultItem.RepoResult(
             id = "1",
             name = "",
             fullName = "owner/",
@@ -315,7 +316,7 @@ class GitHubAutocompleteBarTest {
 
     @Test
     fun typing_forwardsEachCharacterToOnQueryChanged_andExpandsPanel() {
-        val queries = mutableListOf<String>()
+        val queries: MutableList<String> = mutableListOf<String>()
 
         // A non-Idle canned state, since focusing/typing alone no longer
         // shows the panel — it only renders once there's real content to
@@ -341,7 +342,7 @@ class GitHubAutocompleteBarTest {
 
     @Test
     fun clearButton_clearsTextAndNotifiesEmptyQuery() {
-        val queries = mutableListOf<String>()
+        val queries: MutableList<String> = mutableListOf<String>()
 
         composeRule.setContent {
             GitHubAutocompleteBarComponent(
@@ -366,7 +367,7 @@ class GitHubAutocompleteBarTest {
 
     @Test
     fun leadingIcon_collapsesActivePanel_andInvokesCallback() {
-        var callbackInvoked = false
+        var callbackInvoked: Boolean = false
 
         composeRule.setContent {
             GitHubAutocompleteBarComponent(
@@ -392,7 +393,7 @@ class GitHubAutocompleteBarTest {
 
     @Test
     fun leadingIcon_reopensClosedPanel_whenTextPresent() {
-        var callbackInvoked = false
+        var callbackInvoked: Boolean = false
 
         composeRule.setContent {
             GitHubAutocompleteBarComponent(
@@ -470,7 +471,7 @@ class GitHubAutocompleteBarTest {
 
     @Test
     fun systemBack_doesNothing_whenPanelNotActive() {
-        var outerBackInvoked = false
+        var outerBackInvoked: Boolean = false
 
         composeRule.setContent {
             // Only fires if our BackHandler(enabled = false) correctly
@@ -497,7 +498,7 @@ class GitHubAutocompleteBarTest {
 
     @Test
     fun leadingIcon_isNeutralAndDisabled_whenQueryTooShortForSuggestions() {
-        var callbackInvoked = false
+        var callbackInvoked: Boolean = false
 
         composeRule.setContent {
             GitHubAutocompleteBarComponent(
@@ -545,7 +546,7 @@ class GitHubAutocompleteBarTest {
             // Stands in for the ViewModel: 3+ chars means there's
             // something to show, matching MIN_QUERY_LENGTH in
             // SearchAutocompleteUseCase.
-            var uiState by remember {
+            var uiState: AutocompleteUiState by remember {
                 mutableStateOf<AutocompleteUiState>(AutocompleteUiState.Idle)
             }
 

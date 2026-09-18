@@ -21,9 +21,9 @@ import pl.gi.codingchallenge.shared.remote.GitHubApiException
 @OptIn(ExperimentalCoroutinesApi::class)
 class CachingGitHubSearchRepositoryTest {
 
-    private val network = FakeNetworkSource()
-    private val cache = FakeCache()
-    private val repository = CachingGitHubSearchRepository(network = network, cache = cache)
+    private val network: FakeNetworkSource = FakeNetworkSource()
+    private val cache: FakeCache = FakeCache()
+    private val repository: CachingGitHubSearchRepository = CachingGitHubSearchRepository(network = network, cache = cache)
 
     private val results: List<SearchResultItem> = listOf(
         SearchResultItem.RepoResult(
@@ -41,7 +41,7 @@ class CachingGitHubSearchRepositoryTest {
     fun searchSuccessFetchesFromNetworkAndCachesTheResult() = runTest {
         network.results = results
 
-        val actual = repository.search(query = "kot", perTypeLimit = 50)
+        val actual: List<SearchResultItem> = repository.search(query = "kot", perTypeLimit = 50)
 
         assertEquals(results, actual)
         assertEquals(listOf("kot" to results), cache.putCalls)
@@ -52,7 +52,7 @@ class CachingGitHubSearchRepositoryTest {
         network.error = RuntimeException("offline")
         cache.stored["kot"] = results
 
-        val actual = repository.search(query = "kot", perTypeLimit = 50)
+        val actual: List<SearchResultItem> = repository.search(query = "kot", perTypeLimit = 50)
 
         assertEquals(results, actual)
     }
@@ -75,7 +75,7 @@ class CachingGitHubSearchRepositoryTest {
         network.error = GitHubApiException.RateLimited(statusCode = 403)
         cache.stored["kot"] = results
 
-        val actual = repository.search(query = "kot", perTypeLimit = 50)
+        val actual: List<SearchResultItem> = repository.search(query = "kot", perTypeLimit = 50)
 
         assertEquals(results, actual)
     }
@@ -95,7 +95,7 @@ class CachingGitHubSearchRepositoryTest {
         // wins over it, not just "there was nothing to fall back to"
 
         var caught: Throwable? = null
-        val job = launch {
+        val job: kotlinx.coroutines.Job = launch {
             try {
                 repository.search(query = "kot", perTypeLimit = 50)
             } catch (e: Throwable) {
@@ -124,9 +124,9 @@ class CachingGitHubSearchRepositoryTest {
     }
 
     private class FakeCache : GitHubSearchCache {
-        val stored = mutableMapOf<String, List<SearchResultItem>>()
-        val putCalls = mutableListOf<Pair<String, List<SearchResultItem>>>()
-        var getCallCount = 0
+        val stored: MutableMap<String, List<SearchResultItem>> = mutableMapOf<String, List<SearchResultItem>>()
+        val putCalls: MutableList<Pair<String, List<SearchResultItem>>> = mutableListOf<Pair<String, List<SearchResultItem>>>()
+        var getCallCount: Int = 0
             private set
 
         override suspend fun get(query: String): List<SearchResultItem>? {

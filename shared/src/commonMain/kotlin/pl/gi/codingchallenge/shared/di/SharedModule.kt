@@ -1,5 +1,6 @@
 package pl.gi.codingchallenge.shared.di
 
+import org.koin.core.module.Module
 import org.koin.dsl.module
 import pl.gi.codingchallenge.shared.cache.SearchResultCache
 import pl.gi.codingchallenge.shared.domain.repository.CachingGitHubSearchRepository
@@ -10,7 +11,7 @@ import pl.gi.codingchallenge.shared.domain.usecase.SearchAutocompleteUseCase
 import pl.gi.codingchallenge.shared.remote.GitHubApi
 import pl.gi.codingchallenge.shared.remote.GitHubSearchNetworkSourceImpl
 
-val sharedModule = module {
+val sharedModule: Module = module {
     // get() resolves whatever SqlDriver a platform module registers
     // (androidPlatformModule today, an iosPlatformModule once iosMain exists).
     // Registered under the interface type (not the concrete SearchResultCache) so

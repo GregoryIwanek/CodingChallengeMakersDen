@@ -15,7 +15,7 @@ import pl.gi.codingchallenge.shared.remote.dto.GitHubSearchResponse
 import pl.gi.codingchallenge.shared.remote.dto.RepositoryDto
 import pl.gi.codingchallenge.shared.remote.dto.UserDto
 
-private const val GITHUB_BASE_URL = "https://api.github.com"
+private const val GITHUB_BASE_URL: String = "https://api.github.com"
 
 // Same shape as the deleted CatFactApi: takes an engine, not a client/factory - the
 // one seam that makes commonTest MockEngine substitution possible, and the one every
@@ -24,7 +24,7 @@ private const val GITHUB_BASE_URL = "https://api.github.com"
 // Kotlin/Native.
 class GitHubApi(engine: HttpClientEngine) {
 
-    private val client = HttpClient(engine) {
+    private val client: HttpClient = HttpClient(engine) {
         install(ContentNegotiation) {
             // ignoreUnknownKeys is load-bearing, not a nicety: the real GitHub API
             // response has many fields RepositoryDto/UserDto don't model (node_id,

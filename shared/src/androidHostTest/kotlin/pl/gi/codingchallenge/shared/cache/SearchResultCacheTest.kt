@@ -10,7 +10,7 @@ import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 class SearchResultCacheTest {
 
     private fun newCache(): SearchResultCache {
-        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        val driver: app.cash.sqldelight.db.SqlDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         // Unlike AndroidSqliteDriver, this driver does NOT create the schema
         // automatically.
         CacheDatabase.Schema.create(driver)
@@ -24,8 +24,8 @@ class SearchResultCacheTest {
 
     @Test
     fun put_thenGet_roundTrips() = runTest {
-        val cache = newCache()
-        val results = listOf(
+        val cache: SearchResultCache = newCache()
+        val results: List<SearchResultItem> = listOf(
             SearchResultItem.UserResult(
                 id = "1",
                 login = "octocat",
@@ -41,9 +41,9 @@ class SearchResultCacheTest {
 
     @Test
     fun put_beyondCap_evictsOldestQueriesFirst() = runTest {
-        val cache = newCache()
-        val results = emptyList<SearchResultItem>()
-        val cap = SearchResultCache.MAX_CACHED_QUERIES.toInt()
+        val cache: SearchResultCache = newCache()
+        val results: List<SearchResultItem> = emptyList<SearchResultItem>()
+        val cap: Int = SearchResultCache.MAX_CACHED_QUERIES.toInt()
 
         repeat(cap + 5) { cache.put("query-$it", results) }
 
@@ -57,9 +57,9 @@ class SearchResultCacheTest {
 
     @Test
     fun put_reUpsertingAnExistingQuery_refreshesItsRecency() = runTest {
-        val cache = newCache()
-        val results = emptyList<SearchResultItem>()
-        val cap = SearchResultCache.MAX_CACHED_QUERIES.toInt()
+        val cache: SearchResultCache = newCache()
+        val results: List<SearchResultItem> = emptyList<SearchResultItem>()
+        val cap: Int = SearchResultCache.MAX_CACHED_QUERIES.toInt()
 
         cache.put("stays-alive", results)
         // Re-upsert the same key partway through, then fill the rest of the

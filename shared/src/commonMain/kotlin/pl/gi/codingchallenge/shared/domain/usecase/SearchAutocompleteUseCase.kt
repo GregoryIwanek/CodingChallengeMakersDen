@@ -13,8 +13,8 @@ import pl.gi.codingchallenge.shared.domain.model.QueryRequest
 import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
 
-private const val DEBOUNCE_MILLIS = 350L
-private const val MIN_QUERY_LENGTH = 3
+private const val DEBOUNCE_MILLIS: Long = 350L
+private const val MIN_QUERY_LENGTH: Int = 3
 
 class SearchAutocompleteUseCase(private val repository: GitHubSearchRepository) {
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
@@ -27,7 +27,7 @@ class SearchAutocompleteUseCase(private val repository: GitHubSearchRepository) 
             // as-is and fragments the cache ("kotlin" vs "kotlin " being different cache
             // rows). iOS's ContentView.swift bypasses this use case entirely (Flow doesn't
             // export cleanly to Swift) and needs its own copy of this same fix.
-            val query = request.text.trim()
+            val query: String = request.text.trim()
             if (query.length < MIN_QUERY_LENGTH) {
                 flowOf(SearchOutcome.QueryTooShort)
             } else {

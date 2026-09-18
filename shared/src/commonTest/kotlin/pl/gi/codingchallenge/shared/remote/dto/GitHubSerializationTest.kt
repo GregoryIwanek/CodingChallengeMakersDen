@@ -9,11 +9,11 @@ import kotlinx.serialization.json.Json
 /** Decodes real (trimmed) GitHub payloads to catch a wrong @SerialName. */
 class GitHubSerializationTest {
 
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json: Json = Json { ignoreUnknownKeys = true }
 
     @Test
     fun decodesARepositorySearchResponse() {
-        val response = json.decodeFromString<GitHubSearchResponse<RepositoryDto>>(
+        val response: GitHubSearchResponse<RepositoryDto> = json.decodeFromString<GitHubSearchResponse<RepositoryDto>>(
             """
             {
               "total_count": 1,
@@ -42,7 +42,7 @@ class GitHubSerializationTest {
         assertEquals(1, response.totalCount)
         assertEquals(false, response.incompleteResults)
 
-        val repo = response.items.single()
+        val repo: RepositoryDto = response.items.single()
         assertEquals(23096959L, repo.id)
         assertEquals("kotlin", repo.name)
         assertEquals("JetBrains/kotlin", repo.fullName)
@@ -55,7 +55,7 @@ class GitHubSerializationTest {
 
     @Test
     fun decodesAUserSearchResponseWithANullAvatarUrlWhenAbsent() {
-        val response = json.decodeFromString<GitHubSearchResponse<UserDto>>(
+        val response: GitHubSearchResponse<UserDto> = json.decodeFromString<GitHubSearchResponse<UserDto>>(
             """
             {
               "total_count": 1,
@@ -73,7 +73,7 @@ class GitHubSerializationTest {
             """.trimIndent()
         )
 
-        val user = response.items.single()
+        val user: UserDto = response.items.single()
         assertEquals(583231L, user.id)
         assertEquals("octocat", user.login)
         assertEquals("https://github.com/octocat", user.htmlUrl)

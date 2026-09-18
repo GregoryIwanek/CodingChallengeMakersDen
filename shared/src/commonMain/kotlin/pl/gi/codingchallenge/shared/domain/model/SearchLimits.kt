@@ -16,4 +16,4 @@ package pl.gi.codingchallenge.shared.domain.model
  * GitHub's relevance top-[MAX_RESULTS] and never reach [mergeAndSort] at
  * all.
  */
-internal const val MAX_RESULTS = 50
+internal const val MAX_RESULTS: Int = 50

@@ -10,6 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -23,7 +24,7 @@ import pl.gi.codingchallenge.shared.remote.GitHubApiException
 @OptIn(ExperimentalCoroutinesApi::class)
 class SearchAutocompleteUseCaseTest {
 
-    private val dispatcher = StandardTestDispatcher()
+    private val dispatcher: TestDispatcher = StandardTestDispatcher()
     private lateinit var fakeRepo: FakeGitHubSearchRepository
     private lateinit var useCase: SearchAutocompleteUseCase
     private lateinit var query: MutableStateFlow<QueryRequest>
@@ -84,7 +85,7 @@ class SearchAutocompleteUseCaseTest {
             advanceTimeBy(400)
 
             assertEquals(SearchOutcome.Loading, awaitItem())
-            val success = awaitItem() as SearchOutcome.Success
+            val success: SearchOutcome.Success = awaitItem() as SearchOutcome.Success
             assertEquals(1, success.items.size)
         }
     }
@@ -102,7 +103,7 @@ class SearchAutocompleteUseCaseTest {
             advanceTimeBy(400) // > debounce window
 
             assertEquals(SearchOutcome.Loading, awaitItem())
-            val success = awaitItem() as SearchOutcome.Success
+            val success: SearchOutcome.Success = awaitItem() as SearchOutcome.Success
             assertEquals(1, success.items.size)
             // Proves debounce collapsed 3 keystrokes into 1 call.
             assertEquals(1, fakeRepo.searchCallCount)
@@ -131,7 +132,7 @@ class SearchAutocompleteUseCaseTest {
             advanceTimeBy(400) // debounce fires "second" before "first" resolves
 
             awaitItem() // Loading (for "second")
-            val result = awaitItem() as SearchOutcome.Success
+            val result: SearchOutcome.Success = awaitItem() as SearchOutcome.Success
             assertEquals("second-repo", (result.items.first() as SearchResultItem.RepoResult).name)
             // "first" result, if it ever arrived, must never overwrite this —
             // flatMapLatest guarantees it.
@@ -160,7 +161,7 @@ class SearchAutocompleteUseCaseTest {
             query.value = QueryRequest(text = "boom")
             advanceTimeBy(400)
             awaitItem() // Loading
-            val failure = awaitItem() as SearchOutcome.Failure
+            val failure: SearchOutcome.Failure = awaitItem() as SearchOutcome.Failure
             assertEquals("network down", failure.message)
         }
     }
@@ -179,7 +180,7 @@ class SearchAutocompleteUseCaseTest {
             query.value = QueryRequest(text = "kot")
             advanceTimeBy(400)
             awaitItem() // Loading
-            val failure = awaitItem() as SearchOutcome.Failure
+            val failure: SearchOutcome.Failure = awaitItem() as SearchOutcome.Failure
             assertEquals(
                 "GitHub API rate limit exceeded (HTTP 403) - try again shortly",
                 failure.message
@@ -196,7 +197,7 @@ class SearchAutocompleteUseCaseTest {
             query.value = QueryRequest(text = "boom")
             advanceTimeBy(400)
             awaitItem() // Loading
-            val failure = awaitItem() as SearchOutcome.Failure
+            val failure: SearchOutcome.Failure = awaitItem() as SearchOutcome.Failure
             assertEquals("network down", failure.message)
             assertEquals(1, fakeRepo.searchCallCount)
 
@@ -211,7 +212,7 @@ class SearchAutocompleteUseCaseTest {
             advanceTimeBy(400)
 
             awaitItem() // Loading
-            val success = awaitItem() as SearchOutcome.Success
+            val success: SearchOutcome.Success = awaitItem() as SearchOutcome.Success
             assertEquals("boom-repo", (success.items.first() as SearchResultItem.RepoResult).name)
             // Proves the retry actually re-called the repository.
             assertEquals(2, fakeRepo.searchCallCount)

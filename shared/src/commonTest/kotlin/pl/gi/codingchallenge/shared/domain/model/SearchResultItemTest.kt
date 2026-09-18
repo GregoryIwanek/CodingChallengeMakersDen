@@ -12,7 +12,7 @@ class SearchResultItemTest {
     // used") - see docs/backlog.md AT-1.
     @Test
     fun repoAndUserSharingTheSameIdStillGetDistinctUniqueKeys() {
-        val repo = SearchResultItem.RepoResult(
+        val repo: SearchResultItem.RepoResult = SearchResultItem.RepoResult(
             id = "1",
             name = "kotlin",
             fullName = "JetBrains/kotlin",
@@ -21,7 +21,7 @@ class SearchResultItemTest {
             description = null,
             stars = 0
         )
-        val user = SearchResultItem.UserResult(
+        val user: SearchResultItem.UserResult = SearchResultItem.UserResult(
             id = "1",
             login = "octocat",
             avatarUrl = null,

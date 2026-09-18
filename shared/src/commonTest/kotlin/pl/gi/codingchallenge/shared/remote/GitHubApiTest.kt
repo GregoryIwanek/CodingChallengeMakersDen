@@ -20,9 +20,9 @@ class GitHubApiTest {
     // instead). ignoreUnknownKeys=true in GitHubApi.kt is what these prove.
     @Test
     fun searchRepositories_hitsTheRightEndpointAndParsesResponse() = runTest {
-        var requestedPath = ""
-        var requestedQuery = ""
-        val engine = MockEngine { request ->
+        var requestedPath: String = ""
+        var requestedQuery: String = ""
+        val engine: MockEngine = MockEngine { request ->
             requestedPath = request.url.encodedPath
             requestedQuery = request.url.encodedQuery
             respond(
@@ -42,7 +42,7 @@ class GitHubApiTest {
             )
         }
 
-        val result = GitHubApi(engine).searchRepositories(query = "kot", perPage = 10)
+        val result: pl.gi.codingchallenge.shared.remote.dto.GitHubSearchResponse<pl.gi.codingchallenge.shared.remote.dto.RepositoryDto> = GitHubApi(engine).searchRepositories(query = "kot", perPage = 10)
 
         assertEquals("/search/repositories", requestedPath)
         assertEquals("q=kot&per_page=10", requestedQuery)
@@ -55,9 +55,9 @@ class GitHubApiTest {
 
     @Test
     fun searchUsers_hitsTheRightEndpointAndParsesResponse() = runTest {
-        var requestedPath = ""
-        var requestedQuery = ""
-        val engine = MockEngine { request ->
+        var requestedPath: String = ""
+        var requestedQuery: String = ""
+        val engine: MockEngine = MockEngine { request ->
             requestedPath = request.url.encodedPath
             requestedQuery = request.url.encodedQuery
             respond(
@@ -73,7 +73,7 @@ class GitHubApiTest {
             )
         }
 
-        val result = GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
+        val result: pl.gi.codingchallenge.shared.remote.dto.GitHubSearchResponse<pl.gi.codingchallenge.shared.remote.dto.UserDto> = GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
 
         assertEquals("/search/users", requestedPath)
         assertEquals("q=kot&per_page=10", requestedQuery)
@@ -88,9 +88,9 @@ class GitHubApiTest {
     // instead of a clear, typed error.
     @Test
     fun searchRepositories_rateLimited_throwsRateLimitedWithClearMessage() = runTest {
-        val rateLimitBody =
+        val rateLimitBody: String =
             """{"message":"API rate limit exceeded for 1.2.3.4 (but here's the good news...)"}"""
-        val engine = MockEngine { _ ->
+        val engine: MockEngine = MockEngine { _ ->
             respond(
                 content = rateLimitBody,
                 status = HttpStatusCode.Forbidden,
@@ -98,7 +98,7 @@ class GitHubApiTest {
             )
         }
 
-        val exception = assertFailsWith<GitHubApiException.RateLimited> {
+        val exception: GitHubApiException.RateLimited = assertFailsWith<GitHubApiException.RateLimited> {
             GitHubApi(engine).searchRepositories(query = "kot", perPage = 10)
         }
         assertTrue(exception.message!!.contains("rate limit", ignoreCase = true))
@@ -106,7 +106,7 @@ class GitHubApiTest {
 
     @Test
     fun searchUsers_serverError_throwsServerError() = runTest {
-        val engine = MockEngine { _ ->
+        val engine: MockEngine = MockEngine { _ ->
             respond(
                 content = """{"message":"Internal Server Error"}""",
                 status = HttpStatusCode.InternalServerError,
@@ -114,7 +114,7 @@ class GitHubApiTest {
             )
         }
 
-        val exception = assertFailsWith<GitHubApiException.ServerError> {
+        val exception: GitHubApiException.ServerError = assertFailsWith<GitHubApiException.ServerError> {
             GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
         }
         assertTrue(exception.message!!.contains("500"))
@@ -122,7 +122,7 @@ class GitHubApiTest {
 
     @Test
     fun searchRepositories_validationError_throwsUnknownWithStatusAndBody() = runTest {
-        val engine = MockEngine { _ ->
+        val engine: MockEngine = MockEngine { _ ->
             respond(
                 content = """{"message":"Validation Failed","errors":[{"code":"invalid"}]}""",
                 status = HttpStatusCode.UnprocessableEntity,
@@ -130,7 +130,7 @@ class GitHubApiTest {
             )
         }
 
-        val exception = assertFailsWith<GitHubApiException.Unknown> {
+        val exception: GitHubApiException.Unknown = assertFailsWith<GitHubApiException.Unknown> {
             GitHubApi(engine).searchRepositories(query = "   ", perPage = 10)
         }
         assertTrue(exception.message!!.contains("422"))
@@ -143,7 +143,7 @@ class GitHubApiTest {
 
     @Test
     fun searchUsers_notFound_throwsNotFound() = runTest {
-        val engine = MockEngine { _ ->
+        val engine: MockEngine = MockEngine { _ ->
             respond(
                 content = """{"message":"Not Found"}""",
                 status = HttpStatusCode.NotFound,
@@ -158,7 +158,7 @@ class GitHubApiTest {
 
     @Test
     fun searchRepositories_unauthorized_throwsUnauthorized() = runTest {
-        val engine = MockEngine { _ ->
+        val engine: MockEngine = MockEngine { _ ->
             respond(
                 content = """{"message":"Bad credentials"}""",
                 status = HttpStatusCode.Unauthorized,
@@ -176,7 +176,7 @@ class GitHubApiTest {
     // describe for other endpoints. Both must map to the same RateLimited case.
     @Test
     fun searchRepositories_tooManyRequests_alsoThrowsRateLimited() = runTest {
-        val engine = MockEngine { _ ->
+        val engine: MockEngine = MockEngine { _ ->
             respond(
                 content = """{"message":"You have exceeded a secondary rate limit"}""",
                 status = HttpStatusCode.TooManyRequests,
@@ -195,7 +195,7 @@ class GitHubApiTest {
     // top of the original error - this proves that choice actually holds.
     @Test
     fun searchUsers_nonJsonErrorBody_stillThrowsClearlyInsteadOfCrashingOnParse() = runTest {
-        val engine = MockEngine { _ ->
+        val engine: MockEngine = MockEngine { _ ->
             respond(
                 content = "<html><body>503 Service Unavailable</body></html>",
                 status = HttpStatusCode.ServiceUnavailable,
@@ -203,7 +203,7 @@ class GitHubApiTest {
             )
         }
 
-        val exception = assertFailsWith<GitHubApiException.ServerError> {
+        val exception: GitHubApiException.ServerError = assertFailsWith<GitHubApiException.ServerError> {
             GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
         }
         assertTrue(exception.message!!.contains("503"))

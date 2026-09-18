@@ -16,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -47,7 +48,7 @@ fun GitHubAutocompleteBarComponent(
     onItemClick: (SearchResultItem) -> Unit = {},
     onLeadingIconClick: () -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState: AutocompleteUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     GitHubAutocompleteBarComponent(
         uiState = uiState,
@@ -73,10 +74,10 @@ internal fun GitHubAutocompleteBarComponent(
     initialText: String = "",
     initialActive: Boolean = false
 ) {
-    var text by rememberSaveable { mutableStateOf(initialText) }
-    var active by rememberSaveable { mutableStateOf(initialActive) }
-    val hasSuggestions = uiState != AutocompleteUiState.Idle
-    val focusManager = LocalFocusManager.current
+    var text: String by rememberSaveable { mutableStateOf(initialText) }
+    var active: Boolean by rememberSaveable { mutableStateOf(initialActive) }
+    val hasSuggestions: Boolean = uiState != AutocompleteUiState.Idle
+    val focusManager: FocusManager = LocalFocusManager.current
 
     // Clearing focus (see FloatingSearchBar's leading icon) is what lets a
     // later tap on the field re-fire onFocusChanged and reopen the panel.
@@ -122,7 +123,7 @@ internal fun GitHubAutocompleteBarComponent(
 // which doesn't resolve in @Preview — these call the internal stateless
 // overload directly with canned AutocompleteUiState values instead.
 
-private val previewResults = listOf(
+private val previewResults: List<SearchResultItem> = listOf(
     SearchResultItem.RepoResult(
         id = "1",
         name = "dataflow-kt",

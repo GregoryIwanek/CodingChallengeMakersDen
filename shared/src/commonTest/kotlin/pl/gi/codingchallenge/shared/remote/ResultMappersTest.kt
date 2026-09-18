@@ -11,7 +11,7 @@ class ResultMappersTest {
 
     @Test
     fun repositoryDtoToDomainMapsEveryFieldConvertingIdToAString() {
-        val dto = RepositoryDto(
+        val dto: RepositoryDto = RepositoryDto(
             id = 123L,
             name = "kotlin",
             fullName = "JetBrains/kotlin",
@@ -25,7 +25,7 @@ class ResultMappersTest {
             stargazersCount = 48000
         )
 
-        val result = dto.toDomain()
+        val result: SearchResultItem.RepoResult = dto.toDomain()
 
         assertEquals(
             SearchResultItem.RepoResult(
@@ -43,7 +43,7 @@ class ResultMappersTest {
 
     @Test
     fun repositoryDtoToDomainPreservesANullDescription() {
-        val dto = RepositoryDto(
+        val dto: RepositoryDto = RepositoryDto(
             id = 1L,
             name = "repo",
             fullName = "owner/repo",
@@ -57,14 +57,14 @@ class ResultMappersTest {
 
     @Test
     fun userDtoToDomainMapsEveryFieldConvertingIdToAString() {
-        val dto = UserDto(
+        val dto: UserDto = UserDto(
             id = 789L,
             login = "octocat",
             avatarUrl = "https://avatars/octocat.png",
             htmlUrl = "https://github.com/octocat"
         )
 
-        val result = dto.toDomain()
+        val result: SearchResultItem.UserResult = dto.toDomain()
 
         assertEquals(
             SearchResultItem.UserResult(
@@ -79,7 +79,7 @@ class ResultMappersTest {
 
     @Test
     fun userDtoToDomainPreservesANullAvatarUrl() {
-        val dto =
+        val dto: UserDto =
             UserDto(
                 id = 1L,
                 login = "octocat",

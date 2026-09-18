@@ -1,6 +1,7 @@
 package pl.gi.codingchallenge.shared.remote
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import pl.gi.codingchallenge.shared.domain.mergeAndSort
@@ -15,14 +16,14 @@ class GitHubSearchNetworkSourceImpl(private val api: GitHubApi) : GitHubSearchNe
     // search 4xx's after the users search already succeeded). See docs/backlog.md AT-12.
     override suspend fun search(query: String, perTypeLimit: Int): List<SearchResultItem> =
         supervisorScope {
-            val usersDeferred = async {
+            val usersDeferred: Deferred<Result<List<SearchResultItem.UserResult>>> = async {
                 catchingCancellationAware {
                     api.searchUsers(query = query, perPage = perTypeLimit).items.map {
                         it.toDomain()
                     }
                 }
             }
-            val reposDeferred = async {
+            val reposDeferred: Deferred<Result<List<SearchResultItem.RepoResult>>> = async {
                 catchingCancellationAware {
                     api.searchRepositories(query = query, perPage = perTypeLimit).items.map {
                         it.toDomain()
@@ -30,8 +31,8 @@ class GitHubSearchNetworkSourceImpl(private val api: GitHubApi) : GitHubSearchNe
                 }
             }
 
-            val users = usersDeferred.await()
-            val repos = reposDeferred.await()
+            val users: Result<List<SearchResultItem.UserResult>> = usersDeferred.await()
+            val repos: Result<List<SearchResultItem.RepoResult>> = reposDeferred.await()
 
             if (users.isFailure && repos.isFailure) {
                 // Nothing to return - propagate a real error instead of a generic "search

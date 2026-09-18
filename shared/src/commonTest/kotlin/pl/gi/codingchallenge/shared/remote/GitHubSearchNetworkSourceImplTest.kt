@@ -17,14 +17,14 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
-private const val VALID_USER = """
+private const val VALID_USER: String = """
     {"total_count":1,"incomplete_results":false,"items":[
       {"id":2,"login":"octocat","avatar_url":"https://a.co/u.png",
        "html_url":"https://github.com/octocat","type":"User","score":1.0}
     ]}
 """
 
-private const val VALID_REPO = """
+private const val VALID_REPO: String = """
     {"total_count":1,"incomplete_results":false,"items":[
       {"id":1,"name":"cool-repo","full_name":"octocat/cool-repo",
        "owner":{"id":2,"login":"octocat","avatar_url":"https://a.co/u.png",
@@ -33,7 +33,7 @@ private const val VALID_REPO = """
     ]}
 """
 
-private const val ERROR_BODY = """{"message":"boom"}"""
+private const val ERROR_BODY: String = """{"message":"boom"}"""
 
 // Real bug this locks in (docs/backlog.md AT-12): a plain coroutineScope cancels the sibling
 // async when one throws, discarding real, already-fetched results. Routes MockEngine's
@@ -69,13 +69,13 @@ class GitHubSearchNetworkSourceImplTest {
 
     @Test
     fun repositoriesFailingStillReturnsUsersResults() = runTest {
-        val source = GitHubSearchNetworkSourceImpl(
+        val source: GitHubSearchNetworkSourceImpl = GitHubSearchNetworkSourceImpl(
             GitHubApi(
                 engineWith(reposStatus = HttpStatusCode.InternalServerError, reposBody = ERROR_BODY)
             )
         )
 
-        val result = source.search(query = "kot", perTypeLimit = 10)
+        val result: List<SearchResultItem> = source.search(query = "kot", perTypeLimit = 10)
 
         assertEquals(1, result.size)
         assertIs<SearchResultItem.UserResult>(result.single())
@@ -83,13 +83,13 @@ class GitHubSearchNetworkSourceImplTest {
 
     @Test
     fun usersFailingStillReturnsRepositoriesResults() = runTest {
-        val source = GitHubSearchNetworkSourceImpl(
+        val source: GitHubSearchNetworkSourceImpl = GitHubSearchNetworkSourceImpl(
             GitHubApi(
                 engineWith(usersStatus = HttpStatusCode.InternalServerError, usersBody = ERROR_BODY)
             )
         )
 
-        val result = source.search(query = "kot", perTypeLimit = 10)
+        val result: List<SearchResultItem> = source.search(query = "kot", perTypeLimit = 10)
 
         assertEquals(1, result.size)
         assertIs<SearchResultItem.RepoResult>(result.single())
@@ -97,7 +97,7 @@ class GitHubSearchNetworkSourceImplTest {
 
     @Test
     fun bothFailingThrowsInsteadOfReturningAnEmptyList() = runTest {
-        val source = GitHubSearchNetworkSourceImpl(
+        val source: GitHubSearchNetworkSourceImpl = GitHubSearchNetworkSourceImpl(
             GitHubApi(
                 engineWith(
                     usersStatus = HttpStatusCode.InternalServerError,
@@ -121,10 +121,10 @@ class GitHubSearchNetworkSourceImplTest {
     // See catchingCancellationAware()'s own comment for why it's kept anyway.
     @Test
     fun cancellationWhileOneCallIsInFlightPropagatesInsteadOfReturningPartialResults() = runTest {
-        val source = GitHubSearchNetworkSourceImpl(GitHubApi(engineWith(reposDelayMs = 1_000)))
+        val source: GitHubSearchNetworkSourceImpl = GitHubSearchNetworkSourceImpl(GitHubApi(engineWith(reposDelayMs = 1_000)))
 
         var caught: Throwable? = null
-        val job = launch {
+        val job: kotlinx.coroutines.Job = launch {
             try {
                 source.search(query = "kot", perTypeLimit = 10)
             } catch (e: Throwable) {

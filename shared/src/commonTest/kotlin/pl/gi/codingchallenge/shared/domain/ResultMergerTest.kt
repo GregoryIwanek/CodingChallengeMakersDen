@@ -8,10 +8,10 @@ class ResultMergerTest {
 
     @Test
     fun `merges users and repos then sorts case-insensitively by name`() {
-        val repos = listOf(repo(name = "banana-cli"), repo(name = "Apple-sdk"))
-        val users = listOf(user(login = "avocado"), user(login = "Cherry"))
+        val repos: List<SearchResultItem.RepoResult> = listOf(repo(name = "banana-cli"), repo(name = "Apple-sdk"))
+        val users: List<SearchResultItem.UserResult> = listOf(user(login = "avocado"), user(login = "Cherry"))
 
-        val merged = mergeAndSort(users = users, repos = repos)
+        val merged: List<SearchResultItem> = mergeAndSort(users = users, repos = repos)
 
         assertEquals(
             listOf("Apple-sdk", "avocado", "banana-cli", "Cherry"),
@@ -21,18 +21,18 @@ class ResultMergerTest {
 
     @Test
     fun `caps combined results at 50`() {
-        val repos = List(40) { repo(name = "repo$it") }
-        val users = List(40) { user(login = "user$it") }
+        val repos: List<SearchResultItem.RepoResult> = List(40) { repo(name = "repo$it") }
+        val users: List<SearchResultItem.UserResult> = List(40) { user(login = "user$it") }
 
         assertEquals(50, mergeAndSort(users = users, repos = repos).size)
     }
 
     @Test
     fun `cap keeps the alphabetically-first items - not an arbitrary subset`() {
-        val repos = listOf(repo(name = "Banana"), repo(name = "Cherry"))
-        val users = listOf(user(login = "Apple"), user(login = "Date"))
+        val repos: List<SearchResultItem.RepoResult> = listOf(repo(name = "Banana"), repo(name = "Cherry"))
+        val users: List<SearchResultItem.UserResult> = listOf(user(login = "Apple"), user(login = "Date"))
 
-        val merged = mergeAndSort(users = users, repos = repos, limit = 2)
+        val merged: List<SearchResultItem> = mergeAndSort(users = users, repos = repos, limit = 2)
 
         assertEquals(listOf("Apple", "Banana"), merged.map { it.sortKey })
     }

@@ -2,6 +2,7 @@ package pl.gi.codingchallenge.util
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
 import org.junit.Assert.assertEquals
@@ -13,14 +14,14 @@ import pl.gi.codingchallenge.R
 class ResourceUtilTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule: ComposeContentTestRule = createComposeRule()
 
     @Test
     fun spRes_dividesOutOverriddenDensity() {
         var result: Float? = null
 
         composeRule.setContent {
-            val real = LocalDensity.current
+            val real: Density = LocalDensity.current
             CompositionLocalProvider(
                 LocalDensity provides
                     Density(density = real.density * 2f, fontScale = real.fontScale)
@@ -37,7 +38,7 @@ class ResourceUtilTest {
         var result: Float? = null
 
         composeRule.setContent {
-            val real = LocalDensity.current
+            val real: Density = LocalDensity.current
             CompositionLocalProvider(
                 LocalDensity provides
                     Density(density = real.density, fontScale = real.fontScale * 2f)

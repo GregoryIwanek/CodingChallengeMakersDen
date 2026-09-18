@@ -16,7 +16,7 @@ import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 class GitHubAutocompleteBarScreenshotTest {
 
     @get:Rule
-    val paparazzi = Paparazzi(
+    val paparazzi: Paparazzi = Paparazzi(
         // Pinned so goldens don't drift between machines (locale otherwise
         // reads a JVM system property from the host).
         deviceConfig = DeviceConfig.PIXEL_6.copy(fontScale = 1f, locale = "en"),
@@ -26,7 +26,7 @@ class GitHubAutocompleteBarScreenshotTest {
         maxPercentDifference = 0.1
     )
 
-    private val sampleResults = listOf(
+    private val sampleResults: List<SearchResultItem> = listOf(
         SearchResultItem.RepoResult(
             id = "1",
             name = "dataflow-kt",

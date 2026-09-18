@@ -11,8 +11,8 @@ import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchCache
 // CachingGitHubSearchRepository (:app) for the actual fallback decision; this class
 // is just the storage - get/put, nothing about when to use which.
 class SearchResultCache(driver: SqlDriver) : GitHubSearchCache {
-    private val database = CacheDatabase(driver)
-    private val json = Json
+    private val database: CacheDatabase = CacheDatabase(driver)
+    private val json: Json = Json
 
     override suspend fun get(query: String): List<SearchResultItem>? =
         database.cachedSearchQueries.selectByQuery(query).executeAsOneOrNull()?.let {
@@ -31,6 +31,6 @@ class SearchResultCache(driver: SqlDriver) : GitHubSearchCache {
         // 50 mirrors SearchLimits.MAX_RESULTS as "a reasonable-sounding cap
         // for this app's realistic usage," not a shared constant - the two
         // caps bound unrelated things (cached query strings vs result items).
-        const val MAX_CACHED_QUERIES = 50L
+        const val MAX_CACHED_QUERIES: Long = 50L
     }
 }
