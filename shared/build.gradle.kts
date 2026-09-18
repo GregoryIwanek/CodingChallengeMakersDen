@@ -12,6 +12,13 @@ ktlint {
     // Android Kotlin Style Guide compatibility (e.g. import-order handling)
     // rather than the plain Kotlin style guide.
     android.set(true)
+    filter {
+        // SQLDelight registers its generated sources as a commonMain source
+        // dir, so ktlint would otherwise lint/format generated code that's
+        // regenerated fresh on every clean checkout (confirmed via a CI
+        // failure - masked locally by stale build/ output from prior runs).
+        exclude { element -> element.file.path.contains("/generated/") }
+    }
 }
 
 // Persistence cache, stretch goal - a small cache in front of the real
