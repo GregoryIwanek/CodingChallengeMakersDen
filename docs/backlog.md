@@ -12,28 +12,7 @@ it would actually involve.
 
 ## Open
 
-### AT-14 — "Alphabetical top-50" isn't actually guaranteed; GitHub's relevance ranking caps the candidate pool first
-
-| | |
-|---|---|
-| **Priority** | Low |
-| **Component** | `:shared` — `remote/GitHubApi.kt`, `domain/model/SearchLimits.kt`, `domain/ResultMerger.kt` |
-
-**Problem:** `GitHubApi.kt` never sends a `sort` parameter (confirmed — only `q`/`per_page`), so
-GitHub returns each type's results in its own best-match/relevance order, and only the first
-`perPage` (50) of *that* ordering ever reaches `ResultMerger.mergeAndSort`. `SearchLimits.kt`'s own
-comment frames the intent as avoiding silently dropping results below a true alphabetical top-50 —
-but for a query with more than 50 matches of one type, an alphabetically-earlier match can rank
-outside GitHub's relevance-based top-50 and never enter the candidate pool at all. `ResultMergerTest`
-only tests the merge/sort step itself, never this upstream relevance-vs-alphabetical interaction.
-
-**Why deferred:** found during a source-code bug-hunting pass; a real gap between the code's stated
-intent and its actual guarantee, but only visible for queries with a large match count, and not a
-crash.
-
-**Fix:** either document the actual guarantee accurately (relevance-ranked top-50, then
-alphabetized — not a true alphabetical top-50), or fetch more pages when `total_count` exceeds
-`perPage` and merge across them before capping, if a true top-50 is actually wanted.
+*(none currently open)*
 
 ---
 
@@ -123,5 +102,11 @@ alphabetized — not a true alphabetical top-50), or fetch more pages when `tota
   ordering for free. Called from `SearchResultCache.put()` after every `upsert`. New tests:
   `put_beyondCap_evictsOldestQueriesFirst` (confirmed to fail without the fix, not just pass with
   it) and `put_reUpsertingAnExistingQuery_refreshesItsRecency`.
+- **AT-14** — closed as won't-fix (the real fix — fetching multiple pages to guarantee a true
+  alphabetical top-50 — adds complexity and rate-limit exposure not worth it for a low-priority,
+  large-match-count-only edge case), but the misleading claim it found was real, so that part is
+  fixed: `SearchLimits.kt`'s doc comment now states the actual guarantee (a true alphabetical
+  top-50 *within GitHub's own relevance-ranked candidate pool*, not a true alphabetical top-50
+  overall) instead of overstating it. No behavior change.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*
