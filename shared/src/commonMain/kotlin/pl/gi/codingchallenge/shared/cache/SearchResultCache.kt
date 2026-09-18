@@ -21,5 +21,16 @@ class SearchResultCache(driver: SqlDriver) : GitHubSearchCache {
 
     override suspend fun put(query: String, results: List<SearchResultItem>) {
         database.cachedSearchQueries.upsert(query, json.encodeToString(results))
+        database.cachedSearchQueries.evictOldestBeyondCap(MAX_CACHED_QUERIES)
+    }
+
+    internal companion object {
+        // AT-3: without this, cachedSearch grows one row per distinct query
+        // string forever (SearchAutocompleteUseCase debounces per keystroke
+        // past 3 characters, so one typed word can write several rows).
+        // 50 mirrors SearchLimits.MAX_RESULTS as "a reasonable-sounding cap
+        // for this app's realistic usage," not a shared constant - the two
+        // caps bound unrelated things (cached query strings vs result items).
+        const val MAX_CACHED_QUERIES = 50L
     }
 }
