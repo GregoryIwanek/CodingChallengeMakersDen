@@ -10,5 +10,5 @@ data class RepositoryDto(
     @SerialName("full_name") val fullName: String,
     val owner: UserDto,
     val description: String? = null,
-    @SerialName("stargazers_count") val stargazersCount: Int,
+    @SerialName("stargazers_count") val stargazersCount: Int
 )

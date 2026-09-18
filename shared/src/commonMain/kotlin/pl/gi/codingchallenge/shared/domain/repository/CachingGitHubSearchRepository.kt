@@ -14,23 +14,22 @@ import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 // no Ktor or SQLite involved in that test at all.
 class CachingGitHubSearchRepository(
     private val network: GitHubSearchNetworkSource,
-    private val cache: GitHubSearchCache,
+    private val cache: GitHubSearchCache
 ) : GitHubSearchRepository {
 
     @Throws(Exception::class)
-    override suspend fun search(query: String, perTypeLimit: Int): List<SearchResultItem> =
-        try {
-            val fresh = network.search(query, perTypeLimit)
-            cache.put(query, fresh)
-            fresh
-        } catch (e: CancellationException) {
-            // CancellationException is a subtype of Exception - a plain catch (e: Exception)
-            // below would swallow it and fall back to a stale cache entry instead of letting
-            // the cancellation propagate, breaking structured concurrency. SearchAutocompleteUseCase's
-            // flatMapLatest cancels the in-flight search for every keystroke that supersedes it,
-            // so this path is live in normal use, not a hypothetical.
-            throw e
-        } catch (e: Exception) {
-            cache.get(query) ?: throw e
-        }
+    override suspend fun search(query: String, perTypeLimit: Int): List<SearchResultItem> = try {
+        val fresh = network.search(query, perTypeLimit)
+        cache.put(query, fresh)
+        fresh
+    } catch (e: CancellationException) {
+        // CancellationException is a subtype of Exception - a plain catch (e: Exception)
+        // below would swallow it and fall back to a stale cache entry instead of letting
+        // the cancellation propagate, breaking structured concurrency. SearchAutocompleteUseCase's
+        // flatMapLatest cancels the in-flight search for every keystroke that supersedes it,
+        // so this path is live in normal use, not a hypothetical.
+        throw e
+    } catch (e: Exception) {
+        cache.get(query) ?: throw e
+    }
 }

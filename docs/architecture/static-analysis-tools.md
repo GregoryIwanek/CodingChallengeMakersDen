@@ -1,10 +1,11 @@
 # Static Analysis & Style Tools
 
-**Status:** reference, not a decision — none of these are installed today (confirmed via a
-repo-wide search: no `ktlint`/`detekt`/`SwiftLint`/`Konsist` config anywhere, no `.editorconfig`).
-Revisit if the codebase grows enough that manual review alone stops being enough. Related:
-`docs/backlog.md` AT-7 (`:shared` has no Android Lint report task — a narrower, already-open gap
-this doc's Android Lint row also covers).
+**Status:** ktlint + `.editorconfig` are now installed (see AT-7 in `docs/backlog.md` for the
+PR). detekt/SwiftLint/Konsist remain reference-only — none of them installed today (confirmed via
+a repo-wide search: no `detekt`/`SwiftLint`/`Konsist` config anywhere). Revisit each if the
+codebase grows enough that manual review alone stops being enough. Related: `docs/backlog.md`
+AT-7 (`:shared` has no Android Lint report task — a narrower, still-blocked gap this doc's Android
+Lint row also covers).
 
 **Current baseline, so the table below has something real to compare against:** Android Lint is
 fully wired for `:app` (`lintDebug`, `lintRelease`, `lintFix`, ... — 20+ generated tasks, confirmed
@@ -29,10 +30,14 @@ not a formality.
 
 ## Is it worth it, for this repo specifically
 
-- **ktlint — yes, add it.** Near-zero setup cost, auto-fixable, and catches real drift (import
-  order, spacing) that's currently caught by nothing but manual review. Worth adding regardless of
-  codebase size, precisely *because* it's cheap.
-- **`.editorconfig` — yes, add it alongside ktlint.** Costs one file, no reason not to.
+- **ktlint — done.** Added via `org.jlleitschuh.gradle.ktlint`, wired into `:app` and `:shared`'s
+  `check` task (and CI's `android-ci.yml`, as its own fast-fail step before the full suite).
+  `android_studio` code style chosen over `ktlint_official` — it matches Android Studio's default
+  formatter instead of fighting it, and produced a much smaller initial reformat.
+- **`.editorconfig` — done, added alongside ktlint.** Also carries the
+  `ktlint_function_naming_ignore_when_annotated_with = Composable` exemption, since the standard
+  function-naming rule doesn't otherwise know `@Composable` functions are conventionally
+  PascalCase.
 - **detekt — not yet, revisit later.** At ~3,100 lines with one active contributor, the default
   ruleset's complexity/smell warnings are more likely to be noise than signal — this codebase has
   been kept deliberately simple on purpose (see `docs/kmp-knowledge-base.md`'s

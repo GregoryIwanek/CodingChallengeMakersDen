@@ -5,6 +5,10 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -12,10 +16,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertIs
 
 private const val VALID_USER = """
     {"total_count":1,"incomplete_results":false,"items":[
@@ -47,15 +47,21 @@ class GitHubSearchNetworkSourceImplTest {
         usersBody: String = VALID_USER,
         reposStatus: HttpStatusCode = HttpStatusCode.OK,
         reposBody: String = VALID_REPO,
-        reposDelayMs: Long = 0,
+        reposDelayMs: Long = 0
     ): MockEngine = MockEngine { request ->
         when (request.url.encodedPath) {
             "/search/users" -> respond(
-                usersBody, usersStatus, headersOf(HttpHeaders.ContentType, "application/json"),
+                usersBody,
+                usersStatus,
+                headersOf(HttpHeaders.ContentType, "application/json")
             )
             "/search/repositories" -> {
                 if (reposDelayMs > 0) delay(reposDelayMs)
-                respond(reposBody, reposStatus, headersOf(HttpHeaders.ContentType, "application/json"))
+                respond(
+                    reposBody,
+                    reposStatus,
+                    headersOf(HttpHeaders.ContentType, "application/json")
+                )
             }
             else -> error("unexpected path ${request.url.encodedPath}")
         }
@@ -64,7 +70,9 @@ class GitHubSearchNetworkSourceImplTest {
     @Test
     fun repositoriesFailingStillReturnsUsersResults() = runTest {
         val source = GitHubSearchNetworkSourceImpl(
-            GitHubApi(engineWith(reposStatus = HttpStatusCode.InternalServerError, reposBody = ERROR_BODY)),
+            GitHubApi(
+                engineWith(reposStatus = HttpStatusCode.InternalServerError, reposBody = ERROR_BODY)
+            )
         )
 
         val result = source.search(query = "kot", perTypeLimit = 10)
@@ -76,7 +84,9 @@ class GitHubSearchNetworkSourceImplTest {
     @Test
     fun usersFailingStillReturnsRepositoriesResults() = runTest {
         val source = GitHubSearchNetworkSourceImpl(
-            GitHubApi(engineWith(usersStatus = HttpStatusCode.InternalServerError, usersBody = ERROR_BODY)),
+            GitHubApi(
+                engineWith(usersStatus = HttpStatusCode.InternalServerError, usersBody = ERROR_BODY)
+            )
         )
 
         val result = source.search(query = "kot", perTypeLimit = 10)
@@ -90,10 +100,12 @@ class GitHubSearchNetworkSourceImplTest {
         val source = GitHubSearchNetworkSourceImpl(
             GitHubApi(
                 engineWith(
-                    usersStatus = HttpStatusCode.InternalServerError, usersBody = ERROR_BODY,
-                    reposStatus = HttpStatusCode.InternalServerError, reposBody = ERROR_BODY,
-                ),
-            ),
+                    usersStatus = HttpStatusCode.InternalServerError,
+                    usersBody = ERROR_BODY,
+                    reposStatus = HttpStatusCode.InternalServerError,
+                    reposBody = ERROR_BODY
+                )
+            )
         )
 
         assertFailsWith<GitHubApiException.ServerError> {

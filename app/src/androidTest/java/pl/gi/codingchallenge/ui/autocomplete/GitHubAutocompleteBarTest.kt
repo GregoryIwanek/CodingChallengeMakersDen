@@ -38,12 +38,20 @@ class GitHubAutocompleteBarTest {
 
     private val sampleResults = listOf(
         SearchResultItem.RepoResult(
-            id = "1", name = "kotlin", fullName = "JetBrains/kotlin", ownerLogin = "JetBrains",
-            avatarUrl = null, description = "The Kotlin Programming Language", stars = 48000,
+            id = "1",
+            name = "kotlin",
+            fullName = "JetBrains/kotlin",
+            ownerLogin = "JetBrains",
+            avatarUrl = null,
+            description = "The Kotlin Programming Language",
+            stars = 48000
         ),
         SearchResultItem.UserResult(
-            id = "2", login = "octocat", avatarUrl = null, htmlUrl = "https://github.com/octocat",
-        ),
+            id = "2",
+            login = "octocat",
+            avatarUrl = null,
+            htmlUrl = "https://github.com/octocat"
+        )
     )
 
     @Test
@@ -55,7 +63,7 @@ class GitHubAutocompleteBarTest {
                 onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -75,7 +83,7 @@ class GitHubAutocompleteBarTest {
                 onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -91,7 +99,7 @@ class GitHubAutocompleteBarTest {
                 onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -111,7 +119,7 @@ class GitHubAutocompleteBarTest {
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "kot",
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -134,7 +142,7 @@ class GitHubAutocompleteBarTest {
                 onRetry = {},
                 onItemClick = { clicked = it },
                 onLeadingIconClick = {},
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -155,7 +163,7 @@ class GitHubAutocompleteBarTest {
                 onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -168,14 +176,24 @@ class GitHubAutocompleteBarTest {
     fun successState_resetsScrollPosition_whenTheQueryTextChanges() {
         val firstBatch = List(20) {
             SearchResultItem.RepoResult(
-                id = "first-$it", name = "first-repo-$it", fullName = "owner/first-repo-$it",
-                ownerLogin = "owner", avatarUrl = null, description = null, stars = 0,
+                id = "first-$it",
+                name = "first-repo-$it",
+                fullName = "owner/first-repo-$it",
+                ownerLogin = "owner",
+                avatarUrl = null,
+                description = null,
+                stars = 0
             )
         }
         val secondBatch = List(20) {
             SearchResultItem.RepoResult(
-                id = "second-$it", name = "second-repo-$it", fullName = "owner/second-repo-$it",
-                ownerLogin = "owner", avatarUrl = null, description = null, stars = 0,
+                id = "second-$it",
+                name = "second-repo-$it",
+                fullName = "owner/second-repo-$it",
+                ownerLogin = "owner",
+                avatarUrl = null,
+                description = null,
+                stars = 0
             )
         }
 
@@ -194,7 +212,7 @@ class GitHubAutocompleteBarTest {
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "kot",
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -214,8 +232,13 @@ class GitHubAutocompleteBarTest {
     fun successState_capsSuggestionPanelHeight_evenWithManyResults() {
         val manyResults = List(50) {
             SearchResultItem.RepoResult(
-                id = "$it", name = "repo-$it", fullName = "owner/repo-$it", ownerLogin = "owner",
-                avatarUrl = null, description = null, stars = 0,
+                id = "$it",
+                name = "repo-$it",
+                fullName = "owner/repo-$it",
+                ownerLogin = "owner",
+                avatarUrl = null,
+                description = null,
+                stars = 0
             )
         }
 
@@ -226,21 +249,28 @@ class GitHubAutocompleteBarTest {
                 onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
-                initialActive = true,
+                initialActive = true
             )
         }
 
         // 50 rows would run to well over 1000dp uncapped, so a measured
         // height of exactly 500dp proves the cap — not just that
         // dimens.xml has a value — actually constrains layout.
-        composeRule.onNodeWithTag(AutocompleteTestTags.SUGGESTION_PANEL).assertHeightIsEqualTo(500.dp)
+        composeRule.onNodeWithTag(
+            AutocompleteTestTags.SUGGESTION_PANEL
+        ).assertHeightIsEqualTo(500.dp)
     }
 
     @Test
     fun successState_showsFallbackAvatarInitial_whenRepoNameIsEmpty() {
         val emptyNameRepo = SearchResultItem.RepoResult(
-            id = "1", name = "", fullName = "owner/", ownerLogin = "owner",
-            avatarUrl = null, description = null, stars = 0,
+            id = "1",
+            name = "",
+            fullName = "owner/",
+            ownerLogin = "owner",
+            avatarUrl = null,
+            description = null,
+            stars = 0
         )
 
         composeRule.setContent {
@@ -250,7 +280,7 @@ class GitHubAutocompleteBarTest {
                 onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -267,13 +297,15 @@ class GitHubAutocompleteBarTest {
                 onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = {},
-                initialActive = true,
+                initialActive = true
             )
         }
 
         // RepoResult row: name, "owner · description" subtitle, formatted star count.
         composeRule.onNodeWithText("kotlin").assertIsDisplayed()
-        composeRule.onNodeWithText("JetBrains · The Kotlin Programming Language").assertIsDisplayed()
+        composeRule.onNodeWithText(
+            "JetBrains · The Kotlin Programming Language"
+        ).assertIsDisplayed()
         composeRule.onNodeWithText("48.0k").assertIsDisplayed()
 
         // UserResult row: login, URL with the scheme stripped.
@@ -294,7 +326,7 @@ class GitHubAutocompleteBarTest {
                 onQueryChanged = { queries.add(it) },
                 onRetry = {},
                 onItemClick = {},
-                onLeadingIconClick = {},
+                onLeadingIconClick = {}
             )
         }
 
@@ -319,7 +351,7 @@ class GitHubAutocompleteBarTest {
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "kotlin",
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -344,7 +376,7 @@ class GitHubAutocompleteBarTest {
                 onItemClick = {},
                 onLeadingIconClick = { callbackInvoked = true },
                 initialText = "kot",
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -370,7 +402,7 @@ class GitHubAutocompleteBarTest {
                 onItemClick = {},
                 onLeadingIconClick = { callbackInvoked = true },
                 initialText = "kot",
-                initialActive = false,
+                initialActive = false
             )
         }
 
@@ -394,7 +426,7 @@ class GitHubAutocompleteBarTest {
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "kot",
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -420,7 +452,7 @@ class GitHubAutocompleteBarTest {
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "kot",
-                initialActive = true,
+                initialActive = true
             )
         }
 
@@ -450,7 +482,7 @@ class GitHubAutocompleteBarTest {
                 onQueryChanged = {},
                 onRetry = {},
                 onItemClick = {},
-                onLeadingIconClick = {},
+                onLeadingIconClick = {}
             )
         }
 
@@ -474,7 +506,7 @@ class GitHubAutocompleteBarTest {
                 onRetry = {},
                 onItemClick = {},
                 onLeadingIconClick = { callbackInvoked = true },
-                initialText = "ko", // < 3 chars: still Idle, nothing to show
+                initialText = "ko" // < 3 chars: still Idle, nothing to show
             )
         }
 
@@ -497,7 +529,7 @@ class GitHubAutocompleteBarTest {
                 onQueryChanged = {},
                 onRetry = {},
                 onItemClick = {},
-                onLeadingIconClick = {},
+                onLeadingIconClick = {}
             )
         }
 
@@ -513,7 +545,9 @@ class GitHubAutocompleteBarTest {
             // Stands in for the ViewModel: 3+ chars means there's
             // something to show, matching MIN_QUERY_LENGTH in
             // SearchAutocompleteUseCase.
-            var uiState by remember { mutableStateOf<AutocompleteUiState>(AutocompleteUiState.Idle) }
+            var uiState by remember {
+                mutableStateOf<AutocompleteUiState>(AutocompleteUiState.Idle)
+            }
 
             GitHubAutocompleteBarComponent(
                 uiState = uiState,
@@ -526,7 +560,7 @@ class GitHubAutocompleteBarTest {
                 },
                 onRetry = {},
                 onItemClick = {},
-                onLeadingIconClick = {},
+                onLeadingIconClick = {}
             )
         }
 

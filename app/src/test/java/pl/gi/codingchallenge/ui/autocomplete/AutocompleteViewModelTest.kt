@@ -55,14 +55,17 @@ class AutocompleteViewModelTest {
         val useCase = mockk<SearchAutocompleteUseCase>()
         val nonEmptyResults = listOf(
             SearchResultItem.UserResult(
-                id = "1", login = "octocat", avatarUrl = null, htmlUrl = "https://github.com/octocat",
-            ),
+                id = "1",
+                login = "octocat",
+                avatarUrl = null,
+                htmlUrl = "https://github.com/octocat"
+            )
         )
         every { useCase(any()) } returns flowOf(
             SearchOutcome.Loading,
             SearchOutcome.Success(nonEmptyResults),
             SearchOutcome.Success(emptyList()),
-            SearchOutcome.Failure("boom"),
+            SearchOutcome.Failure("boom")
         )
 
         val viewModel = AutocompleteViewModel(useCase)
@@ -79,19 +82,24 @@ class AutocompleteViewModelTest {
     }
 
     @Test
-    fun `onQueryChanged forwards the new query into the use case's input flow`() = runTest(dispatcher) {
-        val useCase = mockk<SearchAutocompleteUseCase>()
-        val requestsSlot = slot<Flow<QueryRequest>>()
-        every { useCase(capture(requestsSlot)) } returns flowOf()
+    fun `onQueryChanged forwards the new query into the use case's input flow`() =
+        runTest(dispatcher) {
+            val useCase = mockk<SearchAutocompleteUseCase>()
+            val requestsSlot = slot<Flow<QueryRequest>>()
+            every { useCase(capture(requestsSlot)) } returns flowOf()
 
-        val viewModel = AutocompleteViewModel(useCase)
-        viewModel.uiState.test { awaitItem() } // subscribe once so stateIn actually invokes the use case
-        advanceUntilIdle()
+            val viewModel = AutocompleteViewModel(useCase)
+            // Subscribe once so stateIn actually invokes the use case.
+            viewModel.uiState.test { awaitItem() }
+            advanceUntilIdle()
 
-        viewModel.onQueryChanged("kotlin")
+            viewModel.onQueryChanged("kotlin")
 
-        assertEquals("kotlin", (requestsSlot.captured as MutableStateFlow<QueryRequest>).value.text)
-    }
+            assertEquals(
+                "kotlin",
+                (requestsSlot.captured as MutableStateFlow<QueryRequest>).value.text
+            )
+        }
 
     @Test
     fun `retry bumps attempt but leaves text unchanged, forwarding into the use case`() =
@@ -101,7 +109,8 @@ class AutocompleteViewModelTest {
             every { useCase(capture(requestsSlot)) } returns flowOf()
 
             val viewModel = AutocompleteViewModel(useCase)
-            viewModel.uiState.test { awaitItem() } // subscribe once so stateIn actually invokes the use case
+            // Subscribe once so stateIn actually invokes the use case.
+            viewModel.uiState.test { awaitItem() }
             advanceUntilIdle()
 
             viewModel.onQueryChanged("kotlin")

@@ -1,5 +1,9 @@
 package pl.gi.codingchallenge.shared.domain.repository
 
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -8,10 +12,6 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 import pl.gi.codingchallenge.shared.remote.GitHubApiException
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertIs
 
 // Depends on GitHubSearchNetworkSource/GitHubSearchCache directly - no Ktor, no
 // SQLite/SQLDelight driver anywhere in this test. This is the concrete payoff of
@@ -27,9 +27,14 @@ class CachingGitHubSearchRepositoryTest {
 
     private val results: List<SearchResultItem> = listOf(
         SearchResultItem.RepoResult(
-            id = "1", name = "kotlin", fullName = "JetBrains/kotlin",
-            ownerLogin = "JetBrains", avatarUrl = null, description = null, stars = 50_000,
-        ),
+            id = "1",
+            name = "kotlin",
+            fullName = "JetBrains/kotlin",
+            ownerLogin = "JetBrains",
+            avatarUrl = null,
+            description = null,
+            stars = 50_000
+        )
     )
 
     @Test

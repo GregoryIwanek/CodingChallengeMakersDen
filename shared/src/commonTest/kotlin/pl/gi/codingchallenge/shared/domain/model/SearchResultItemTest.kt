@@ -13,11 +13,19 @@ class SearchResultItemTest {
     @Test
     fun repoAndUserSharingTheSameIdStillGetDistinctUniqueKeys() {
         val repo = SearchResultItem.RepoResult(
-            id = "1", name = "kotlin", fullName = "JetBrains/kotlin", ownerLogin = "JetBrains",
-            avatarUrl = null, description = null, stars = 0,
+            id = "1",
+            name = "kotlin",
+            fullName = "JetBrains/kotlin",
+            ownerLogin = "JetBrains",
+            avatarUrl = null,
+            description = null,
+            stars = 0
         )
         val user = SearchResultItem.UserResult(
-            id = "1", login = "octocat", avatarUrl = null, htmlUrl = "https://github.com/octocat",
+            id = "1",
+            login = "octocat",
+            avatarUrl = null,
+            htmlUrl = "https://github.com/octocat"
         )
 
         assertNotEquals(repo.uniqueKey, user.uniqueKey)

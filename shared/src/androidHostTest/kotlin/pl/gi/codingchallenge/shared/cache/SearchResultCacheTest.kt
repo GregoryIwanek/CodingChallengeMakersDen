@@ -1,11 +1,11 @@
 package pl.gi.codingchallenge.shared.cache
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import kotlinx.coroutines.test.runTest
-import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlinx.coroutines.test.runTest
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 class SearchResultCacheTest {
 
@@ -30,8 +30,8 @@ class SearchResultCacheTest {
                 id = "1",
                 login = "octocat",
                 avatarUrl = null,
-                htmlUrl = "https://github.com/octocat",
-            ),
+                htmlUrl = "https://github.com/octocat"
+            )
         )
 
         cache.put("octocat", results)

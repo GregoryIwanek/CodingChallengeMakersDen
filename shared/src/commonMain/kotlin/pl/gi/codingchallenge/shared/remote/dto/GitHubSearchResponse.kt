@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class GitHubSearchResponse<T>(
     @SerialName("total_count") val totalCount: Int,
     @SerialName("incomplete_results") val incompleteResults: Boolean,
-    val items: List<T>,
+    val items: List<T>
 )

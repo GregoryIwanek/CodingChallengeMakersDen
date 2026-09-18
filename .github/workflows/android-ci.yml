@@ -24,7 +24,13 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Unit tests, lint, and Paparazzi golden-image verification.
+      # Cheap formatting check first, so a style violation fails fast instead
+      # of waiting on the full test/lint/Paparazzi run below.
+      - name: Run ktlint
+        run: ./gradlew ktlintCheck --console=plain
+
+      # Unit tests, lint, and Paparazzi golden-image verification. Also
+      # re-runs ktlintCheck, but that's a no-op cache hit from the step above.
       - name: Run checks
         run: ./gradlew check --console=plain
 
@@ -37,5 +43,7 @@ jobs:
             app/build/reports/tests/
             app/build/reports/paparazzi/
             app/build/reports/lint-results-debug.html
+            app/build/reports/ktlint/
             shared/build/reports/tests/
+            shared/build/reports/ktlint/
           retention-days: 7

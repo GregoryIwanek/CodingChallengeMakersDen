@@ -184,10 +184,11 @@ see `docs/kmp-knowledge-base.md` §1 for the full source-set breakdown.
   `ResourceUtilTest` (instrumented) covering the remaining
   domain/data/presentation logic.
 
-Run everything: `./gradlew check` (unit tests + lint + Paparazzi) and
-`./gradlew connectedDebugAndroidTest` (needs a device/emulator). CI
+Run everything: `./gradlew check` (unit tests + lint + ktlint + Paparazzi)
+and `./gradlew connectedDebugAndroidTest` (needs a device/emulator). CI
 runs `./gradlew check` on every push and pull request to `main` and
-`develop` — see `.github/workflows/android-ci.yml`.
+`develop` — see `.github/workflows/android-ci.yml`. `./gradlew ktlintFormat`
+auto-fixes most style violations locally before pushing.
 
 ## Running it
 

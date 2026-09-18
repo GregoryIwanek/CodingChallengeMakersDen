@@ -11,12 +11,12 @@ fun RepositoryDto.toDomain(): SearchResultItem.RepoResult = SearchResultItem.Rep
     ownerLogin = owner.login,
     avatarUrl = owner.avatarUrl,
     description = description,
-    stars = stargazersCount,
+    stars = stargazersCount
 )
 
 fun UserDto.toDomain(): SearchResultItem.UserResult = SearchResultItem.UserResult(
     id = id.toString(),
     login = login,
     avatarUrl = avatarUrl,
-    htmlUrl = htmlUrl,
+    htmlUrl = htmlUrl
 )

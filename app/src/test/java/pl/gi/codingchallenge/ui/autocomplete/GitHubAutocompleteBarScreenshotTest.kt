@@ -23,17 +23,25 @@ class GitHubAutocompleteBarScreenshotTest {
         renderingMode = SessionParams.RenderingMode.SHRINK,
         theme = "Theme.CodingChallenge",
         // Small tolerance for cross-OS antialiasing; unverified, no CI yet.
-        maxPercentDifference = 0.1,
+        maxPercentDifference = 0.1
     )
 
     private val sampleResults = listOf(
         SearchResultItem.RepoResult(
-            id = "1", name = "dataflow-kt", fullName = "kotlinx/dataflow-kt", ownerLogin = "kotlinx",
-            avatarUrl = null, description = "Structured concurrency data pipelines", stars = 2100,
+            id = "1",
+            name = "dataflow-kt",
+            fullName = "kotlinx/dataflow-kt",
+            ownerLogin = "kotlinx",
+            avatarUrl = null,
+            description = "Structured concurrency data pipelines",
+            stars = 2100
         ),
         SearchResultItem.UserResult(
-            id = "2", login = "flowdev", avatarUrl = null, htmlUrl = "https://github.com/flowdev",
-        ),
+            id = "2",
+            login = "flowdev",
+            avatarUrl = null,
+            htmlUrl = "https://github.com/flowdev"
+        )
     )
 
     @Test
@@ -46,7 +54,7 @@ class GitHubAutocompleteBarScreenshotTest {
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "flow",
-                initialActive = true,
+                initialActive = true
             )
         }
     }
@@ -61,7 +69,7 @@ class GitHubAutocompleteBarScreenshotTest {
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "flow",
-                initialActive = true,
+                initialActive = true
             )
         }
     }
@@ -76,7 +84,7 @@ class GitHubAutocompleteBarScreenshotTest {
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "zzz",
-                initialActive = true,
+                initialActive = true
             )
         }
     }
@@ -91,7 +99,7 @@ class GitHubAutocompleteBarScreenshotTest {
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "flow",
-                initialActive = true,
+                initialActive = true
             )
         }
     }
@@ -106,7 +114,7 @@ class GitHubAutocompleteBarScreenshotTest {
                 onQueryChanged = {},
                 onRetry = {},
                 onItemClick = {},
-                onLeadingIconClick = {},
+                onLeadingIconClick = {}
             )
         }
     }

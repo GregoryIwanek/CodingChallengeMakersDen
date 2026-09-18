@@ -46,7 +46,7 @@ internal fun SuggestionPanel(
     uiState: AutocompleteUiState,
     text: String,
     onRetry: () -> Unit,
-    onItemClick: (SearchResultItem) -> Unit,
+    onItemClick: (SearchResultItem) -> Unit
 ) {
     val panelCornerRadius = RoundedCornerShape(dimRes(R.dimen.autocomplete_panel_corner_radius))
 
@@ -56,12 +56,13 @@ internal fun SuggestionPanel(
             .testTag(AutocompleteTestTags.SUGGESTION_PANEL)
             .shadow(
                 elevation = dimRes(R.dimen.autocomplete_panel_elevation),
-                shape = panelCornerRadius,
+                shape = panelCornerRadius
             )
-            .background(color = colRes(R.color.autocomplete_surface), shape = panelCornerRadius),
+            .background(color = colRes(R.color.autocomplete_surface), shape = panelCornerRadius)
     ) {
         when (uiState) {
-            AutocompleteUiState.Idle -> {} // never shown — see AnimatedVisibility's visible condition
+            // Never shown — see AnimatedVisibility's visible condition.
+            AutocompleteUiState.Idle -> {}
             AutocompleteUiState.Loading -> LoadingIndicator()
             AutocompleteUiState.Empty -> EmptyState()
             is AutocompleteUiState.Error -> ErrorState(uiState.message, onRetry = onRetry)
@@ -73,14 +74,14 @@ internal fun SuggestionPanel(
                 state = remember(text) { LazyListState() },
                 modifier = Modifier
                     .heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height))
-                    .testTag(AutocompleteTestTags.RESULTS_LIST),
+                    .testTag(AutocompleteTestTags.RESULTS_LIST)
             ) {
                 itemsIndexed(uiState.items, key = { _, item -> item.uniqueKey }) { index, item ->
                     SearchResultRow(item, onClick = { onItemClick(item) })
                     if (index < uiState.items.lastIndex) {
                         HorizontalDivider(
                             color = colRes(R.color.autocomplete_divider),
-                            modifier = Modifier.testTag(AutocompleteTestTags.resultDivider(index)),
+                            modifier = Modifier.testTag(AutocompleteTestTags.resultDivider(index))
                         )
                     }
                 }
@@ -96,7 +97,7 @@ private fun LoadingIndicator() {
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.LOADING_INDICATOR)
             .height(dimRes(R.dimen.autocomplete_short_state_box_height)),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
             color = colRes(R.color.autocomplete_accent),
@@ -113,7 +114,7 @@ private fun EmptyState() {
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.EMPTY_STATE)
             .height(dimRes(R.dimen.autocomplete_short_state_box_height)),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Text(
             strRes(R.string.autocomplete_empty_message),
@@ -121,8 +122,8 @@ private fun EmptyState() {
             color = colRes(R.color.autocomplete_text_secondary),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(
-                horizontal = dimRes(R.dimen.autocomplete_state_message_horizontal_padding),
-            ),
+                horizontal = dimRes(R.dimen.autocomplete_state_message_horizontal_padding)
+            )
         )
     }
 }
@@ -134,13 +135,13 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.ERROR_STATE)
             .height(dimRes(R.dimen.autocomplete_tall_state_box_height)),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(
-                dimRes(R.dimen.autocomplete_error_column_spacing),
-            ),
+                dimRes(R.dimen.autocomplete_error_column_spacing)
+            )
         ) {
             Icon(
                 Icons.Filled.Warning,
@@ -160,17 +161,17 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
                 color = colRes(R.color.autocomplete_text_secondary),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(
-                    horizontal = dimRes(R.dimen.autocomplete_state_message_horizontal_padding),
-                ),
+                    horizontal = dimRes(R.dimen.autocomplete_state_message_horizontal_padding)
+                )
             )
             Spacer(Modifier.height(dimRes(R.dimen.autocomplete_error_icon_to_headline_spacing)))
             OutlinedButton(
                 onClick = onRetry,
                 contentPadding = PaddingValues(
                     horizontal = dimRes(R.dimen.autocomplete_retry_horizontal_padding),
-                    vertical = dimRes(R.dimen.autocomplete_retry_vertical_padding),
+                    vertical = dimRes(R.dimen.autocomplete_retry_vertical_padding)
                 ),
-                modifier = Modifier.testTag(AutocompleteTestTags.RETRY_BUTTON),
+                modifier = Modifier.testTag(AutocompleteTestTags.RETRY_BUTTON)
             ) {
                 Icon(
                     Icons.Filled.Refresh,
@@ -193,13 +194,15 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
 @Preview(name = "Loading", showBackground = true, widthDp = 380, heightDp = 160)
 @Composable
 private fun SuggestionPanelLoadingPreview() {
-    SuggestionPanel(uiState = AutocompleteUiState.Loading, text = "kot", onRetry = {}, onItemClick = {})
+    SuggestionPanel(uiState = AutocompleteUiState.Loading, text = "kot", onRetry = {
+    }, onItemClick = {})
 }
 
 @Preview(name = "Empty", showBackground = true, widthDp = 380, heightDp = 160)
 @Composable
 private fun SuggestionPanelEmptyPreview() {
-    SuggestionPanel(uiState = AutocompleteUiState.Empty, text = "zzz", onRetry = {}, onItemClick = {})
+    SuggestionPanel(uiState = AutocompleteUiState.Empty, text = "zzz", onRetry = {
+    }, onItemClick = {})
 }
 
 @Preview(name = "Error", showBackground = true, widthDp = 380, heightDp = 190)
@@ -209,7 +212,7 @@ private fun SuggestionPanelErrorPreview() {
         uiState = AutocompleteUiState.Error("Check your connection and try again."),
         text = "kot",
         onRetry = {},
-        onItemClick = {},
+        onItemClick = {}
     )
 }
 
@@ -220,16 +223,24 @@ private fun SuggestionPanelSuccessPreview() {
         uiState = AutocompleteUiState.Success(
             listOf(
                 SearchResultItem.RepoResult(
-                    id = "1", name = "kotlin", fullName = "JetBrains/kotlin", ownerLogin = "JetBrains",
-                    avatarUrl = null, description = "The Kotlin Programming Language", stars = 48000,
+                    id = "1",
+                    name = "kotlin",
+                    fullName = "JetBrains/kotlin",
+                    ownerLogin = "JetBrains",
+                    avatarUrl = null,
+                    description = "The Kotlin Programming Language",
+                    stars = 48000
                 ),
                 SearchResultItem.UserResult(
-                    id = "2", login = "octocat", avatarUrl = null, htmlUrl = "https://github.com/octocat",
-                ),
-            ),
+                    id = "2",
+                    login = "octocat",
+                    avatarUrl = null,
+                    htmlUrl = "https://github.com/octocat"
+                )
+            )
         ),
         text = "kot",
         onRetry = {},
-        onItemClick = {},
+        onItemClick = {}
     )
 }

@@ -1,10 +1,10 @@
 package pl.gi.codingchallenge.shared.remote.dto
 
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 /** Decodes real (trimmed) GitHub payloads to catch a wrong @SerialName. */
 class GitHubSerializationTest {
@@ -36,7 +36,7 @@ class GitHubSerializationTest {
                 }
               ]
             }
-            """.trimIndent(),
+            """.trimIndent()
         )
 
         assertEquals(1, response.totalCount)
@@ -70,7 +70,7 @@ class GitHubSerializationTest {
                 }
               ]
             }
-            """.trimIndent(),
+            """.trimIndent()
         )
 
         val user = response.items.single()

@@ -46,7 +46,7 @@ internal fun FloatingSearchBar(
     hasSuggestions: Boolean,
     onTextChange: (String) -> Unit,
     onActiveChange: (Boolean) -> Unit,
-    onLeadingIconClick: () -> Unit,
+    onLeadingIconClick: () -> Unit
 ) {
     val barCornerRadius = RoundedCornerShape(dimRes(R.dimen.autocomplete_bar_corner_radius))
     val focusManager = LocalFocusManager.current
@@ -58,11 +58,11 @@ internal fun FloatingSearchBar(
             .height(dimRes(R.dimen.autocomplete_bar_height))
             .shadow(
                 elevation = dimRes(R.dimen.autocomplete_bar_elevation),
-                shape = barCornerRadius,
+                shape = barCornerRadius
             )
             .background(color = colRes(R.color.autocomplete_surface), shape = barCornerRadius)
             .padding(horizontal = dimRes(R.dimen.autocomplete_bar_inner_padding)),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
             onClick = {
@@ -79,7 +79,7 @@ internal fun FloatingSearchBar(
                 onLeadingIconClick()
             },
             enabled = hasSuggestions,
-            modifier = Modifier.testTag(AutocompleteTestTags.LEADING_ICON_BUTTON),
+            modifier = Modifier.testTag(AutocompleteTestTags.LEADING_ICON_BUTTON)
         ) {
             // Nothing to expand/collapse below MIN_QUERY_LENGTH chars —
             // a neutral, non-interactive search glyph instead of an
@@ -95,7 +95,7 @@ internal fun FloatingSearchBar(
                     active -> strRes(R.string.autocomplete_leading_icon_collapse)
                     else -> strRes(R.string.autocomplete_leading_icon_expand)
                 },
-                tint = colRes(R.color.autocomplete_text_secondary),
+                tint = colRes(R.color.autocomplete_text_secondary)
             )
         }
 
@@ -105,8 +105,8 @@ internal fun FloatingSearchBar(
                     text = strRes(R.string.autocomplete_search_placeholder),
                     style = TextStyle(
                         fontSize = spRes(R.dimen.autocomplete_input_text_size),
-                        color = colRes(R.color.autocomplete_text_secondary),
-                    ),
+                        color = colRes(R.color.autocomplete_text_secondary)
+                    )
                 )
             }
             BasicTextField(
@@ -115,14 +115,14 @@ internal fun FloatingSearchBar(
                 singleLine = true,
                 textStyle = TextStyle(
                     fontSize = spRes(R.dimen.autocomplete_input_text_size),
-                    color = colRes(R.color.autocomplete_text_primary),
+                    color = colRes(R.color.autocomplete_text_primary)
                 ),
                 cursorBrush = SolidColor(colRes(R.color.autocomplete_accent)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag(AutocompleteTestTags.SEARCH_FIELD)
                     .focusRequester(focusRequester)
-                    .onFocusChanged { onActiveChange(it.isFocused) },
+                    .onFocusChanged { onActiveChange(it.isFocused) }
             )
         }
 
@@ -131,19 +131,22 @@ internal fun FloatingSearchBar(
                 onClick = { onTextChange("") },
                 modifier = Modifier
                     .size(dimRes(R.dimen.autocomplete_clear_button_size))
-                    .testTag(AutocompleteTestTags.CLEAR_BUTTON),
+                    .testTag(AutocompleteTestTags.CLEAR_BUTTON)
             ) {
                 Box(
                     modifier = Modifier
                         .size(dimRes(R.dimen.autocomplete_clear_circle_size))
-                        .background(color = colRes(R.color.autocomplete_border), shape = CircleShape),
-                    contentAlignment = Alignment.Center,
+                        .background(
+                            color = colRes(R.color.autocomplete_border),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.Filled.Clear,
                         contentDescription = strRes(R.string.autocomplete_clear_icon),
                         tint = colRes(R.color.autocomplete_text_secondary),
-                        modifier = Modifier.size(dimRes(R.dimen.autocomplete_clear_icon_size)),
+                        modifier = Modifier.size(dimRes(R.dimen.autocomplete_clear_icon_size))
                     )
                 }
             }
@@ -162,7 +165,7 @@ private fun FloatingSearchBarEmptyPreview() {
         hasSuggestions = false,
         onTextChange = {},
         onActiveChange = {},
-        onLeadingIconClick = {},
+        onLeadingIconClick = {}
     )
 }
 
@@ -175,7 +178,7 @@ private fun FloatingSearchBarTypingPreview() {
         hasSuggestions = false,
         onTextChange = {},
         onActiveChange = {},
-        onLeadingIconClick = {},
+        onLeadingIconClick = {}
     )
 }
 
@@ -188,6 +191,6 @@ private fun FloatingSearchBarActivePreview() {
         hasSuggestions = true,
         onTextChange = {},
         onActiveChange = {},
-        onLeadingIconClick = {},
+        onLeadingIconClick = {}
     )
 }
