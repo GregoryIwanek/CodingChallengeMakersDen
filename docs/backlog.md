@@ -12,26 +12,6 @@ it would actually involve.
 
 ## Open
 
-### AT-3 — SQLDelight search cache has no eviction or size cap
-
-| | |
-|---|---|
-| **Priority** | Low |
-| **Component** | `:shared` — `cache/SearchResultCache.kt`, `CachedSearch.sq` |
-
-**Problem:** `cachedSearch` (`CachedSearch.sq`) upserts one row per distinct query string with no
-TTL, max-row-count, or LRU eviction. Since `SearchAutocompleteUseCase` debounces per keystroke
-past 3 characters, typing one word can write several rows (`"kot"`, `"kotl"`, `"kotli"`, ...), all
-kept forever. Over normal usage the table grows unbounded on-device storage with no cleanup path.
-
-**Why deferred:** found during a codebase-wide bug sweep; not a crash or correctness bug, and the
-README's "Known limitations" already flags the cache as non-general-purpose — this is a related
-but distinct gap (unbounded growth, not staleness).
-
-**Fix:** either a row cap with LRU eviction (e.g. delete oldest beyond N rows on `upsert`), a TTL
-column checked on read, or deliberately deciding unbounded growth is acceptable for this cache's
-realistic lifetime and documenting that choice.
-
 ### AT-14 — "Alphabetical top-50" isn't actually guaranteed; GitHub's relevance ranking caps the candidate pool first
 
 | | |
@@ -134,5 +114,13 @@ alphabetized — not a true alphabetical top-50), or fetch more pages when `tota
   both `:app` and `:shared`, wired into `check` and `android-ci.yml` as its own fast-fail step —
   this covers `:shared` (and `iosMain`/`commonMain`/`commonTest`) since it's plain Kotlin lint, not
   Android-Lint-shaped. detekt/SwiftLint/Konsist remain deliberately deferred (see that doc).
+- **AT-3** — row cap with LRU eviction, the first of the ticket's own suggested fixes. No new
+  timestamp column: `CachedSearch.sq`'s `evictOldestBeyondCap` deletes rows outside the top
+  `MAX_CACHED_QUERIES` (50) by `rowid`, relying on documented SQLite behavior that `INSERT OR
+  REPLACE` deletes+reinserts on a conflicting key — so a fresh distinct query gets the next rowid,
+  and re-upserting an existing query refreshes it to the newest rowid too, giving write-recency
+  ordering for free. Called from `SearchResultCache.put()` after every `upsert`. New tests:
+  `put_beyondCap_evictsOldestQueriesFirst` (confirmed to fail without the fix, not just pass with
+  it) and `put_reUpsertingAnExistingQuery_refreshesItsRecency`.
 
 *(move a ticket here once actually fixed, with a one-line pointer to the commit/PR that did it)*

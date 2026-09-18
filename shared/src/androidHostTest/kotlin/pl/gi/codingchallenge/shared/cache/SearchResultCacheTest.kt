@@ -38,4 +38,37 @@ class SearchResultCacheTest {
 
         assertEquals(results, cache.get("octocat"))
     }
+
+    @Test
+    fun put_beyondCap_evictsOldestQueriesFirst() = runTest {
+        val cache = newCache()
+        val results = emptyList<SearchResultItem>()
+        val cap = SearchResultCache.MAX_CACHED_QUERIES.toInt()
+
+        repeat(cap + 5) { cache.put("query-$it", results) }
+
+        // The first 5 written (oldest by write order) should be evicted...
+        repeat(5) { assertNull(cache.get("query-$it")) }
+        // ...while the most recent MAX_CACHED_QUERIES survive.
+        for (i in 5 until cap + 5) {
+            assertEquals(results, cache.get("query-$i"))
+        }
+    }
+
+    @Test
+    fun put_reUpsertingAnExistingQuery_refreshesItsRecency() = runTest {
+        val cache = newCache()
+        val results = emptyList<SearchResultItem>()
+        val cap = SearchResultCache.MAX_CACHED_QUERIES.toInt()
+
+        cache.put("stays-alive", results)
+        // Re-upsert the same key partway through, then fill the rest of the
+        // cap with brand-new queries - "stays-alive" should survive even
+        // though it was the very first key ever written.
+        repeat(cap) { cache.put("filler-$it", results) }
+        cache.put("stays-alive", results)
+        repeat(4) { cache.put("more-filler-$it", results) }
+
+        assertEquals(results, cache.get("stays-alive"))
+    }
 }

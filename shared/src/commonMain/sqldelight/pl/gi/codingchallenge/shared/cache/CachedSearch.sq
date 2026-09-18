@@ -8,3 +8,14 @@ SELECT * FROM cachedSearch WHERE query = ?;
 
 upsert:
 INSERT OR REPLACE INTO cachedSearch(query, resultsJson) VALUES (?, ?);
+
+-- AT-3: caps table growth. INSERT OR REPLACE deletes+reinserts on a
+-- conflicting key, so rowid order already reflects write recency (a
+-- fresh distinct query gets the next rowid; re-upserting an existing
+-- query refreshes it to the newest rowid too) - no separate timestamp
+-- column needed for this LRU-by-write-recency behavior.
+evictOldestBeyondCap:
+DELETE FROM cachedSearch
+WHERE rowid NOT IN (
+  SELECT rowid FROM cachedSearch ORDER BY rowid DESC LIMIT :cap
+);
