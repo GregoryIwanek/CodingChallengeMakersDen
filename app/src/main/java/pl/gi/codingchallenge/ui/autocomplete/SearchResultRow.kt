@@ -40,9 +40,9 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
             .clickable(onClick = onClick)
             .padding(
                 horizontal = dimRes(R.dimen.autocomplete_row_horizontal_padding),
-                vertical = dimRes(R.dimen.autocomplete_row_vertical_padding),
+                vertical = dimRes(R.dimen.autocomplete_row_vertical_padding)
             ),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         when (item) {
             is SearchResultItem.RepoResult -> {
@@ -52,10 +52,10 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                         .background(
                             color = colRes(R.color.autocomplete_repo_bg),
                             shape = RoundedCornerShape(
-                                dimRes(R.dimen.autocomplete_repo_avatar_corner_radius),
-                            ),
+                                dimRes(R.dimen.autocomplete_repo_avatar_corner_radius)
+                            )
                         ),
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         item.name.firstOrNull()?.uppercase() ?: "?",
@@ -72,14 +72,14 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                         fontSize = spRes(R.dimen.autocomplete_item_title_text_size),
                         color = colRes(R.color.autocomplete_text_primary),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         item.description?.let { "${item.ownerLogin} · $it" } ?: item.ownerLogin,
                         fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
                         color = colRes(R.color.autocomplete_text_secondary),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -103,8 +103,11 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                 Box(
                     Modifier
                         .size(dimRes(R.dimen.autocomplete_avatar_size))
-                        .background(color = colRes(R.color.autocomplete_user_bg), shape = CircleShape),
-                    contentAlignment = Alignment.Center,
+                        .background(
+                            color = colRes(R.color.autocomplete_user_bg),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.Filled.Person,
@@ -121,14 +124,14 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                         fontSize = spRes(R.dimen.autocomplete_item_title_text_size),
                         color = colRes(R.color.autocomplete_text_primary),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         item.htmlUrl.removePrefix("https://"),
                         fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
                         color = colRes(R.color.autocomplete_text_secondary),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -144,10 +147,15 @@ private fun formatStars(count: Int): String =
 private fun SearchResultRowRepoPreview() {
     SearchResultRow(
         item = SearchResultItem.RepoResult(
-            id = "1", name = "kotlin", fullName = "JetBrains/kotlin", ownerLogin = "JetBrains",
-            avatarUrl = null, description = "The Kotlin Programming Language", stars = 48000,
+            id = "1",
+            name = "kotlin",
+            fullName = "JetBrains/kotlin",
+            ownerLogin = "JetBrains",
+            avatarUrl = null,
+            description = "The Kotlin Programming Language",
+            stars = 48000
         ),
-        onClick = {},
+        onClick = {}
     )
 }
 
@@ -156,8 +164,11 @@ private fun SearchResultRowRepoPreview() {
 private fun SearchResultRowUserPreview() {
     SearchResultRow(
         item = SearchResultItem.UserResult(
-            id = "2", login = "octocat", avatarUrl = null, htmlUrl = "https://github.com/octocat",
+            id = "2",
+            login = "octocat",
+            avatarUrl = null,
+            htmlUrl = "https://github.com/octocat"
         ),
-        onClick = {},
+        onClick = {}
     )
 }

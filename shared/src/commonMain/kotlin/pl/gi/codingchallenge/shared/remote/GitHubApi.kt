@@ -37,11 +37,13 @@ class GitHubApi(engine: HttpClientEngine) {
         }
     }
 
-    suspend fun searchRepositories(query: String, perPage: Int): GitHubSearchResponse<RepositoryDto> =
-        client.get("$GITHUB_BASE_URL/search/repositories") {
-            parameter("q", query)
-            parameter("per_page", perPage)
-        }.bodyOrThrow()
+    suspend fun searchRepositories(
+        query: String,
+        perPage: Int
+    ): GitHubSearchResponse<RepositoryDto> = client.get("$GITHUB_BASE_URL/search/repositories") {
+        parameter("q", query)
+        parameter("per_page", perPage)
+    }.bodyOrThrow()
 
     suspend fun searchUsers(query: String, perPage: Int): GitHubSearchResponse<UserDto> =
         client.get("$GITHUB_BASE_URL/search/users") {
@@ -60,10 +62,11 @@ private suspend inline fun <reified T> HttpResponse.bodyOrThrow(): T {
     throw statusToException(status.value, runCatching { bodyAsText() }.getOrDefault(""))
 }
 
-private fun statusToException(statusCode: Int, rawBody: String): GitHubApiException = when (statusCode) {
-    401 -> GitHubApiException.Unauthorized()
-    403, 429 -> GitHubApiException.RateLimited(statusCode)
-    404 -> GitHubApiException.NotFound()
-    in 500..599 -> GitHubApiException.ServerError(statusCode)
-    else -> GitHubApiException.Unknown(statusCode, rawBody)
-}
+private fun statusToException(statusCode: Int, rawBody: String): GitHubApiException =
+    when (statusCode) {
+        401 -> GitHubApiException.Unauthorized()
+        403, 429 -> GitHubApiException.RateLimited(statusCode)
+        404 -> GitHubApiException.NotFound()
+        in 500..599 -> GitHubApiException.ServerError(statusCode)
+        else -> GitHubApiException.Unknown(statusCode, rawBody)
+    }

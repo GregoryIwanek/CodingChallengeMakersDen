@@ -37,12 +37,12 @@ class FakeGitHubSearchRepository : GitHubSearchRepository {
         ownerLogin = "owner",
         avatarUrl = null,
         description = null,
-        stars = 0,
+        stars = 0
     )
 
     private data class Response(
         val results: List<SearchResultItem>,
         val delayMs: Long = 0,
-        val error: Throwable? = null,
+        val error: Throwable? = null
     )
 }

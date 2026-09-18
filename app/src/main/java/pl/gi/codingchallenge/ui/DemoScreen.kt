@@ -68,22 +68,22 @@ fun DemoScreen() {
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
                     icon = { Icon(Icons.Filled.Info, contentDescription = null) },
-                    label = { Text(strRes(R.string.demo_nav_overview)) },
+                    label = { Text(strRes(R.string.demo_nav_overview)) }
                 )
                 NavigationBarItem(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     icon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                    label = { Text(strRes(R.string.demo_nav_component)) },
+                    label = { Text(strRes(R.string.demo_nav_component)) }
                 )
                 NavigationBarItem(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
                     icon = { Icon(Icons.Filled.List, contentDescription = null) },
-                    label = { Text(strRes(R.string.demo_nav_overlay)) },
+                    label = { Text(strRes(R.string.demo_nav_overlay)) }
                 )
             }
-        },
+        }
     ) { innerPadding ->
         when (selectedTab) {
             0 -> OverviewScreen(Modifier.padding(innerPadding).fillMaxSize())
@@ -99,12 +99,16 @@ private fun OverviewScreen(modifier: Modifier = Modifier) {
         modifier = modifier
             .verticalScroll(rememberScrollState())
             .padding(dimRes(R.dimen.demo_screen_padding)),
-        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_section_spacing)),
+        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_section_spacing))
     ) {
         Text(strRes(R.string.demo_headline), style = MaterialTheme.typography.headlineSmall)
         Text(strRes(R.string.demo_description), style = MaterialTheme.typography.bodyLarge)
         Text(strRes(R.string.demo_requirements_title), style = MaterialTheme.typography.titleMedium)
-        Column(verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_requirement_item_spacing))) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(
+                dimRes(R.dimen.demo_requirement_item_spacing)
+            )
+        ) {
             stringArrayResource(R.array.demo_requirements).forEach { requirement ->
                 Text("•  $requirement", style = MaterialTheme.typography.bodyMedium)
             }
@@ -124,14 +128,17 @@ private fun ComponentScreen(modifier: Modifier = Modifier) {
             .clearFocusOnTap(focusManager)
             .verticalScroll(rememberScrollState())
             .padding(dimRes(R.dimen.demo_screen_padding)),
-        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_component_content_spacing)),
+        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_component_content_spacing))
     ) {
         GitHubAutocompleteBarComponent(
             modifier = Modifier.fillMaxWidth(),
             viewModel = hiltViewModel(key = COMPONENT_TAB_VIEW_MODEL_KEY),
-            onItemClick = { showTappedToast(context, it) },
+            onItemClick = { showTappedToast(context, it) }
         )
-        Text(strRes(R.string.demo_component_panel_explanation), style = MaterialTheme.typography.bodyMedium)
+        Text(
+            strRes(R.string.demo_component_panel_explanation),
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 
@@ -149,7 +156,7 @@ private fun OverlayScreen(modifier: Modifier = Modifier) {
                 .padding(dimRes(R.dimen.demo_overlay_bar_margin))
                 .fillMaxWidth(),
             viewModel = hiltViewModel(key = OVERLAY_TAB_VIEW_MODEL_KEY),
-            onItemClick = { showTappedToast(context, it) },
+            onItemClick = { showTappedToast(context, it) }
         )
     }
 }
@@ -162,7 +169,11 @@ private fun showTappedToast(context: Context, item: SearchResultItem) {
         is SearchResultItem.RepoResult -> item.fullName
         is SearchResultItem.UserResult -> item.login
     }
-    Toast.makeText(context, context.getString(R.string.demo_tapped_toast, label), Toast.LENGTH_SHORT).show()
+    Toast.makeText(
+        context,
+        context.getString(R.string.demo_tapped_toast, label),
+        Toast.LENGTH_SHORT
+    ).show()
 }
 
 @Composable
@@ -175,9 +186,9 @@ private fun MockFeed(modifier: Modifier = Modifier) {
             top = dimRes(R.dimen.demo_feed_top_clearance),
             start = feedContentPadding,
             end = feedContentPadding,
-            bottom = feedContentPadding,
+            bottom = feedContentPadding
         ),
-        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_feed_item_spacing)),
+        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_feed_item_spacing))
     ) {
         items(20) { index -> FeedCard(index) }
     }
@@ -190,12 +201,15 @@ private fun FeedCard(index: Int) {
             .fillMaxWidth()
             .background(
                 MaterialTheme.colorScheme.surfaceVariant,
-                RoundedCornerShape(dimRes(R.dimen.demo_feed_card_corner_radius)),
+                RoundedCornerShape(dimRes(R.dimen.demo_feed_card_corner_radius))
             )
             .padding(dimRes(R.dimen.demo_feed_card_padding)),
-        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_feed_card_content_spacing)),
+        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_feed_card_content_spacing))
     ) {
-        Text(stringResource(R.string.demo_feed_item_title, index + 1), style = MaterialTheme.typography.titleSmall)
+        Text(
+            stringResource(R.string.demo_feed_item_title, index + 1),
+            style = MaterialTheme.typography.titleSmall
+        )
         Text(strRes(R.string.demo_feed_item_body), style = MaterialTheme.typography.bodySmall)
     }
 }

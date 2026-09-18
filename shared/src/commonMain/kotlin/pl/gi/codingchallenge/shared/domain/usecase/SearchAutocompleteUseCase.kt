@@ -16,28 +16,25 @@ import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
 private const val DEBOUNCE_MILLIS = 350L
 private const val MIN_QUERY_LENGTH = 3
 
-class SearchAutocompleteUseCase(
-    private val repository: GitHubSearchRepository,
-) {
+class SearchAutocompleteUseCase(private val repository: GitHubSearchRepository) {
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    operator fun invoke(requests: Flow<QueryRequest>): Flow<SearchOutcome> =
-        requests
-            .debounce(DEBOUNCE_MILLIS)
-            .distinctUntilChanged()
-            .flatMapLatest { request ->
-                // Trimmed before the length check and before it reaches the repository/cache
-                // key - a whitespace-only or padded query otherwise passes the length gate
-                // as-is and fragments the cache ("kotlin" vs "kotlin " being different cache
-                // rows). iOS's ContentView.swift bypasses this use case entirely (Flow doesn't
-                // export cleanly to Swift) and needs its own copy of this same fix.
-                val query = request.text.trim()
-                if (query.length < MIN_QUERY_LENGTH) {
-                    flowOf(SearchOutcome.QueryTooShort)
-                } else {
-                    flow {
-                        emit(SearchOutcome.Loading)
-                        emit(SearchOutcome.Success(repository.search(query)))
-                    }.catch { e -> emit(SearchOutcome.Failure(e.message ?: "Unknown error")) }
-                }
+    operator fun invoke(requests: Flow<QueryRequest>): Flow<SearchOutcome> = requests
+        .debounce(DEBOUNCE_MILLIS)
+        .distinctUntilChanged()
+        .flatMapLatest { request ->
+            // Trimmed before the length check and before it reaches the repository/cache
+            // key - a whitespace-only or padded query otherwise passes the length gate
+            // as-is and fragments the cache ("kotlin" vs "kotlin " being different cache
+            // rows). iOS's ContentView.swift bypasses this use case entirely (Flow doesn't
+            // export cleanly to Swift) and needs its own copy of this same fix.
+            val query = request.text.trim()
+            if (query.length < MIN_QUERY_LENGTH) {
+                flowOf(SearchOutcome.QueryTooShort)
+            } else {
+                flow {
+                    emit(SearchOutcome.Loading)
+                    emit(SearchOutcome.Success(repository.search(query)))
+                }.catch { e -> emit(SearchOutcome.Failure(e.message ?: "Unknown error")) }
             }
+        }
 }

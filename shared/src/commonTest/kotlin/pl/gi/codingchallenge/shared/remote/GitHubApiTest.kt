@@ -5,11 +5,11 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
 
 class GitHubApiTest {
 
@@ -28,15 +28,17 @@ class GitHubApiTest {
             respond(
                 content = """
                     {"total_count":1,"incomplete_results":false,"items":[
-                      {"id":1,"node_id":"R_kgDOA","name":"cool-repo","full_name":"octocat/cool-repo",
+                      {"id":1,"node_id":"R_kgDOA","name":"cool-repo",
+                       "full_name":"octocat/cool-repo",
                        "private":false,"language":"Kotlin",
-                       "owner":{"id":2,"node_id":"U_kgDOA","login":"octocat","avatar_url":"https://a.co/u.png",
+                       "owner":{"id":2,"node_id":"U_kgDOA","login":"octocat",
+                                "avatar_url":"https://a.co/u.png",
                                 "html_url":"https://github.com/octocat","type":"User"},
                        "description":"A cool repo","stargazers_count":42,"score":1.0}
                     ]}
                 """.trimIndent(),
                 status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
 
@@ -61,12 +63,13 @@ class GitHubApiTest {
             respond(
                 content = """
                     {"total_count":1,"incomplete_results":false,"items":[
-                      {"id":2,"node_id":"U_kgDOA","login":"octocat","avatar_url":"https://a.co/u.png",
+                      {"id":2,"node_id":"U_kgDOA","login":"octocat",
+                       "avatar_url":"https://a.co/u.png",
                        "html_url":"https://github.com/octocat","type":"User","score":1.0}
                     ]}
                 """.trimIndent(),
                 status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
 
@@ -85,11 +88,13 @@ class GitHubApiTest {
     // instead of a clear, typed error.
     @Test
     fun searchRepositories_rateLimited_throwsRateLimitedWithClearMessage() = runTest {
+        val rateLimitBody =
+            """{"message":"API rate limit exceeded for 1.2.3.4 (but here's the good news...)"}"""
         val engine = MockEngine { _ ->
             respond(
-                content = """{"message":"API rate limit exceeded for 1.2.3.4 (but here's the good news...)"}""",
+                content = rateLimitBody,
                 status = HttpStatusCode.Forbidden,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
 
@@ -105,7 +110,7 @@ class GitHubApiTest {
             respond(
                 content = """{"message":"Internal Server Error"}""",
                 status = HttpStatusCode.InternalServerError,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
 
@@ -121,7 +126,7 @@ class GitHubApiTest {
             respond(
                 content = """{"message":"Validation Failed","errors":[{"code":"invalid"}]}""",
                 status = HttpStatusCode.UnprocessableEntity,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
 
@@ -142,7 +147,7 @@ class GitHubApiTest {
             respond(
                 content = """{"message":"Not Found"}""",
                 status = HttpStatusCode.NotFound,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
 
@@ -157,7 +162,7 @@ class GitHubApiTest {
             respond(
                 content = """{"message":"Bad credentials"}""",
                 status = HttpStatusCode.Unauthorized,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
 
@@ -175,7 +180,7 @@ class GitHubApiTest {
             respond(
                 content = """{"message":"You have exceeded a secondary rate limit"}""",
                 status = HttpStatusCode.TooManyRequests,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
 
@@ -194,7 +199,7 @@ class GitHubApiTest {
             respond(
                 content = "<html><body>503 Service Unavailable</body></html>",
                 status = HttpStatusCode.ServiceUnavailable,
-                headers = headersOf(HttpHeaders.ContentType, "text/html"),
+                headers = headersOf(HttpHeaders.ContentType, "text/html")
             )
         }
 

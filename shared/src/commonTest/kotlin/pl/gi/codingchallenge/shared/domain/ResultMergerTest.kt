@@ -1,8 +1,8 @@
 package pl.gi.codingchallenge.shared.domain
 
-import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 class ResultMergerTest {
 
@@ -15,7 +15,7 @@ class ResultMergerTest {
 
         assertEquals(
             listOf("Apple-sdk", "avocado", "banana-cli", "Cherry"),
-            merged.map { it.sortKey },
+            merged.map { it.sortKey }
         )
     }
 
@@ -42,7 +42,7 @@ private fun repo(
     name: String,
     fullName: String = "owner/$name",
     ownerLogin: String = "owner",
-    stars: Int = 0,
+    stars: Int = 0
 ) = SearchResultItem.RepoResult(
     id = name,
     name = name,
@@ -50,14 +50,12 @@ private fun repo(
     ownerLogin = ownerLogin,
     avatarUrl = null,
     description = null,
-    stars = stars,
+    stars = stars
 )
 
-private fun user(
-    login: String,
-) = SearchResultItem.UserResult(
+private fun user(login: String) = SearchResultItem.UserResult(
     id = login,
     login = login,
     avatarUrl = null,
-    htmlUrl = "https://github.com/$login",
+    htmlUrl = "https://github.com/$login"
 )

@@ -3,6 +3,7 @@ package pl.gi.codingchallenge.ui.autocomplete
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,13 +13,12 @@ import kotlinx.coroutines.flow.update
 import pl.gi.codingchallenge.shared.domain.model.QueryRequest
 import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
 import pl.gi.codingchallenge.shared.domain.usecase.SearchAutocompleteUseCase
-import javax.inject.Inject
 
 private const val STOP_TIMEOUT_MILLIS = 5_000L
 
 @HiltViewModel
 class AutocompleteViewModel @Inject constructor(
-    private val searchAutocompleteUseCase: SearchAutocompleteUseCase,
+    private val searchAutocompleteUseCase: SearchAutocompleteUseCase
 ) : ViewModel() {
 
     private val query = MutableStateFlow(QueryRequest(text = ""))
@@ -32,7 +32,7 @@ class AutocompleteViewModel @Inject constructor(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-                initialValue = AutocompleteUiState.Idle,
+                initialValue = AutocompleteUiState.Idle
             )
 
     private fun SearchOutcome.toUiState(): AutocompleteUiState = when (this) {

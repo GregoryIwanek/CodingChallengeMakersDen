@@ -8,14 +8,14 @@ sealed class GitHubApiException(message: String) : Exception(message) {
     class RateLimited(statusCode: Int) :
         GitHubApiException("GitHub API rate limit exceeded (HTTP $statusCode) - try again shortly")
 
-    class Unauthorized :
-        GitHubApiException("GitHub API request was unauthorized")
+    class Unauthorized : GitHubApiException("GitHub API request was unauthorized")
 
-    class NotFound :
-        GitHubApiException("GitHub API resource not found")
+    class NotFound : GitHubApiException("GitHub API resource not found")
 
     class ServerError(statusCode: Int) :
-        GitHubApiException("GitHub API returned a server error (HTTP $statusCode) - try again shortly")
+        GitHubApiException(
+            "GitHub API returned a server error (HTTP $statusCode) - try again shortly"
+        )
 
     class Unknown(statusCode: Int, rawBody: String) :
         GitHubApiException("GitHub API returned HTTP $statusCode: $rawBody")

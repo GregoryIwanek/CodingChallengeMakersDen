@@ -1,6 +1,10 @@
 package pl.gi.codingchallenge.shared.domain.usecase
 
 import app.cash.turbine.test
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,10 +19,6 @@ import pl.gi.codingchallenge.shared.domain.model.SearchOutcome
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 import pl.gi.codingchallenge.shared.domain.repository.FakeGitHubSearchRepository
 import pl.gi.codingchallenge.shared.remote.GitHubApiException
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SearchAutocompleteUseCaseTest {
@@ -104,7 +104,8 @@ class SearchAutocompleteUseCaseTest {
             assertEquals(SearchOutcome.Loading, awaitItem())
             val success = awaitItem() as SearchOutcome.Success
             assertEquals(1, success.items.size)
-            assertEquals(1, fakeRepo.searchCallCount) // proves debounce collapsed 3 keystrokes into 1 call
+            // Proves debounce collapsed 3 keystrokes into 1 call.
+            assertEquals(1, fakeRepo.searchCallCount)
         }
     }
 
@@ -113,9 +114,12 @@ class SearchAutocompleteUseCaseTest {
         fakeRepo.enqueueDelayedResult(
             "first",
             delayMs = 1000,
-            results = listOf(fakeRepo.sampleRepo("first-repo")),
+            results = listOf(fakeRepo.sampleRepo("first-repo"))
         )
-        fakeRepo.enqueueResult(query = "second", results = listOf(fakeRepo.sampleRepo("second-repo")))
+        fakeRepo.enqueueResult(
+            query = "second",
+            results = listOf(fakeRepo.sampleRepo("second-repo"))
+        )
 
         useCase(query).test {
             awaitItem() // QueryTooShort
@@ -129,7 +133,8 @@ class SearchAutocompleteUseCaseTest {
             awaitItem() // Loading (for "second")
             val result = awaitItem() as SearchOutcome.Success
             assertEquals("second-repo", (result.items.first() as SearchResultItem.RepoResult).name)
-            // "first" result, if it ever arrived, must never overwrite this — flatMapLatest guarantees it
+            // "first" result, if it ever arrived, must never overwrite this —
+            // flatMapLatest guarantees it.
         }
     }
 
@@ -167,7 +172,7 @@ class SearchAutocompleteUseCaseTest {
     fun gitHubApiExceptionMessageReachesFailureOutcomeUnchanged() = runTest(dispatcher) {
         fakeRepo.enqueueError(
             query = "kot",
-            error = GitHubApiException.RateLimited(statusCode = 403),
+            error = GitHubApiException.RateLimited(statusCode = 403)
         )
         useCase(query).test {
             awaitItem() // QueryTooShort
@@ -177,7 +182,7 @@ class SearchAutocompleteUseCaseTest {
             val failure = awaitItem() as SearchOutcome.Failure
             assertEquals(
                 "GitHub API rate limit exceeded (HTTP 403) - try again shortly",
-                failure.message,
+                failure.message
             )
         }
     }
@@ -198,14 +203,18 @@ class SearchAutocompleteUseCaseTest {
             // Same text, no new results enqueued for it — this proves the
             // retry itself (not a lucky re-enqueue) is what re-fires the
             // search. Only `attempt` changes; `text` is untouched.
-            fakeRepo.enqueueResult(query = "boom", results = listOf(fakeRepo.sampleRepo("boom-repo")))
+            fakeRepo.enqueueResult(
+                query = "boom",
+                results = listOf(fakeRepo.sampleRepo("boom-repo"))
+            )
             query.update { it.copy(attempt = it.attempt + 1) }
             advanceTimeBy(400)
 
             awaitItem() // Loading
             val success = awaitItem() as SearchOutcome.Success
             assertEquals("boom-repo", (success.items.first() as SearchResultItem.RepoResult).name)
-            assertEquals(2, fakeRepo.searchCallCount) // proves the retry actually re-called the repository
+            // Proves the retry actually re-called the repository.
+            assertEquals(2, fakeRepo.searchCallCount)
         }
     }
 }

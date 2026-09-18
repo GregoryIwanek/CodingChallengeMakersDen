@@ -1,11 +1,11 @@
 package pl.gi.codingchallenge.shared.remote
 
-import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
-import pl.gi.codingchallenge.shared.remote.dto.RepositoryDto
-import pl.gi.codingchallenge.shared.remote.dto.UserDto
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
+import pl.gi.codingchallenge.shared.remote.dto.RepositoryDto
+import pl.gi.codingchallenge.shared.remote.dto.UserDto
 
 class ResultMappersTest {
 
@@ -19,10 +19,10 @@ class ResultMappersTest {
                 id = 456L,
                 login = "JetBrains",
                 avatarUrl = "https://avatars/jetbrains.png",
-                htmlUrl = "https://github.com/JetBrains",
+                htmlUrl = "https://github.com/JetBrains"
             ),
             description = "The Kotlin Programming Language",
-            stargazersCount = 48000,
+            stargazersCount = 48000
         )
 
         val result = dto.toDomain()
@@ -35,9 +35,9 @@ class ResultMappersTest {
                 ownerLogin = "JetBrains",
                 avatarUrl = "https://avatars/jetbrains.png",
                 description = "The Kotlin Programming Language",
-                stars = 48000,
+                stars = 48000
             ),
-            result,
+            result
         )
     }
 
@@ -49,7 +49,7 @@ class ResultMappersTest {
             fullName = "owner/repo",
             owner = UserDto(id = 2L, login = "owner", htmlUrl = "https://github.com/owner"),
             description = null,
-            stargazersCount = 0,
+            stargazersCount = 0
         )
 
         assertNull(dto.toDomain().description)
@@ -61,7 +61,7 @@ class ResultMappersTest {
             id = 789L,
             login = "octocat",
             avatarUrl = "https://avatars/octocat.png",
-            htmlUrl = "https://github.com/octocat",
+            htmlUrl = "https://github.com/octocat"
         )
 
         val result = dto.toDomain()
@@ -71,15 +71,21 @@ class ResultMappersTest {
                 id = "789",
                 login = "octocat",
                 avatarUrl = "https://avatars/octocat.png",
-                htmlUrl = "https://github.com/octocat",
+                htmlUrl = "https://github.com/octocat"
             ),
-            result,
+            result
         )
     }
 
     @Test
     fun userDtoToDomainPreservesANullAvatarUrl() {
-        val dto = UserDto(id = 1L, login = "octocat", avatarUrl = null, htmlUrl = "https://github.com/octocat")
+        val dto =
+            UserDto(
+                id = 1L,
+                login = "octocat",
+                avatarUrl = null,
+                htmlUrl = "https://github.com/octocat"
+            )
 
         assertNull(dto.toDomain().avatarUrl)
     }

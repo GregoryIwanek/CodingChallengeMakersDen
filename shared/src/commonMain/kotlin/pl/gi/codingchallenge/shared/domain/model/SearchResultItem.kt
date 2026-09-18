@@ -26,7 +26,7 @@ sealed interface SearchResultItem {
         val ownerLogin: String,
         val avatarUrl: String?,
         val description: String?,
-        val stars: Int,
+        val stars: Int
     ) : SearchResultItem {
         override val sortKey: String get() = name
         override val uniqueKey: String get() = "repo:$id"
@@ -37,7 +37,7 @@ sealed interface SearchResultItem {
         override val id: String,
         val login: String,
         val avatarUrl: String?,
-        val htmlUrl: String,
+        val htmlUrl: String
     ) : SearchResultItem {
         override val sortKey: String get() = login
         override val uniqueKey: String get() = "user:$id"

@@ -22,7 +22,8 @@ class ResourceUtilTest {
         composeRule.setContent {
             val real = LocalDensity.current
             CompositionLocalProvider(
-                LocalDensity provides Density(density = real.density * 2f, fontScale = real.fontScale),
+                LocalDensity provides
+                    Density(density = real.density * 2f, fontScale = real.fontScale)
             ) {
                 result = spRes(R.dimen.autocomplete_input_text_size).value
             }
@@ -38,7 +39,8 @@ class ResourceUtilTest {
         composeRule.setContent {
             val real = LocalDensity.current
             CompositionLocalProvider(
-                LocalDensity provides Density(density = real.density, fontScale = real.fontScale * 2f),
+                LocalDensity provides
+                    Density(density = real.density, fontScale = real.fontScale * 2f)
             ) {
                 result = spRes(R.dimen.autocomplete_input_text_size).value
             }

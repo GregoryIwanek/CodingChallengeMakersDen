@@ -45,7 +45,7 @@ fun GitHubAutocompleteBarComponent(
     modifier: Modifier = Modifier,
     viewModel: AutocompleteViewModel = hiltViewModel(),
     onItemClick: (SearchResultItem) -> Unit = {},
-    onLeadingIconClick: () -> Unit = {},
+    onLeadingIconClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -55,7 +55,7 @@ fun GitHubAutocompleteBarComponent(
         onRetry = viewModel::retry,
         onItemClick = onItemClick,
         onLeadingIconClick = onLeadingIconClick,
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -71,7 +71,7 @@ internal fun GitHubAutocompleteBarComponent(
     onLeadingIconClick: () -> Unit,
     modifier: Modifier = Modifier,
     initialText: String = "",
-    initialActive: Boolean = false,
+    initialActive: Boolean = false
 ) {
     var text by rememberSaveable { mutableStateOf(initialText) }
     var active by rememberSaveable { mutableStateOf(initialActive) }
@@ -95,7 +95,7 @@ internal fun GitHubAutocompleteBarComponent(
                 onQueryChanged(it)
             },
             onActiveChange = { active = it },
-            onLeadingIconClick = onLeadingIconClick,
+            onLeadingIconClick = onLeadingIconClick
         )
 
         // Idle (< 3 chars) renders no panel at all — an empty SuggestionPanel
@@ -103,11 +103,16 @@ internal fun GitHubAutocompleteBarComponent(
         AnimatedVisibility(
             visible = active && hasSuggestions,
             enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-            exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+            exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
         ) {
             Column {
                 Spacer(Modifier.height(dimRes(R.dimen.autocomplete_bar_to_panel_spacing)))
-                SuggestionPanel(uiState = uiState, text = text, onRetry = onRetry, onItemClick = onItemClick)
+                SuggestionPanel(
+                    uiState = uiState,
+                    text = text,
+                    onRetry = onRetry,
+                    onItemClick = onItemClick
+                )
             }
         }
     }
@@ -119,8 +124,13 @@ internal fun GitHubAutocompleteBarComponent(
 
 private val previewResults = listOf(
     SearchResultItem.RepoResult(
-        id = "1", name = "dataflow-kt", fullName = "kotlinx/dataflow-kt", ownerLogin = "kotlinx",
-        avatarUrl = null, description = "Structured concurrency data pipelines", stars = 2100,
+        id = "1",
+        name = "dataflow-kt",
+        fullName = "kotlinx/dataflow-kt",
+        ownerLogin = "kotlinx",
+        avatarUrl = null,
+        description = "Structured concurrency data pipelines",
+        stars = 2100
     ),
     SearchResultItem.UserResult(
         id = "2",
@@ -129,15 +139,20 @@ private val previewResults = listOf(
         htmlUrl = "https://github.com/flowdev"
     ),
     SearchResultItem.RepoResult(
-        id = "3", name = "flowmatic", fullName = "oss/flowmatic", ownerLogin = "oss",
-        avatarUrl = null, description = "Reactive flow scheduler for the JVM", stars = 640,
+        id = "3",
+        name = "flowmatic",
+        fullName = "oss/flowmatic",
+        ownerLogin = "oss",
+        avatarUrl = null,
+        description = "Reactive flow scheduler for the JVM",
+        stars = 640
     ),
     SearchResultItem.UserResult(
         id = "4",
         login = "flowraven",
         avatarUrl = null,
         htmlUrl = "https://github.com/flowraven"
-    ),
+    )
 )
 
 @Preview(showBackground = true, widthDp = 380, heightDp = 500)
@@ -150,7 +165,7 @@ private fun GitHubAutocompleteBarSuccessPreview() {
         onItemClick = {},
         onLeadingIconClick = {},
         initialText = "flow",
-        initialActive = true,
+        initialActive = true
     )
 }
 
@@ -164,7 +179,7 @@ private fun GitHubAutocompleteBarLoadingPreview() {
         onItemClick = {},
         onLeadingIconClick = {},
         initialText = "flow",
-        initialActive = true,
+        initialActive = true
     )
 }
 
@@ -178,7 +193,7 @@ private fun GitHubAutocompleteBarEmptyPreview() {
         onItemClick = {},
         onLeadingIconClick = {},
         initialText = "zzz",
-        initialActive = true,
+        initialActive = true
     )
 }
 
@@ -192,7 +207,7 @@ private fun GitHubAutocompleteBarErrorPreview() {
         onItemClick = {},
         onLeadingIconClick = {},
         initialText = "flow",
-        initialActive = true,
+        initialActive = true
     )
 }
 
@@ -204,6 +219,6 @@ private fun GitHubAutocompleteBarIdlePreview() {
         onQueryChanged = {},
         onRetry = {},
         onItemClick = {},
-        onLeadingIconClick = {},
+        onLeadingIconClick = {}
     )
 }
