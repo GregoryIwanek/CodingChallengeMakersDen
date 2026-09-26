@@ -5,6 +5,11 @@ repositories as you type, merges both result types into one
 alphabetically-sorted list, and floats over whatever screen hosts it —
 built from scratch, no autocomplete library.
 
+The search logic itself — networking, caching, merging, and the
+debounce/min-length policy — lives in a Kotlin Multiplatform `:shared`
+module, so the same domain and data layers also back a small native
+SwiftUI iOS app (see [iOS app](#ios-app) below).
+
 ## Demo
 
 | Overview | Component | Overlay |
@@ -40,18 +45,20 @@ Box(Modifier.fillMaxSize()) {
 }
 ```
 
-That's it — debouncing, networking, and state rendering are all
-handled internally via Hilt. See `DemoScreen.kt` for the three-tab
-example above: Component and Overlay both drop in this same
-composable, each with its own `AutocompleteViewModel` instance so
+That's it — debouncing, networking, caching, and state rendering are
+all handled internally: the component's `AutocompleteViewModel` is
+resolved through Hilt, and everything below it comes from `:shared`
+via the Koin→Hilt bridge (see Architecture). See `DemoScreen.kt` for
+the three-tab example above: Component and Overlay both drop in this
+same composable, each with its own `AutocompleteViewModel` instance so
 typing in one tab never leaks into the other.
 
 ## Requirements checklist
 
 | Requirement | Where it lives |
 |---|---|
-| Minimum 3 characters before searching | `SearchAutocompleteUseCase`'s `MIN_QUERY_LENGTH` gate |
-| Fetches both users and repositories | `GitHubSearchRepositoryImpl`, launched in parallel via `async` |
+| Minimum 3 characters before searching | `SearchAutocompleteUseCase`'s `MIN_QUERY_LENGTH` gate, applied to the trimmed query |
+| Fetches both users and repositories | `GitHubSearchNetworkSourceImpl`, launched in parallel via `async` |
 | Combined, alphabetically-sorted list | `ResultMerger.mergeAndSort`, keyed on repository name / login |
 | Capped at 50 results | `SearchLimits.MAX_RESULTS` — single source of truth for both the per-type fetch limit and the final cap |
 | Loading / empty / error states | `AutocompleteUiState`, rendered by `SuggestionPanel` |
@@ -61,20 +68,29 @@ typing in one tab never leaks into the other.
 
 ## Technologies used
 
-- **Kotlin** 2.3.21, Android SDK 37 (`minSdk` 26), AGP 9.3.2
-- **Jetpack Compose** (BOM `2026.08.00`) + Material3 — the entire UI,
-  no XML layouts
-- **Hilt** 2.60.1 (via KSP) — dependency injection, including a
+- **Kotlin** 2.3.21 / **Kotlin Multiplatform** — `:shared` targets
+  Android, `iosArm64`, and `iosSimulatorArm64`
+- **Android** — SDK 37 (`minSdk` 26), AGP 9.3.2
+- **Jetpack Compose** (BOM `2026.08.00`) + Material3 — the entire
+  Android UI, no XML layouts
+- **SwiftUI** — the iOS app, consuming `:shared` as an Xcode framework
+- **Hilt** 2.60.1 (via KSP) — DI for Android-only classes, including a
   per-tab-keyed `hiltViewModel()` in the demo
-- **Retrofit** 3.0.0 + **OkHttp** 4.12.0 + **kotlinx.serialization**
-  1.11.0 — networking and JSON parsing, no Gson/Moshi
+- **Koin** 4.2.2 — DI for `:shared`, bridged into Hilt on Android and
+  bootstrapped directly from Swift on iOS
+- **Ktor** 3.5.2 + **kotlinx.serialization** 1.11.0 — multiplatform
+  networking and JSON parsing, with a per-platform engine (OkHttp on
+  Android, Darwin/`NSURLSession` on iOS)
+- **SQLDelight** 2.3.2 — multiplatform local cache for search results
 - **Kotlin Coroutines** 1.11.0 — `debounce`/`flatMapLatest` in the use
-  case, parallel user/repo fetch via `async` in the repository
-- **Testing** — JUnit4, [MockK](https://mockk.io), and
-  [Turbine](https://github.com/cashapp/turbine) (Flow testing) for
+  case, parallel user/repo fetch via `async` in the network source
+- **Testing** — `kotlin.test` + Ktor's `MockEngine` +
+  [Turbine](https://github.com/cashapp/turbine) for `:shared`'s
+  multiplatform tests; JUnit4 + [MockK](https://mockk.io) for `:app`'s
   unit tests; Espresso + Compose UI Test for instrumented tests;
   [Paparazzi](https://github.com/cashapp/paparazzi) for JVM
   screenshot tests (see Testing below)
+- **ktlint** — code style for both `:app` and `:shared`, enforced in CI
 
 ## Architecture
 
@@ -150,14 +166,51 @@ see `docs/kmp-knowledge-base.md` §1 for the full source-set breakdown.
   `docs/architecture/github-search-caching-decision.md` for why it's
   split into `GitHubSearchNetworkSource`/`GitHubSearchCache` instead of
   one interface.
+- `GitHubApi` checks the HTTP status before decoding, mapping non-2xx
+  responses to typed `GitHubApiException`s (rate limited, unauthorized,
+  server error, ...) instead of letting them surface as JSON parse
+  failures. See `docs/architecture/github-api-error-handling.md`.
+
+## iOS app
+
+`iosApp/` is a minimal SwiftUI client: a single search screen with the
+same idle/loading/success/empty/error states (including retry), backed
+by the exact same `:shared` repository, network source, and SQLDelight
+cache as the Android app. Koin is started from Swift
+(`KoinBootstrapKt.doInitKoin()`), and the repository is fetched through
+a small Koin helper in `iosMain`.
+
+The Xcode project uses Direct Integration: a Run Script build phase
+calls `./gradlew :shared:embedAndSignAppleFrameworkForXcode`, which
+builds `:shared` as the `Shared` framework and embeds it — no
+CocoaPods or SPM.
+
+One deliberate difference from Android: `ContentView.swift` doesn't
+drive `SearchAutocompleteUseCase`'s Flow pipeline, since Kotlin/Native
+doesn't export `Flow` to Swift in a usable form. It calls the shared
+repository's `suspend fun search` (exported as `async`) directly and
+re-implements the debounce, trimming, and min-length policy natively
+in Swift. See `docs/kmp-knowledge-base.md` §8–9 for the interop
+details.
 
 ## Testing
 
-27 unit tests + 22 instrumented tests across 9 files:
+50 JVM/multiplatform tests + 22 instrumented tests across 13 files.
+Most of the logic is tested once in `:shared`'s `commonTest`, which
+runs on both the Android host JVM and the iOS simulator:
 
-- **`SearchAutocompleteUseCaseTest`** (6) — debounce, cancellation,
-  the min-length gate, and retry, all driven by a virtual-time test
-  dispatcher, no real delays.
+- **`SearchAutocompleteUseCaseTest`** (9) — debounce, cancellation,
+  the min-length gate, query trimming, and retry, all driven by a
+  virtual-time test dispatcher, no real delays.
+- **`GitHubApiTest`** (9) — the Ktor client against `MockEngine`:
+  request shape, and every non-2xx status mapping to the right
+  `GitHubApiException`.
+- **`CachingGitHubSearchRepositoryTest`** (5) — network-first,
+  cache-as-fallback, and that cancellation is propagated rather than
+  swallowed into a cache fallback.
+- **`SearchResultCacheTest`** (4, `androidHostTest`) — the real
+  SQLDelight cache against an in-memory JDBC SQLite driver, including
+  eviction of the oldest queries beyond the cap.
 - **`GitHubSerializationTest`** (2) — decodes real (trimmed) GitHub
   JSON payloads through the actual `kotlinx.serialization` pipeline,
   not just hand-built DTOs, so a wrong `@SerialName` would actually
@@ -179,23 +232,44 @@ see `docs/kmp-knowledge-base.md` §1 for the full source-set breakdown.
   the goldens after an intentional UI change;
   `:app:verifyPaparazziDebug` (part of `check`) is what actually fails
   the build on a mismatch.
-- Plus `ResultMergerTest`, `ResultMappersTest`,
-  `GitHubSearchRepositoryImplTest`, `AutocompleteViewModelTest`, and
-  `ResourceUtilTest` (instrumented) covering the remaining
-  domain/data/presentation logic.
+- Plus `GitHubSearchNetworkSourceImplTest`, `ResultMergerTest`,
+  `ResultMappersTest`, `SearchResultItemTest`,
+  `AutocompleteViewModelTest`, and `ResourceUtilTest` (instrumented)
+  covering the remaining domain/data/presentation logic.
 
 Run everything: `./gradlew check` (unit tests + lint + ktlint + Paparazzi)
-and `./gradlew connectedDebugAndroidTest` (needs a device/emulator). CI
-runs `./gradlew check` on every push and pull request to `main` and
-`develop` — see `.github/workflows/android-ci.yml`. `./gradlew ktlintFormat`
-auto-fixes most style violations locally before pushing.
+and `./gradlew connectedDebugAndroidTest` (needs a device/emulator).
+`./gradlew :shared:iosSimulatorArm64Test` runs `:shared`'s tests on the
+iOS simulator (macOS only). `./gradlew ktlintFormat` auto-fixes most
+style violations locally before pushing.
+
+CI runs two workflows:
+
+- **Android CI** (`.github/workflows/android-ci.yml`) — `ktlintCheck`,
+  then `./gradlew check`, on every push and pull request to `main` and
+  `develop`.
+- **iOS CI** (`.github/workflows/ios-ci.yml`) — on pull requests that
+  touch `:shared`'s common/iOS sources or the build configuration, runs
+  `./gradlew :shared:iosSimulatorArm64Test` on a macOS runner. It
+  covers `:shared` only, not the Xcode app build: GitHub's hosted
+  runners currently ship an older Xcode than `iosApp` requires.
 
 ## Running it
+
+**Android**
 
 1. Clone the repo and open it in Android Studio.
 2. Sync Gradle, then run the `app` configuration on a device or
    emulator.
 3. `./gradlew check` runs the full non-instrumented test suite.
+
+**iOS** (macOS only)
+
+1. Open `iosApp/iosApp.xcodeproj` in Xcode 27 or newer (the project's
+   deployment target is iOS 27.0).
+2. Select an iOS simulator and run the `iosApp` scheme — the build
+   phase compiles and embeds `:shared` via Gradle automatically, so the
+   first build takes a while.
 
 No API token is required — this uses GitHub's public, unauthenticated
 search endpoints.
@@ -203,18 +277,41 @@ search endpoints.
 ## Known limitations
 
 - GitHub's unauthenticated search API is capped at 10 requests/minute
-  per IP; hitting it mid-session falls into the same generic error
-  state as any other failure, with no differentiated "rate limited,
-  try again shortly" state.
+  per IP. Hitting it now produces a specific "rate limit exceeded — try
+  again shortly" message, but it's still shown in the same generic
+  error state as any other failure, with no dedicated UI or automatic
+  back-off.
 - A local cache now sits in front of search results (SQLDelight),
   but it's network-first with cache-as-fallback-on-failure, not a
   general offline mode — a query that's never been searched before
   still fails with no network, and a cached result can still be
-  stale if GitHub's data changed since it was cached. Room's newer
-  Kotlin Multiplatform support was considered as an alternative to
-  SQLDelight and may be worth a second look later — it can read
+  stale if GitHub's data changed since it was cached. The cache keeps
+  only the 50 most recently stored queries, evicting the oldest. Room's
+  newer Kotlin Multiplatform support was considered as an alternative
+  to SQLDelight and may be worth a second look later — it can read
   better to teams already standardized on Android's Jetpack/Room
   stack.
+- The combined list is alphabetically sorted, but only within the
+  candidates GitHub returns. Each type is fetched as GitHub's own
+  relevance-ranked top 50, so for a query with more than 50 matches of
+  one type, an alphabetically-earlier match that GitHub ranks lower
+  never makes it into the list.
+- The iOS app re-implements the debounce/min-length policy in Swift
+  rather than sharing it (see [iOS app](#ios-app)), so the two
+  platforms' copies of that policy have to be kept in sync by hand.
+  The iOS UI is also deliberately minimal — no overlay mode or
+  reusable component, and no UI tests.
+
+## Further documentation
+
+- `docs/kmp-knowledge-base.md` — how the KMP setup works and why:
+  source sets, Koin/Hilt coexistence, Ktor, SQLDelight, testing across
+  targets, iOS interop, CI, and a gotcha table.
+- `docs/architecture/` — decision records: search caching design,
+  GitHub API error handling, static analysis tooling, diagramming
+  tools.
+- `docs/backlog.md` — known bugs and considerations, open and
+  resolved.
 
 ## Development notes
 
