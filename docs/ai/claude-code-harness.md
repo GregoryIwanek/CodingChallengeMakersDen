@@ -2,7 +2,8 @@
 
 **Status:** reference / learning plan, not a decision — nothing below is installed yet. Today the
 repo's `.claude/` holds only `CLAUDE.md`. The steps below are the plan for
-setting it up later. Live, commentable copy:
+setting it up later; the hands-on runbook is [getting-started.md](getting-started.md). Live,
+commentable copy:
 [Claude Doc](https://claude.ai/code/artifact/0277d320-e04d-4fb0-884e-e45a049c49dd).
 
 ## Implementation steps

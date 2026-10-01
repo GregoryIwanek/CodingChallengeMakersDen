@@ -1,6 +1,8 @@
 # Harness Test Feature: Result-Count Header
 
-**Status:** plan, not implemented yet.
+**Status:** plan, not implemented yet. Answer the feature questions and follow the pipeline in
+[getting-started.md](getting-started.md#b--per-feature-pipeline); this file holds the feature and
+its harness checks.
 
 Once the harness from [claude-code-harness.md](claude-code-harness.md) is in place, test it with
 one small feature. Keep it small so that anything that goes wrong points at the harness, not the
