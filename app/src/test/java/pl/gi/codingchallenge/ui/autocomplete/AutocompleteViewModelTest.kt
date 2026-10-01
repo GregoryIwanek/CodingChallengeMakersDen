@@ -97,7 +97,8 @@ class AutocompleteViewModelTest {
 
             viewModel.onQueryChanged("kotlin")
 
-            val requests: MutableStateFlow<QueryRequest> = requestsSlot.captured as MutableStateFlow<QueryRequest>
+            val requests: MutableStateFlow<QueryRequest> =
+                requestsSlot.captured as MutableStateFlow<QueryRequest>
             assertEquals(
                 "kotlin",
                 requests.value.text
@@ -117,7 +118,8 @@ class AutocompleteViewModelTest {
             advanceUntilIdle()
 
             viewModel.onQueryChanged("kotlin")
-            val requests: MutableStateFlow<QueryRequest> = requestsSlot.captured as MutableStateFlow<QueryRequest>
+            val requests: MutableStateFlow<QueryRequest> =
+                requestsSlot.captured as MutableStateFlow<QueryRequest>
             assertEquals(0, requests.value.attempt)
 
             viewModel.retry()

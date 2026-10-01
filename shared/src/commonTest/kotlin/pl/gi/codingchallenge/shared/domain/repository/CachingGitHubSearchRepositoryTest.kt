@@ -23,7 +23,8 @@ class CachingGitHubSearchRepositoryTest {
 
     private val network: FakeNetworkSource = FakeNetworkSource()
     private val cache: FakeCache = FakeCache()
-    private val repository: CachingGitHubSearchRepository = CachingGitHubSearchRepository(network = network, cache = cache)
+    private val repository: CachingGitHubSearchRepository =
+        CachingGitHubSearchRepository(network = network, cache = cache)
 
     private val results: List<SearchResultItem> = listOf(
         SearchResultItem.RepoResult(
@@ -124,8 +125,10 @@ class CachingGitHubSearchRepositoryTest {
     }
 
     private class FakeCache : GitHubSearchCache {
-        val stored: MutableMap<String, List<SearchResultItem>> = mutableMapOf<String, List<SearchResultItem>>()
-        val putCalls: MutableList<Pair<String, List<SearchResultItem>>> = mutableListOf<Pair<String, List<SearchResultItem>>>()
+        val stored: MutableMap<String, List<SearchResultItem>> =
+            mutableMapOf<String, List<SearchResultItem>>()
+        val putCalls: MutableList<Pair<String, List<SearchResultItem>>> =
+            mutableListOf<Pair<String, List<SearchResultItem>>>()
         var getCallCount: Int = 0
             private set
 

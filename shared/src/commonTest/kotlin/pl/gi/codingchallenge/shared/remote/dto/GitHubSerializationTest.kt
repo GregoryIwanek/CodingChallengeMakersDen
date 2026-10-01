@@ -13,7 +13,7 @@ class GitHubSerializationTest {
 
     @Test
     fun decodesARepositorySearchResponse() {
-        val response: GitHubSearchResponse<RepositoryDto> = json.decodeFromString<GitHubSearchResponse<RepositoryDto>>(
+        val response: GitHubSearchResponse<RepositoryDto> = json.decodeFromString(
             """
             {
               "total_count": 1,
@@ -55,7 +55,7 @@ class GitHubSerializationTest {
 
     @Test
     fun decodesAUserSearchResponseWithANullAvatarUrlWhenAbsent() {
-        val response: GitHubSearchResponse<UserDto> = json.decodeFromString<GitHubSearchResponse<UserDto>>(
+        val response: GitHubSearchResponse<UserDto> = json.decodeFromString(
             """
             {
               "total_count": 1,

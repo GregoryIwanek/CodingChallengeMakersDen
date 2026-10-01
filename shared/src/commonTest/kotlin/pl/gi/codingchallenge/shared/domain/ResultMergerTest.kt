@@ -8,8 +8,10 @@ class ResultMergerTest {
 
     @Test
     fun `merges users and repos then sorts case-insensitively by name`() {
-        val repos: List<SearchResultItem.RepoResult> = listOf(repo(name = "banana-cli"), repo(name = "Apple-sdk"))
-        val users: List<SearchResultItem.UserResult> = listOf(user(login = "avocado"), user(login = "Cherry"))
+        val repos: List<SearchResultItem.RepoResult> =
+            listOf(repo(name = "banana-cli"), repo(name = "Apple-sdk"))
+        val users: List<SearchResultItem.UserResult> =
+            listOf(user(login = "avocado"), user(login = "Cherry"))
 
         val merged: List<SearchResultItem> = mergeAndSort(users = users, repos = repos)
 
@@ -29,8 +31,10 @@ class ResultMergerTest {
 
     @Test
     fun `cap keeps the alphabetically-first items - not an arbitrary subset`() {
-        val repos: List<SearchResultItem.RepoResult> = listOf(repo(name = "Banana"), repo(name = "Cherry"))
-        val users: List<SearchResultItem.UserResult> = listOf(user(login = "Apple"), user(login = "Date"))
+        val repos: List<SearchResultItem.RepoResult> =
+            listOf(repo(name = "Banana"), repo(name = "Cherry"))
+        val users: List<SearchResultItem.UserResult> =
+            listOf(user(login = "Apple"), user(login = "Date"))
 
         val merged: List<SearchResultItem> = mergeAndSort(users = users, repos = repos, limit = 2)
 

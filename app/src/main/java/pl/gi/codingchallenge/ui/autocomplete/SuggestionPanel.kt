@@ -48,7 +48,8 @@ internal fun SuggestionPanel(
     onRetry: () -> Unit,
     onItemClick: (SearchResultItem) -> Unit
 ) {
-    val panelCornerRadius: RoundedCornerShape = RoundedCornerShape(dimRes(R.dimen.autocomplete_panel_corner_radius))
+    val panelCornerRadius: RoundedCornerShape =
+        RoundedCornerShape(dimRes(R.dimen.autocomplete_panel_corner_radius))
 
     Column(
         modifier = Modifier

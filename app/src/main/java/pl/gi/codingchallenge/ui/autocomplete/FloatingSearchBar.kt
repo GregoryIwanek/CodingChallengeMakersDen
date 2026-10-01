@@ -49,7 +49,8 @@ internal fun FloatingSearchBar(
     onActiveChange: (Boolean) -> Unit,
     onLeadingIconClick: () -> Unit
 ) {
-    val barCornerRadius: RoundedCornerShape = RoundedCornerShape(dimRes(R.dimen.autocomplete_bar_corner_radius))
+    val barCornerRadius: RoundedCornerShape =
+        RoundedCornerShape(dimRes(R.dimen.autocomplete_bar_corner_radius))
     val focusManager: FocusManager = LocalFocusManager.current
     val focusRequester: FocusRequester = remember { FocusRequester() }
 

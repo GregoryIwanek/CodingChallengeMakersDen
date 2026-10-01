@@ -10,6 +10,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
+import pl.gi.codingchallenge.shared.remote.dto.GitHubSearchResponse
+import pl.gi.codingchallenge.shared.remote.dto.RepositoryDto
+import pl.gi.codingchallenge.shared.remote.dto.UserDto
 
 class GitHubApiTest {
 
@@ -42,7 +45,8 @@ class GitHubApiTest {
             )
         }
 
-        val result: pl.gi.codingchallenge.shared.remote.dto.GitHubSearchResponse<pl.gi.codingchallenge.shared.remote.dto.RepositoryDto> = GitHubApi(engine).searchRepositories(query = "kot", perPage = 10)
+        val result: GitHubSearchResponse<RepositoryDto> =
+            GitHubApi(engine).searchRepositories(query = "kot", perPage = 10)
 
         assertEquals("/search/repositories", requestedPath)
         assertEquals("q=kot&per_page=10", requestedQuery)
@@ -73,7 +77,8 @@ class GitHubApiTest {
             )
         }
 
-        val result: pl.gi.codingchallenge.shared.remote.dto.GitHubSearchResponse<pl.gi.codingchallenge.shared.remote.dto.UserDto> = GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
+        val result: GitHubSearchResponse<UserDto> =
+            GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
 
         assertEquals("/search/users", requestedPath)
         assertEquals("q=kot&per_page=10", requestedQuery)
@@ -98,9 +103,10 @@ class GitHubApiTest {
             )
         }
 
-        val exception: GitHubApiException.RateLimited = assertFailsWith<GitHubApiException.RateLimited> {
-            GitHubApi(engine).searchRepositories(query = "kot", perPage = 10)
-        }
+        val exception: GitHubApiException.RateLimited =
+            assertFailsWith<GitHubApiException.RateLimited> {
+                GitHubApi(engine).searchRepositories(query = "kot", perPage = 10)
+            }
         assertTrue(exception.message!!.contains("rate limit", ignoreCase = true))
     }
 
@@ -114,9 +120,10 @@ class GitHubApiTest {
             )
         }
 
-        val exception: GitHubApiException.ServerError = assertFailsWith<GitHubApiException.ServerError> {
-            GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
-        }
+        val exception: GitHubApiException.ServerError =
+            assertFailsWith<GitHubApiException.ServerError> {
+                GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
+            }
         assertTrue(exception.message!!.contains("500"))
     }
 
@@ -203,9 +210,10 @@ class GitHubApiTest {
             )
         }
 
-        val exception: GitHubApiException.ServerError = assertFailsWith<GitHubApiException.ServerError> {
-            GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
-        }
+        val exception: GitHubApiException.ServerError =
+            assertFailsWith<GitHubApiException.ServerError> {
+                GitHubApi(engine).searchUsers(query = "kot", perPage = 10)
+            }
         assertTrue(exception.message!!.contains("503"))
     }
 }

@@ -121,7 +121,8 @@ class GitHubSearchNetworkSourceImplTest {
     // See catchingCancellationAware()'s own comment for why it's kept anyway.
     @Test
     fun cancellationWhileOneCallIsInFlightPropagatesInsteadOfReturningPartialResults() = runTest {
-        val source: GitHubSearchNetworkSourceImpl = GitHubSearchNetworkSourceImpl(GitHubApi(engineWith(reposDelayMs = 1_000)))
+        val source: GitHubSearchNetworkSourceImpl =
+            GitHubSearchNetworkSourceImpl(GitHubApi(engineWith(reposDelayMs = 1_000)))
 
         var caught: Throwable? = null
         val job: kotlinx.coroutines.Job = launch {
