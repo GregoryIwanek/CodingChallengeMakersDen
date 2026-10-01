@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(./gradlew testDebugUnitTest:*)",
+      "Bash(./gradlew :app:testDebugUnitTest:*)",
+      "Bash(./gradlew compileDebugKotlin:*)",
+      "Bash(./gradlew :shared:allTests:*)",
+      "Bash(./gradlew :shared:iosSimulatorArm64Test:*)",
+      "Bash(./gradlew ktlintCheck:*)",
+      "Bash(./gradlew ktlintFormat:*)",
+      "Bash(./gradlew check:*)",
+      "Bash(./gradlew recordPaparazziDebug:*)",
+      "Bash(./gradlew verifyPaparazziDebug:*)",
+      "Bash(./gradlew :app:recordPaparazziDebug:*)",
+      "Bash(./gradlew :app:verifyPaparazziDebug:*)",
+      "Bash(./gradlew installDebug:*)",
+      "Bash(adb devices:*)",
+      "Bash(adb shell am start:*)",
+      "Bash(adb exec-out screencap:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)"
+    ],
+    "deny": [
+      "Bash(./gradlew connectedDebugAndroidTest:*)",
+      "Bash(./gradlew connectedAndroidTest:*)",
+      "Bash(./gradlew :app:connectedDebugAndroidTest:*)",
+      "Bash(./gradlew :app:connectedAndroidTest:*)",
+      "Read(./local.properties)"
+    ]
+  }
+}

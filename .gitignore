@@ -3,7 +3,7 @@
 .kotlin
 /local.properties
 /.idea
-/.claude
+/.claude/settings.local.json
 .DS_Store
 /build
 /captures
