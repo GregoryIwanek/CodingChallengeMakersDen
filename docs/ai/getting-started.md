@@ -58,6 +58,9 @@ when it's the only new thing.
 A reasonable path: keep it local while experimenting with A1–A4, then commit once the scorecard
 in [harness-test-feature.md](harness-test-feature.md) passes.
 
+**Decision (2026-10-02):** commit it. `.gitignore` now ignores only
+`/.claude/settings.local.json`; personal overrides go there.
+
 **Settings precedence** (highest wins): managed policy → command-line flags →
 `.claude/settings.local.json` → `.claude/settings.json` → `~/.claude/settings.json`. Team rules go
 in `settings.json`, personal ones in `settings.local.json`, cross-project ones in `~/.claude/`.

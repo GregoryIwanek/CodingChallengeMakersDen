@@ -1,8 +1,7 @@
 # Claude Code Harness for Android Projects
 
-**Status:** reference / learning plan, not a decision — nothing below is installed yet. Today the
-repo's `.claude/` holds only `CLAUDE.md`. The steps below are the plan for
-setting it up later; the hands-on runbook is [getting-started.md](getting-started.md). Live,
+**Status:** in progress — permissions are installed in `.claude/settings.json`; the remaining
+steps below are not yet. The hands-on runbook is [getting-started.md](getting-started.md). Live,
 commentable copy:
 [Claude Doc](https://claude.ai/code/artifact/0277d320-e04d-4fb0-884e-e45a049c49dd).
 
@@ -11,7 +10,7 @@ commentable copy:
 Build it one layer at a time, cheapest and highest-value first, and test each layer before adding
 the next. Details for each step are under [Example setup](#example-setup-for-codingchallenge) below.
 
-- [ ] Permissions: add the allow/deny lists to `.claude/settings.json`; try running a denied command and watch it get blocked
+- [x] Permissions: add the allow/deny lists to `.claude/settings.json`; try running a denied command and watch it get blocked
 - [ ] One PostToolUse hook: ktlint on edit; edit a `.kt` file and confirm it was formatted
 - [ ] One PreToolUse hook: the Co-Authored-By blocker; learn the stdin JSON and exit-code-2 contract
 - [ ] Stop hook: compile check before Claude reports done
