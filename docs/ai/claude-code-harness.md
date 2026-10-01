@@ -21,6 +21,11 @@ the next. Details for each step are under [Example setup](#example-setup-for-cod
 
 The same building blocks carry over to a web project: only the commands in permissions and hooks change, for example `npm test` instead of `./gradlew`.
 
+## Test feature
+
+After setup, validate the harness with one small feature: a result-count header in the
+suggestion panel. See [harness-test-feature.md](harness-test-feature.md).
+
 ## What a harness is
 
 The harness is everything around the model that turns text-in, text-out into a working agent. In Claude Code it has five jobs.
@@ -170,12 +175,12 @@ flowchart LR
     prompt["Your prompt<br/>+ CLAUDE.md, memory"] --> model["Model<br/>picks next tool call"]
     model --> perm["Permission rules<br/>allow · ask · deny"]
     perm --> pre["PreToolUse hook<br/>no Co-Authored-By"]
-    perm -. "deny: error returns" .-> model
-    pre -. "exit 2: error returns" .-> model
-    pre -- pass --> tool["Tool runs<br/>Edit, gradlew, adb"]
+    perm -.->|"deny: error returns"| model
+    pre -.->|"exit 2: error returns"| model
+    pre -->|pass| tool["Tool runs<br/>Edit, gradlew, adb"]
     tool --> post["PostToolUse hook<br/>ktlintFormat on .kt"]
-    post -- result --> model
-    model -- done --> stop["Stop hook<br/>compileDebugKotlin"]
+    post -->|result| model
+    model -->|done| stop["Stop hook<br/>compileDebugKotlin"]
     stop --> answer["Answer to you"]
 
     classDef gate fill:#e3edfb,stroke:#2f6fd6,stroke-width:2px
