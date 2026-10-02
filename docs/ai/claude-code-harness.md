@@ -1,7 +1,8 @@
 # Claude Code Harness for Android Projects
 
-**Status:** in progress — permissions, the ktlint PostToolUse hook and the Co-Authored-By
-PreToolUse hook are installed in `.claude/settings.json`; the remaining steps below are not yet.
+**Status:** in progress — permissions, the ktlint PostToolUse hook, the Co-Authored-By
+PreToolUse hook and the compile-check Stop hook are installed in `.claude/settings.json`; the
+remaining steps below are not yet.
 The hands-on runbook is [getting-started.md](getting-started.md). Live, commentable copy:
 [Claude Doc](https://claude.ai/code/artifact/0277d320-e04d-4fb0-884e-e45a049c49dd).
 
@@ -13,7 +14,7 @@ the next. Details for each step are under [Example setup](#example-setup-for-cod
 - [x] Permissions: add the allow/deny lists to `.claude/settings.json`; try running a denied command and watch it get blocked
 - [x] One PostToolUse hook: ktlint on edit; edit a `.kt` file and confirm it was formatted
 - [x] One PreToolUse hook: the Co-Authored-By blocker; learn the stdin JSON and exit-code-2 contract
-- [ ] Stop hook: compile check before Claude reports done
+- [x] Stop hook: compile check before Claude reports done
 - [ ] Skill: `run-android` with install, launch and screenshot
 - [ ] Subagent: `compose-reviewer` on a real Compose change
 - [ ] MCP: a GitHub server, once PR work from the CLI feels useful
