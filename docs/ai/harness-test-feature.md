@@ -1,6 +1,6 @@
 # Harness Test Feature: Result-Count Header
 
-**Status:** plan, not implemented yet. Answer the feature questions and follow the pipeline in
+**Status:** done. Shipped in PR #16; see [Outcome](#outcome). The pipeline is in
 [getting-started.md](getting-started.md#b--per-feature-pipeline); this file holds the feature and
 its harness checks.
 
@@ -194,14 +194,44 @@ on real work.
 | Step | Harness piece | Expected behavior | Pass |
 | --- | --- | --- | --- |
 | 0 | Settings loaded | `/permissions`, `/hooks`, `/agents` show the configured entries | [ ] |
-| 1 | `CLAUDE.md` | Clarifying questions, confidence level and to-do list before edits | [ ] |
-| 2 | ktlint PostToolUse hook | `.kt` edits come out formatted | [ ] |
-| 2 | Allow rule | `testDebugUnitTest` runs without a prompt | [ ] |
-| 2 | Deny rule | "Run the UI tests" is blocked, no prompt | [ ] |
-| 2 | Stop hook | Deliberate compile error is caught and fixed before "done" | [ ] |
-| 3 | `run-android` skill | Screenshot shows the header | [ ] |
-| 4 | `compose-reviewer` subagent | Read-only review, no edits | [ ] |
-| 5 | Co-Authored-By PreToolUse hook | Trailer commit is blocked with the hook's message | [ ] |
+| 1 | `CLAUDE.md` | Clarifying questions, confidence level and to-do list before edits | [x] |
+| 2 | ktlint PostToolUse hook | `.kt` edits come out formatted | [x] |
+| 2 | Allow rule | `testDebugUnitTest` runs without a prompt | [x] |
+| 2 | Deny rule | "Run the UI tests" is blocked, no prompt | [x] |
+| 2 | Stop hook | Deliberate compile error is caught and fixed before "done" | [x] |
+| 3 | `run-android` skill | Screenshot shows the header | [x] |
+| 4 | `compose-reviewer` subagent | Read-only review, no edits | [x] |
+| 5 | Co-Authored-By PreToolUse hook | Trailer commit is blocked with the hook's message | [x] |
+
+## Outcome
+
+The feature was built twice: once from a plain prompt using this spec, and once with
+`/new-feature`, where the user answered the questions without the spec. The `/new-feature`
+version shipped in PR #16.
+
+**What shipped, beyond the spec above:**
+
+- "50+ results" at the 50 cap, through a `maxResults` param in `:app` (`:shared` untouched)
+- The 500dp height cap moved to wrap the header and list together
+- The header is a `heading()` with a polite live region
+- A `formatResultCount(resources, …)` unit test that reads real strings through
+  `paparazzi.context.resources`, plus `oneResult` and `cappedResults` goldens
+
+**What the comparison showed:**
+
+- The plain-prompt version kept the cap on the list only. That breaks the existing
+  `successState_capsSuggestionPanelHeight_evenWithManyResults` androidTest (panel exactly 500dp).
+  Nobody noticed, because androidTests are denied locally.
+- The catch came from reading the existing tests before planning, not from the questions. The
+  questions mostly added scope.
+- Review (`compose-reviewer`, then `/simplify`) removed over-abstraction and a duplicate dimen.
+  Neither version was right first time.
+
+**Fed back into the harness:** `/new-feature` now lists affected existing tests, asks only real
+trade-offs with the simplest option first, and ends its plan with the review step (PR #15).
+
+**Still open:** run `connectedDebugAndroidTest` by hand, and check with TalkBack that the count is
+announced. The reviewer expected the first appearance to be silent.
 
 ## Alternatives considered
 

@@ -1,7 +1,8 @@
 # Getting Started with the Claude Code Harness
 
 **Status:** Part A done — A0–A5 (`.claude/` committed, permissions, three hooks, skills and
-subagent, `CLAUDE.md` trimmed, extras); Part B next with the first feature.
+subagent, `CLAUDE.md` trimmed, extras); Part B done with the first feature, the result-count
+header (PR #16). Part C is optional and not started.
 Start here. Concepts and example config live in
 [claude-code-harness.md](claude-code-harness.md); the first feature to build with it is in
 [harness-test-feature.md](harness-test-feature.md).
@@ -258,6 +259,10 @@ Answers for the [test feature](harness-test-feature.md) are filled in as an exam
 
 Answer 3 is the one real decision; the rest you can confirm by reading the code.
 
+These are the answers planned up front. The shipped header went further ("50+" at the cap, a
+heading plus live region, more tests); see
+[the outcome](harness-test-feature.md#outcome).
+
 ### B1. Branch
 
 **Terminal:**
@@ -290,6 +295,9 @@ branch feat_result_count_header. Plan first.
 
 Answer Claude's questions (`AskUserQuestion` menus). Approve the plan only when the to-do list
 names the files, the plurals resource, the unit test and the Paparazzi re-record.
+
+Or run `/new-feature <feature>` instead of typing the prompt. It also lists the existing tests the
+change could break, and asks only what the code doesn't answer.
 
 ### B4. Implement
 
