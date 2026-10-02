@@ -12,35 +12,17 @@ it would actually involve.
 
 ## Open
 
-### AT-16 — `initialActive = true` is overridden by the bar's first focus callback
-
-| | |
-|---|---|
-| **Priority** | Medium |
-| **Component** | `:app` — `ui/autocomplete/FloatingSearchBar.kt` |
-
-**Problem:** `FloatingSearchBar` reports focus as `.onFocusChanged { onActiveChange(it.isFocused) }`
-(`FloatingSearchBar.kt:127`). Compose fires `onFocusChanged` once on first composition with
-`isFocused = false`, which sets `active = false` and overrides `initialActive = true`. The panel
-never opens unless the field really gains focus. 13 of `GitHubAutocompleteBarTest`'s 24
-instrumented tests set `initialActive = true` without typing and fail on a Pixel 8a (API 36)
-emulator, e.g. `loadingState_showsLoadingIndicator`, `emptyState_showsEmptyMessage`,
-`successState_*`, `errorState_*`. Tests that type into the field pass.
-
-**Why deferred:** found while running instrumented tests for the `:feature:detail` branch, which
-doesn't touch the autocomplete code. No user-facing impact: only previews and tests pass
-`initialActive = true`, and Paparazzi doesn't dispatch the initial focus event, so goldens still
-show the panel.
-
-**Fix:** react only to real focus transitions, e.g. track the last focus state and call
-`onActiveChange` only when it changes (skipping the initial `false`), or have the tests that
-need an open panel request focus. Then re-run `:app:connectedDebugAndroidTest` and expect 27/27
-(including `DetailFlowTest`).
+*(none currently open)*
 
 ---
 
 ## Resolved
 
+- **AT-16** — fixed via PR #21 (`fix_autocomplete_initial_active`, merged into `develop`).
+  `FloatingSearchBar` now forwards only real focus transitions to `onActiveChange`, so the
+  `isFocused = false` callback Compose fires on first composition no longer closes a panel
+  opened via `initialActive = true`. `:app`'s instrumented suite went from 14/27 to 27/27.
+  Side effect: rotating with the panel open now keeps it open (restored `active` state).
 - **AT-5** — `docs/PROJECT_ANALYSIS.md` deleted outright (superseded by
   `docs/kmp-knowledge-base.md` + this file, which are actively maintained).
 - **AT-8** — the linked Artifact republished at the same URL as v2, redrawn to match current
