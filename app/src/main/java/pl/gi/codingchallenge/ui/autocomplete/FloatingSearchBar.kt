@@ -20,7 +20,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -53,6 +56,10 @@ internal fun FloatingSearchBar(
         RoundedCornerShape(dimRes(R.dimen.autocomplete_bar_corner_radius))
     val focusManager: FocusManager = LocalFocusManager.current
     val focusRequester: FocusRequester = remember { FocusRequester() }
+    // onFocusChanged also fires once on first composition with isFocused = false;
+    // forwarding that would close a panel opened via initialActive. Only real
+    // focus transitions should change `active`.
+    var wasFocused: Boolean by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
@@ -124,7 +131,12 @@ internal fun FloatingSearchBar(
                     .fillMaxWidth()
                     .testTag(AutocompleteTestTags.SEARCH_FIELD)
                     .focusRequester(focusRequester)
-                    .onFocusChanged { onActiveChange(it.isFocused) }
+                    .onFocusChanged { state ->
+                        if (state.isFocused != wasFocused) {
+                            wasFocused = state.isFocused
+                            onActiveChange(state.isFocused)
+                        }
+                    }
             )
         }
 
