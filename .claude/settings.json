@@ -18,6 +18,10 @@
       "Bash(./gradlew verifyPaparazziDebug:*)",
       "Bash(./gradlew :app:recordPaparazziDebug:*)",
       "Bash(./gradlew :app:verifyPaparazziDebug:*)",
+      "Bash(./gradlew :feature:autocomplete:recordPaparazziDebug:*)",
+      "Bash(./gradlew :feature:autocomplete:verifyPaparazziDebug:*)",
+      "Bash(./gradlew :feature:detail:recordPaparazziDebug:*)",
+      "Bash(./gradlew :feature:detail:verifyPaparazziDebug:*)",
       "Bash(./gradlew installDebug:*)",
       "Bash(adb devices:*)",
       "Bash(adb shell am start:*)",
@@ -40,6 +44,10 @@
       "Bash(./gradlew connectedAndroidTest:*)",
       "Bash(./gradlew :app:connectedDebugAndroidTest:*)",
       "Bash(./gradlew :app:connectedAndroidTest:*)",
+      "Bash(./gradlew :feature:autocomplete:connectedDebugAndroidTest:*)",
+      "Bash(./gradlew :feature:autocomplete:connectedAndroidTest:*)",
+      "Bash(./gradlew :feature:detail:connectedDebugAndroidTest:*)",
+      "Bash(./gradlew :feature:detail:connectedAndroidTest:*)",
       "Read(./local.properties)"
     ]
   },
