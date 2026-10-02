@@ -10,6 +10,9 @@ argument-hint: <feature description>
 
 Plan only. Don't edit, create or delete files until the user approves the plan.
 
+Before anything else, call `EnterPlanMode` (skip if plan mode is already on), so edits are
+blocked by the harness, not just by this rule. Write the plan to the plan file it gives you.
+
 1. If `$ARGUMENTS` is empty, ask what the feature is and stop.
 2. Read the code the feature touches, plus any spec under `docs/` that it names.
 3. Find the existing tests covering that code: unit, Paparazzi and androidTest. List each
@@ -41,4 +44,5 @@ Plan only. Don't edit, create or delete files until the user approves the plan.
 5. Show the answers as a short table: question, answer, source (args, code or user).
 6. Propose a plan as a to-do list naming the files to change, new resources, the tests to add,
    any Paparazzi re-record and the step-3 tests the change affects. End with a review step
-   (`compose-reviewer` for UI, then `/simplify`) and a self-check step. Wait for approval.
+   (`compose-reviewer` for UI, then `/simplify`) and a self-check step. Then call
+   `ExitPlanMode` so the user approves it in the plan dialog.
