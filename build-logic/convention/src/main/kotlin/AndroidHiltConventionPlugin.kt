@@ -5,9 +5,9 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 
 /**
- * Hilt for a library module: the Hilt Gradle plugin plus KSP running the
- * Hilt compiler, so @HiltViewModel / @Inject classes in the module are
- * generated and aggregated into the app's graph.
+ * Hilt for any Android module (application or library): the Hilt Gradle
+ * plugin plus KSP running the Hilt compiler, so @HiltViewModel / @Inject
+ * classes are generated and aggregated into the app's graph.
  */
 class AndroidHiltConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {

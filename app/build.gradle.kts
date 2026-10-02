@@ -2,8 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.codingchallenge.android.hilt)
     alias(libs.plugins.ktlint)
 }
 
@@ -67,8 +66,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     // DI
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
     // Hilt stays the DI system for Android-only classes; Koin owns :shared's own
     // graph, bridged into Hilt by a small module (see di/SharedKoinBridgeModule).
