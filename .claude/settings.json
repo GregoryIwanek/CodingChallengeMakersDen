@@ -31,5 +31,15 @@
       "Bash(./gradlew :app:connectedAndroidTest:*)",
       "Read(./local.properties)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ktlint-on-edit.sh" }
+        ]
+      }
+    ]
   }
 }

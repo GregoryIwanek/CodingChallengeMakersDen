@@ -1,8 +1,8 @@
 # Claude Code Harness for Android Projects
 
-**Status:** in progress — permissions are installed in `.claude/settings.json`; the remaining
-steps below are not yet. The hands-on runbook is [getting-started.md](getting-started.md). Live,
-commentable copy:
+**Status:** in progress — permissions and the ktlint PostToolUse hook are installed in
+`.claude/settings.json`; the remaining steps below are not yet. The hands-on runbook is
+[getting-started.md](getting-started.md). Live, commentable copy:
 [Claude Doc](https://claude.ai/code/artifact/0277d320-e04d-4fb0-884e-e45a049c49dd).
 
 ## Implementation steps
@@ -11,7 +11,7 @@ Build it one layer at a time, cheapest and highest-value first, and test each la
 the next. Details for each step are under [Example setup](#example-setup-for-codingchallenge) below.
 
 - [x] Permissions: add the allow/deny lists to `.claude/settings.json`; try running a denied command and watch it get blocked
-- [ ] One PostToolUse hook: ktlint on edit; edit a `.kt` file and confirm it was formatted
+- [x] One PostToolUse hook: ktlint on edit; edit a `.kt` file and confirm it was formatted
 - [ ] One PreToolUse hook: the Co-Authored-By blocker; learn the stdin JSON and exit-code-2 contract
 - [ ] Stop hook: compile check before Claude reports done
 - [ ] Skill: `run-android` with install, launch and screenshot
