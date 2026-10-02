@@ -27,3 +27,4 @@ rootProject.name = "CodingChallenge"
 include(":app")
 include(":shared")
 include(":feature:detail")
+include(":feature:autocomplete")
