@@ -41,7 +41,7 @@ None of these signals present → keep the module count as it is.
 | `:app` | Android UI: the autocomplete component, demo screen, the app's `NavHost`, Hilt DI |
 | `:feature:detail` | Full-screen repo/user detail; exposes only `navigateToDetail()` / `detailScreen()` |
 | `:shared` | KMP domain + data: use case, repositories, Ktor client, SQLDelight cache |
-| `build-logic/` | Convention plugins `codingchallenge.android.library` and `codingchallenge.android.compose` (included build, not a module) |
+| `build-logic/` | Convention plugins `codingchallenge.android.{library,compose,paparazzi}` (included build, not a module) |
 | `iosApp` | SwiftUI app consuming `:shared` (Xcode project, not a Gradle module) |
 
 The split that matters is platform UI vs. shared logic. `:feature:detail` was added as
@@ -52,7 +52,8 @@ else.
 ### What the first feature module taught
 
 - **Convention plugins pay off from module one.** `:feature:detail`'s build script is a few
-  lines. SDK levels, Java target, ktlint and Compose setup come from `build-logic/`. Plugin
+  lines. SDK levels, Java target, ktlint, Compose setup and Paparazzi wiring (including the
+  Gradle 9 report workaround) come from `build-logic/`. Plugin
   versions stay in the root catalog, which `build-logic/settings.gradle.kts` reuses.
 - **Each module has its own `R`.** `:app`'s theme, colors and `ResourceUtil` helpers are
   invisible from a feature. Paparazzi tests there need a platform theme

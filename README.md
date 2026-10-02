@@ -136,7 +136,7 @@ Hilt's annotation processor can't run on Kotlin/Native.
 ├── GitHubUrl.kt, GitHubLinkActions.kt   # URL building + intents
 └── testing/DetailTestTags.kt
 
-build-logic/convention                   # codingchallenge.android.library / .android.compose
+build-logic/convention                   # codingchallenge.android.library / .compose / .paparazzi
 
 :shared (pl.gi.codingchallenge.shared) — commonMain, compiles for Android + iOS
 ├── di/

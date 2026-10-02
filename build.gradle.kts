@@ -9,4 +9,6 @@ plugins {
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.sqldelight) apply false
     alias(libs.plugins.ktlint) apply false
+    // On the root classpath so the Paparazzi convention plugin can apply it by id.
+    alias(libs.plugins.paparazzi) apply false
 }

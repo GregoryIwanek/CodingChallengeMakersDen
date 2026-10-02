@@ -23,5 +23,9 @@ gradlePlugin {
             id = libs.plugins.codingchallenge.android.compose.get().pluginId
             implementationClass = "AndroidComposeConventionPlugin"
         }
+        register("androidPaparazzi") {
+            id = libs.plugins.codingchallenge.android.paparazzi.get().pluginId
+            implementationClass = "AndroidPaparazziConventionPlugin"
+        }
     }
 }
