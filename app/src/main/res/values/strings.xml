@@ -24,7 +24,6 @@
     <string name="demo_component_panel_explanation">The suggestion panel above floats over whatever content sits below it — it never owns the backdrop, scrim, or navigation. Dropped inside a Box aligned over a real screen, the panel would overlay that screen’s content instead of pushing it down like it does here.</string>
     <string name="demo_feed_item_title">Feed item %1$d</string>
     <string name="demo_feed_item_body">Unrelated host content — the suggestion panel overlays this feed instead of pushing it down.</string>
-    <string name="demo_tapped_toast">Tapped %1$s</string>
 
     <string-array name="demo_requirements">
         <item>Search starts only once the query is at least 3 characters long</item>

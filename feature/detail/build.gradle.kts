@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.codingchallenge.android.library)
     alias(libs.plugins.codingchallenge.android.compose)
     alias(libs.plugins.paparazzi)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -12,6 +13,9 @@ dependencies {
     implementation(project(":shared"))
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
 
