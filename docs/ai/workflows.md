@@ -56,10 +56,10 @@ Everything lives in `.claude/` (committed) and loads when a session starts.
 | Step | Who | What | Fires |
 | --- | --- | --- | --- |
 | 1 | 🧑 | `git checkout develop && git pull`, then `claude` | `SessionStart` loads the backlog |
-| 2 | 🧑 | `/new-feature <description>` | |
+| 2 | 🧑 | `/new-feature <description>`; confirms the switch to plan mode | |
 | 3 | 🤖 | Reads the code and finds existing tests the change could break | |
 | 4 | 🧑 | Answers the question rounds until 🟢 95% | `CLAUDE.md` rules |
-| 5 | 🤖 | Shows the answers table and a to-do plan; 🧑 approves | |
+| 5 | 🤖 | Shows the answers table and a to-do plan; 🧑 approves in the plan-mode dialog | |
 | 6 | 🤖 | Creates `feat_<name>` off `develop` and implements | ktlint per edit, compile check at stop |
 | 7 | 🤖 | Unit tests + `recordPaparazziDebug`; looks at every changed golden, reverts noise-only ones | `allow` rules |
 | 8 | 🤖 | `/run-android`; 🧑 does the taps it can't guess | |
