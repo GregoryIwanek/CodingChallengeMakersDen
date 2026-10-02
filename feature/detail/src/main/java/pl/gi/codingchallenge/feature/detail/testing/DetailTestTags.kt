@@ -6,7 +6,6 @@ internal object DetailTestTags {
     const val SCREEN: String = "detail_screen"
     const val BACK_BUTTON: String = "detail_back_button"
     const val TITLE: String = "detail_title"
-    const val SUBTITLE: String = "detail_subtitle"
     const val DESCRIPTION: String = "detail_description"
     const val STARS: String = "detail_stars"
     const val OPEN_BUTTON: String = "detail_open_button"

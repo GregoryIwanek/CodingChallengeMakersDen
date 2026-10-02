@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -58,7 +59,7 @@ import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResultDetailScreen(
+internal fun ResultDetailScreen(
     item: SearchResultItem,
     onBack: () -> Unit,
     onOpenOnGitHub: () -> Unit,
@@ -122,8 +123,11 @@ fun ResultDetailScreen(
 
 @Composable
 private fun RepoDetails(item: SearchResultItem.RepoResult) {
+    // The letter tile is decorative (the full name follows), so TalkBack
+    // shouldn't read a stray initial before the title.
     Box(
         Modifier
+            .clearAndSetSemantics {}
             .size(dimensionResource(R.dimen.detail_avatar_size))
             .background(
                 color = MaterialTheme.colorScheme.primaryContainer,
@@ -209,7 +213,6 @@ private fun DetailTitle(text: String) {
 private fun DetailSubtitle(text: String) {
     Text(
         text,
-        modifier = Modifier.testTag(DetailTestTags.SUBTITLE),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center
@@ -224,38 +227,45 @@ private fun DetailActions(onOpenOnGitHub: () -> Unit, onShare: () -> Unit, onCop
             dimensionResource(R.dimen.detail_actions_spacing)
         )
     ) {
-        Button(
+        ActionButton(
             onClick = onOpenOnGitHub,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(DetailTestTags.OPEN_BUTTON)
-        ) {
-            ButtonContent(
-                icon = painterResource(R.drawable.ic_open_in_new),
-                label = stringResource(R.string.detail_open_on_github)
-            )
-        }
-        OutlinedButton(
+            icon = painterResource(R.drawable.ic_open_in_new),
+            label = stringResource(R.string.detail_open_on_github),
+            testTag = DetailTestTags.OPEN_BUTTON,
+            primary = true
+        )
+        ActionButton(
             onClick = onShare,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(DetailTestTags.SHARE_BUTTON)
-        ) {
-            ButtonContent(
-                icon = rememberVectorPainter(Icons.Filled.Share),
-                label = stringResource(R.string.detail_share)
-            )
-        }
-        OutlinedButton(
+            icon = rememberVectorPainter(Icons.Filled.Share),
+            label = stringResource(R.string.detail_share),
+            testTag = DetailTestTags.SHARE_BUTTON
+        )
+        ActionButton(
             onClick = onCopyUrl,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(DetailTestTags.COPY_BUTTON)
-        ) {
-            ButtonContent(
-                icon = painterResource(R.drawable.ic_content_copy),
-                label = stringResource(R.string.detail_copy_url)
-            )
+            icon = painterResource(R.drawable.ic_content_copy),
+            label = stringResource(R.string.detail_copy_url),
+            testTag = DetailTestTags.COPY_BUTTON
+        )
+    }
+}
+
+/** Full-width icon + label button; [primary] picks filled over outlined. */
+@Composable
+private fun ActionButton(
+    onClick: () -> Unit,
+    icon: Painter,
+    label: String,
+    testTag: String,
+    primary: Boolean = false
+) {
+    val modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .testTag(testTag)
+    if (primary) {
+        Button(onClick = onClick, modifier = modifier) { ButtonContent(icon = icon, label = label) }
+    } else {
+        OutlinedButton(onClick = onClick, modifier = modifier) {
+            ButtonContent(icon = icon, label = label)
         }
     }
 }

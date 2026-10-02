@@ -12,8 +12,8 @@ import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 @Serializable
 internal data class DetailRoute(val itemJson: String)
 
-internal fun DetailRoute(item: SearchResultItem): DetailRoute =
-    DetailRoute(itemJson = Json.encodeToString(SearchResultItem.serializer(), item))
+internal fun SearchResultItem.toDetailRoute(): DetailRoute =
+    DetailRoute(itemJson = Json.encodeToString(SearchResultItem.serializer(), this))
 
 internal fun DetailRoute.toItem(): SearchResultItem =
     Json.decodeFromString(SearchResultItem.serializer(), itemJson)

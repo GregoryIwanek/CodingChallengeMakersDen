@@ -12,7 +12,7 @@ import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 // NavHost, so no other feature module ever depends on this one directly.
 
 fun NavController.navigateToDetail(item: SearchResultItem) {
-    navigate(DetailRoute(item)) {
+    navigate(item.toDetailRoute()) {
         // A double tap on a result would otherwise stack two detail screens.
         launchSingleTop = true
     }

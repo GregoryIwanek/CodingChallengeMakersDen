@@ -56,11 +56,11 @@ private const val OVERLAY_TAB_VIEW_MODEL_KEY: String = "overlay_tab"
  * either tab is reported through [onItemClick]; the nav host decides where it goes.
  */
 @Composable
-fun DemoScreen(onItemClick: (SearchResultItem) -> Unit) {
+fun DemoScreen(onItemClick: (SearchResultItem) -> Unit, modifier: Modifier = Modifier) {
     var selectedTab: Int by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
@@ -84,16 +84,11 @@ fun DemoScreen(onItemClick: (SearchResultItem) -> Unit) {
             }
         }
     ) { innerPadding ->
+        val contentModifier: Modifier = Modifier.padding(innerPadding).fillMaxSize()
         when (selectedTab) {
-            0 -> OverviewScreen(Modifier.padding(innerPadding).fillMaxSize())
-            1 -> ComponentScreen(
-                onItemClick = onItemClick,
-                modifier = Modifier.padding(innerPadding).fillMaxSize()
-            )
-            else -> OverlayScreen(
-                onItemClick = onItemClick,
-                modifier = Modifier.padding(innerPadding).fillMaxSize()
-            )
+            0 -> OverviewScreen(modifier = contentModifier)
+            1 -> ComponentScreen(onItemClick = onItemClick, modifier = contentModifier)
+            else -> OverlayScreen(onItemClick = onItemClick, modifier = contentModifier)
         }
     }
 }
@@ -211,7 +206,7 @@ private fun FeedCard(index: Int) {
 @Preview(name = "Overview", showBackground = true, widthDp = 380, heightDp = 700)
 @Composable
 private fun OverviewScreenPreview() {
-    OverviewScreen(Modifier.fillMaxSize())
+    OverviewScreen(modifier = Modifier.fillMaxSize())
 }
 
 @Preview(name = "Mock feed", showBackground = true, widthDp = 380, heightDp = 700)

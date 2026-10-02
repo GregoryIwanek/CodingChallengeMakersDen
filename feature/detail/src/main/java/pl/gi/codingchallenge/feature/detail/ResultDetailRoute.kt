@@ -27,7 +27,7 @@ internal fun ResultDetailRoute(
     val scope: CoroutineScope = rememberCoroutineScope()
     val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
     val copiedMessage: String = stringResource(R.string.detail_url_copied)
-    val url: String = remember(item) { item.gitHubUrl() }
+    val url: String = item.gitHubUrl()
 
     ResultDetailScreen(
         item = item,

@@ -1,8 +1,8 @@
 package pl.gi.codingchallenge.ui
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,14 +23,10 @@ fun AppNavHost(modifier: Modifier = Modifier) {
     val navController: NavHostController = rememberNavController()
 
     NavHost(navController = navController, startDestination = DemoRoute, modifier = modifier) {
-        composable<DemoRoute> { entry ->
+        composable<DemoRoute> {
             DemoScreen(
-                onItemClick = { item ->
-                    // Drop taps that land while this screen is already leaving.
-                    if (entry.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                        navController.navigateToDetail(item)
-                    }
-                }
+                onItemClick = navController::navigateToDetail,
+                modifier = Modifier.fillMaxSize()
             )
         }
         detailScreen(onBack = navController::popBackStack)

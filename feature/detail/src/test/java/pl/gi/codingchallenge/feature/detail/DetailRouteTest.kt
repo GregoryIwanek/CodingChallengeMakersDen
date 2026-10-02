@@ -18,7 +18,7 @@ class DetailRouteTest {
             stars = 48000
         )
 
-        assertEquals(repo, DetailRoute(repo).toItem())
+        assertEquals(repo, repo.toDetailRoute().toItem())
     }
 
     @Test
@@ -30,6 +30,6 @@ class DetailRouteTest {
             htmlUrl = "https://github.com/octocat"
         )
 
-        assertEquals(user, DetailRoute(user).toItem())
+        assertEquals(user, user.toDetailRoute().toItem())
     }
 }
