@@ -51,6 +51,7 @@ android {
 dependencies {
     implementation(project(":shared"))
     implementation(project(":feature:detail"))
+    implementation(project(":feature:autocomplete"))
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)

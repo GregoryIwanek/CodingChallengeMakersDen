@@ -42,8 +42,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.gi.codingchallenge.R
+import pl.gi.codingchallenge.feature.autocomplete.GitHubAutocompleteBarComponent
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
-import pl.gi.codingchallenge.ui.autocomplete.GitHubAutocompleteBarComponent
 
 private const val COMPONENT_TAB_VIEW_MODEL_KEY: String = "component_tab"
 private const val OVERLAY_TAB_VIEW_MODEL_KEY: String = "overlay_tab"
