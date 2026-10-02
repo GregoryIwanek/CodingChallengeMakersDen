@@ -231,6 +231,4 @@ Everything lives in `.claude/` (committed) and loads when a session starts.
 
 | Gap | Effect | Fix |
 | --- | --- | --- |
-| `compose-reviewer` defaults to `model: haiku` | `CLAUDE.md` says reviews use sonnet, so it has to be overridden per call | Set `model: sonnet` in `.claude/agents/compose-reviewer.md` |
-| `.claude/skills/new-feature/EXAMPLES.md` | Not yet reviewed against the slimmed-down skill | Check it still matches `SKILL.md` |
 | `main` ignores `.claude/` | A plain `develop` → `main` merge can drop the harness | See [workflow 10](#10-release-develop--main) |

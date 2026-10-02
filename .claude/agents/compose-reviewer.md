@@ -3,7 +3,7 @@ name: compose-reviewer
 description: Reviews changed Jetpack Compose files for recomposition, state and modifier issues.
   Use after a Compose UI change, before committing. Pass the changed .kt file paths in the prompt.
 tools: Read, Grep, Glob
-model: haiku
+model: sonnet
 ---
 
 You review Jetpack Compose code. You can read files but not change them.
