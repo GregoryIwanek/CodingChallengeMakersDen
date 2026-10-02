@@ -16,8 +16,6 @@
       "Bash(./gradlew check:*)",
       "Bash(./gradlew recordPaparazziDebug:*)",
       "Bash(./gradlew verifyPaparazziDebug:*)",
-      "Bash(./gradlew :app:recordPaparazziDebug:*)",
-      "Bash(./gradlew :app:verifyPaparazziDebug:*)",
       "Bash(./gradlew :feature:autocomplete:recordPaparazziDebug:*)",
       "Bash(./gradlew :feature:autocomplete:verifyPaparazziDebug:*)",
       "Bash(./gradlew :feature:detail:recordPaparazziDebug:*)",
