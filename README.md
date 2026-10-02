@@ -211,7 +211,7 @@ details.
 
 ## Testing
 
-68 JVM/multiplatform tests + 28 instrumented tests across 21 files.
+68 JVM/multiplatform tests + 31 instrumented tests across 22 files.
 Most of the logic is tested once in `:shared`'s `commonTest`, which
 runs on both the Android host JVM and the iOS simulator:
 
@@ -263,6 +263,11 @@ runs on both the Android host JVM and the iOS simulator:
   `FormatStarsCountTest`, plus instrumented `ResultDetailScreenTest`
   (content + every button's callback) and `DetailNavigationTest`
   (navigate in, back out, via a throwaway `NavHost`).
+- **`DetailFlowTest`** (3, instrumented) — end-to-end through the real
+  `MainActivity` and nav graph: search, open a repo or user detail,
+  come back via system or toolbar back, with the tab and query intact.
+  `HiltTestRunner` + `FakeSearchModule` (`@TestInstallIn`, replacing
+  the Koin bridge) keep it offline and deterministic.
 
 Run everything: `./gradlew check` (unit tests + lint + ktlint + Paparazzi)
 and `./gradlew connectedDebugAndroidTest` (needs a device/emulator).

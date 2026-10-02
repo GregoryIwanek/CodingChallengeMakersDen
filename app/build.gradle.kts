@@ -27,7 +27,9 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Swaps in HiltTestApplication so @HiltAndroidTest tests can replace
+        // bindings; plain createComposeRule tests run under it unchanged.
+        testInstrumentationRunner = "pl.gi.codingchallenge.HiltTestRunner"
     }
 
     buildTypes {
@@ -90,6 +92,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.compiler)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
