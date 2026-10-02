@@ -1,8 +1,8 @@
 # Claude Code Harness for Android Projects
 
-**Status:** in progress — permissions and the ktlint PostToolUse hook are installed in
-`.claude/settings.json`; the remaining steps below are not yet. The hands-on runbook is
-[getting-started.md](getting-started.md). Live, commentable copy:
+**Status:** in progress — permissions, the ktlint PostToolUse hook and the Co-Authored-By
+PreToolUse hook are installed in `.claude/settings.json`; the remaining steps below are not yet.
+The hands-on runbook is [getting-started.md](getting-started.md). Live, commentable copy:
 [Claude Doc](https://claude.ai/code/artifact/0277d320-e04d-4fb0-884e-e45a049c49dd).
 
 ## Implementation steps
@@ -12,7 +12,7 @@ the next. Details for each step are under [Example setup](#example-setup-for-cod
 
 - [x] Permissions: add the allow/deny lists to `.claude/settings.json`; try running a denied command and watch it get blocked
 - [x] One PostToolUse hook: ktlint on edit; edit a `.kt` file and confirm it was formatted
-- [ ] One PreToolUse hook: the Co-Authored-By blocker; learn the stdin JSON and exit-code-2 contract
+- [x] One PreToolUse hook: the Co-Authored-By blocker; learn the stdin JSON and exit-code-2 contract
 - [ ] Stop hook: compile check before Claude reports done
 - [ ] Skill: `run-android` with install, launch and screenshot
 - [ ] Subagent: `compose-reviewer` on a real Compose change
@@ -122,11 +122,12 @@ The PreToolUse hook enforces the commit rule. Hook input arrives as JSON on stdi
 
 ```bash
 # .claude/hooks/block-coauthor.sh
-cmd=$(jq -r '.tool_input.command')
-if [[ "$cmd" == git\ commit* && "$cmd" == *Co-Authored-By* ]]; then
-  echo "Co-Authored-By trailers are banned in this repo" >&2
+cmd=$(jq -r '.tool_input.command // empty')
+if [[ "$cmd" == *"git commit"* ]] && grep -qi 'co-authored-by' <<<"$cmd"; then
+  echo "Blocked: Co-Authored-By trailers are banned in this repo (see .claude/CLAUDE.md). Commit again without the trailer." >&2
   exit 2
 fi
+exit 0
 ```
 
 `ktlint-on-edit.sh` reads `.tool_input.file_path` the same way and runs `./gradlew ktlintFormat` when a `.kt` or `.kts` file changed, so formatting always matches the `ktlintCheck` step in `android-ci.yml`. Other useful events:
