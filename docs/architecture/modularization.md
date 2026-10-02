@@ -38,18 +38,39 @@ None of these signals present → keep the module count as it is.
 
 | Module | Holds |
 | --- | --- |
-| `:app` | Android UI: the autocomplete component, demo screen, Hilt DI |
+| `:app` | Android UI: the autocomplete component, demo screen, the app's `NavHost`, Hilt DI |
+| `:feature:detail` | Full-screen repo/user detail; exposes only `navigateToDetail()` / `detailScreen()` |
 | `:shared` | KMP domain + data: use case, repositories, Ktor client, SQLDelight cache |
+| `build-logic/` | Convention plugins `codingchallenge.android.{library,compose,paparazzi}` (included build, not a module) |
 | `iosApp` | SwiftUI app consuming `:shared` (Xcode project, not a Gradle module) |
 
-This is already the split that matters: platform UI vs. shared logic. With one feature and one
-developer, more modules would solve no current problem.
+The split that matters is platform UI vs. shared logic. `:feature:detail` was added as
+deliberate practice, not because a signal above appeared. It follows the shop layout's rules:
+it depends on `:shared` for the model, and `:app` is the only place that connects it to anything
+else.
+
+### What the first feature module taught
+
+- **Convention plugins pay off from module one.** `:feature:detail`'s build script is a few
+  lines. SDK levels, Java target, ktlint, Compose setup and Paparazzi wiring (including the
+  Gradle 9 report workaround) come from `build-logic/`. Plugin
+  versions stay in the root catalog, which `build-logic/settings.gradle.kts` reuses.
+- **Each module has its own `R`.** `:app`'s theme, colors and `ResourceUtil` helpers are
+  invisible from a feature. Paparazzi tests there need a platform theme
+  (`android:Theme.Material.Light.NoActionBar`) plus a `MaterialTheme` wrapper.
+- **Navigation is the boundary.** The route class is `internal`; the module's public API is a
+  `NavController` extension to go there and a `NavGraphBuilder` extension to register the screen.
+  Another feature could navigate to it only through `:app`, never by importing it.
+- **Each new module needs its own `.gitignore`** (`/build`). The root one only ignores the
+  top-level `build/`.
 
 ### Practice exercise: extract `:feature:autocomplete`
 
 Worth doing as a learning step before the shop app. It's the same move at small scale, and it
 hits every friction point (DI, resources, Paparazzi, CI). The README already says the component
-would ship as its own module in a real project.
+would ship as its own module in a real project. With `:feature:detail` in place, it would also
+prove the no-feature-to-feature rule for real: `:app` would be wiring two feature modules that
+can't see each other.
 
 1. Add `build-logic/` with an `android-library` convention plugin (+ a Compose one).
 2. Create `:feature:autocomplete` and move in the composables, `AutocompleteViewModel`,
@@ -59,7 +80,43 @@ would ship as its own module in a real project.
    new module.
 
 Plan it with `/new-feature` (see [workflows](../ai/workflows.md#1-add-a-new-feature)): tag
-`[REFACTOR]`, and screenshots should not change.
+`[REFACTOR]`, and screenshots should not change. `build-logic/` already exists, so step 1 is
+done.
+
+### Follow-up: fetch full details for the detail screen
+
+Today the detail screen shows only what search returned, passed through the nav route as JSON.
+GitHub's `GET /repos/{owner}/{repo}` and `GET /users/{login}` would add forks, language, topics,
+followers, bio and so on.
+
+- **Where it goes:** a new method on a `:shared` repository plus `GitHubApi` calls and DTOs.
+  That's `[KMP]` work, runs iOS CI, and iOS can reuse it.
+- **What changes in the feature:** the screen gains Loading/Error states and a `ViewModel` (so
+  Hilt enters `:feature:detail`). The route can shrink to an id plus type, with the search
+  result shown first and the full details filled in when the request returns.
+- **Shop parallel:** a catalog list returns a product summary; the product page fetches the full
+  product. It's the same two-step load.
+
+### Follow-up: resource helpers across modules
+
+`:app`'s `util/ResourceUtil.kt` (`strRes`/`dimRes`/`spRes`/`colRes`) isn't visible from
+feature modules. `:feature:detail` uses Compose's built-ins (`stringResource`,
+`dimensionResource`) and `MaterialTheme.typography` instead.
+
+| Option | Pros | Cons |
+| --- | --- | --- |
+| Compose built-ins in each module (current) | No extra module; standard API every Android dev knows | Two call styles in the repo; `spRes`'s font-scale fix has to be remembered wherever sp dimens are read |
+| `:core:ui` module holding `ResourceUtil` | One implementation and one test; `:app` and features share it | One more module and build file; every helper becomes public API |
+| Copy the helpers into each module | Same call style everywhere, no coupling | Copies drift; a fix has to be applied N times |
+
+**The proper way:** shared UI helpers and design tokens belong in a `:core:ui` /
+`:core:designsystem` module, but only once two or more modules really share them. With one
+feature that reads only strings and dimens, the built-ins are enough. In the shop app,
+`:core:designsystem` should exist from the start. Its contents should be theme tokens
+(colors, type scale, spacing) and shared components (buttons, cards, price labels), not thin
+wrappers around `stringResource`. Features then read `MaterialTheme` / custom
+`CompositionLocal`s, and text sizes come from the type scale, so an sp helper like `spRes`
+isn't needed.
 
 ---
 

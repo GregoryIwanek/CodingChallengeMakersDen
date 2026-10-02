@@ -1,0 +1,14 @@
+<resources>
+    <string name="detail_title_repo">Repository</string>
+    <string name="detail_title_user">User</string>
+    <string name="detail_back">Back</string>
+    <string name="detail_repo_owner">by %1$s</string>
+    <plurals name="detail_stars_count">
+        <item quantity="one">%1$s star</item>
+        <item quantity="other">%1$s stars</item>
+    </plurals>
+    <string name="detail_open_on_github">Open on GitHub</string>
+    <string name="detail_share">Share</string>
+    <string name="detail_copy_url">Copy link</string>
+    <string name="detail_url_copied">Link copied</string>
+</resources>

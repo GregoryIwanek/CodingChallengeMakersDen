@@ -20,7 +20,9 @@ The demo app is three tabs: **Overview** describes the assignment and
 its requirements, **Component** hosts the bar with the panel pushing
 the rest of the screen down, and **Overlay** hosts the exact same bar
 floating over an unrelated scrolling feed instead — the same component
-in both of its layout modes, side by side.
+in both of its layout modes, side by side. Tapping a result in either
+tab opens a full-screen detail page for that repository or user, with
+Open on GitHub, Share and Copy link actions.
 
 ## Quick usage
 
@@ -94,9 +96,12 @@ typing in one tab never leaks into the other.
 
 ## Architecture
 
-Clean Architecture + MVVM, split across two Gradle modules. `:app` holds
-Android/Compose-only code; `:shared` holds the multiplatform domain and
-data layers, compiled for both Android and iOS. Dependencies still point
+Clean Architecture + MVVM, split across three Gradle modules. `:app` holds
+Android/Compose-only code and the app's navigation graph; `:feature:detail`
+is the result detail screen as a standalone feature module; `:shared` holds
+the multiplatform domain and data layers, compiled for both Android and iOS.
+Android library modules are configured by convention plugins in
+`build-logic/` — see `docs/architecture/modularization.md`. Dependencies still point
 inward — `:app`'s `ui/` depends on `:shared`'s `domain/` interfaces, and
 `:shared`'s own `remote/`/`cache/` depend on its `domain/`, never the
 other way around. `:app` reaches `:shared` through a small Koin→Hilt
@@ -116,11 +121,22 @@ Hilt's annotation processor can't run on Kotlin/Native.
 │   │   ├── SuggestionPanel.kt           # the floating results card
 │   │   ├── SearchResultRow.kt           # item renderer
 │   │   └── testing/AutocompleteTestTags.kt
+│   ├── AppNavHost.kt                    # the only NavHost: demo -> detail
 │   └── DemoScreen.kt                    # 3-tab demo host — see Demo above
 ├── util/
 │   └── ResourceUtil.kt                  # dimRes/strRes/colRes/spRes helpers
 ├── CodingChallengeApp.kt                # @HiltAndroidApp, starts Koin before Hilt resolves anything
 └── MainActivity.kt
+
+:feature:detail (pl.gi.codingchallenge.feature.detail)
+├── DetailNavigation.kt                  # public API: navigateToDetail() + detailScreen()
+├── DetailRoute.kt                       # internal type-safe route, item carried as JSON
+├── ResultDetailRoute.kt                 # wires buttons to browser/share sheet/clipboard
+├── ResultDetailScreen.kt                # stateless repo/user detail UI
+├── GitHubUrl.kt, GitHubLinkActions.kt   # URL building + intents
+└── testing/DetailTestTags.kt
+
+build-logic/convention                   # codingchallenge.android.library / .compose / .paparazzi
 
 :shared (pl.gi.codingchallenge.shared) — commonMain, compiles for Android + iOS
 ├── di/
@@ -195,7 +211,7 @@ details.
 
 ## Testing
 
-58 JVM/multiplatform tests + 24 instrumented tests across 15 files.
+68 JVM/multiplatform tests + 31 instrumented tests across 22 files.
 Most of the logic is tested once in `:shared`'s `commonTest`, which
 runs on both the Android host JVM and the iOS simulator:
 
@@ -240,6 +256,18 @@ runs on both the Android host JVM and the iOS simulator:
   `FormatResultCountTest` (real plural strings via Paparazzi's
   `Resources`, no device), and `ResourceUtilTest` (instrumented)
   covering the remaining domain/data/presentation logic.
+- **`:feature:detail`** — `ResultDetailScreenScreenshotTest` (3
+  goldens: repo, repo without description, user;
+  `:feature:detail:recordPaparazziDebug` re-records them),
+  `DetailRouteTest` (route JSON round-trip), `GitHubUrlTest`,
+  `FormatStarsCountTest`, plus instrumented `ResultDetailScreenTest`
+  (content + every button's callback) and `DetailNavigationTest`
+  (navigate in, back out, via a throwaway `NavHost`).
+- **`DetailFlowTest`** (3, instrumented) — end-to-end through the real
+  `MainActivity` and nav graph: search, open a repo or user detail,
+  come back via system or toolbar back, with the tab and query intact.
+  `HiltTestRunner` + `FakeSearchModule` (`@TestInstallIn`, replacing
+  the Koin bridge) keep it offline and deterministic.
 
 Run everything: `./gradlew check` (unit tests + lint + ktlint + Paparazzi)
 and `./gradlew connectedDebugAndroidTest` (needs a device/emulator).

@@ -1,0 +1,11 @@
+<resources>
+    <dimen name="detail_content_padding">24dp</dimen>
+    <dimen name="detail_section_spacing">16dp</dimen>
+    <dimen name="detail_avatar_size">72dp</dimen>
+    <dimen name="detail_repo_avatar_corner_radius">16dp</dimen>
+    <dimen name="detail_person_icon_size">36dp</dimen>
+    <dimen name="detail_star_icon_size">18dp</dimen>
+    <dimen name="detail_icon_text_spacing">6dp</dimen>
+    <dimen name="detail_actions_spacing">8dp</dimen>
+    <dimen name="detail_button_icon_size">18dp</dimen>
+</resources>

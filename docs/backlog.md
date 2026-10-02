@@ -12,7 +12,30 @@ it would actually involve.
 
 ## Open
 
-*(none currently open)*
+### AT-16 — `initialActive = true` is overridden by the bar's first focus callback
+
+| | |
+|---|---|
+| **Priority** | Medium |
+| **Component** | `:app` — `ui/autocomplete/FloatingSearchBar.kt` |
+
+**Problem:** `FloatingSearchBar` reports focus as `.onFocusChanged { onActiveChange(it.isFocused) }`
+(`FloatingSearchBar.kt:127`). Compose fires `onFocusChanged` once on first composition with
+`isFocused = false`, which sets `active = false` and overrides `initialActive = true`. The panel
+never opens unless the field really gains focus. 13 of `GitHubAutocompleteBarTest`'s 24
+instrumented tests set `initialActive = true` without typing and fail on a Pixel 8a (API 36)
+emulator, e.g. `loadingState_showsLoadingIndicator`, `emptyState_showsEmptyMessage`,
+`successState_*`, `errorState_*`. Tests that type into the field pass.
+
+**Why deferred:** found while running instrumented tests for the `:feature:detail` branch, which
+doesn't touch the autocomplete code. No user-facing impact: only previews and tests pass
+`initialActive = true`, and Paparazzi doesn't dispatch the initial focus event, so goldens still
+show the panel.
+
+**Fix:** react only to real focus transitions, e.g. track the last focus state and call
+`onActiveChange` only when it changes (skipping the initial `false`), or have the tests that
+need an open panel request focus. Then re-run `:app:connectedDebugAndroidTest` and expect 27/27
+(including `DetailFlowTest`).
 
 ---
 

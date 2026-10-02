@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -25,4 +26,4 @@ dependencyResolutionManagement {
 rootProject.name = "CodingChallenge"
 include(":app")
 include(":shared")
- 
+include(":feature:detail")

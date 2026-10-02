@@ -1,7 +1,5 @@
 package pl.gi.codingchallenge.ui
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -55,14 +52,15 @@ private const val OVERLAY_TAB_VIEW_MODEL_KEY: String = "overlay_tab"
 /**
  * Three-tab demo: Overview describes the assignment and requirements; Component
  * hosts the bar with the panel pushing content down; Overlay shows the same bar
- * floating over independent scrolling content instead.
+ * floating over independent scrolling content instead. Tapping a result in
+ * either tab is reported through [onItemClick]; the nav host decides where it goes.
  */
 @Composable
-fun DemoScreen() {
+fun DemoScreen(onItemClick: (SearchResultItem) -> Unit, modifier: Modifier = Modifier) {
     var selectedTab: Int by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
@@ -86,10 +84,11 @@ fun DemoScreen() {
             }
         }
     ) { innerPadding ->
+        val contentModifier: Modifier = Modifier.padding(innerPadding).fillMaxSize()
         when (selectedTab) {
-            0 -> OverviewScreen(Modifier.padding(innerPadding).fillMaxSize())
-            1 -> ComponentScreen(Modifier.padding(innerPadding).fillMaxSize())
-            else -> OverlayScreen(Modifier.padding(innerPadding).fillMaxSize())
+            0 -> OverviewScreen(modifier = contentModifier)
+            1 -> ComponentScreen(onItemClick = onItemClick, modifier = contentModifier)
+            else -> OverlayScreen(onItemClick = onItemClick, modifier = contentModifier)
         }
     }
 }
@@ -120,8 +119,10 @@ private fun OverviewScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ComponentScreen(modifier: Modifier = Modifier) {
-    val context: Context = LocalContext.current
+private fun ComponentScreen(
+    onItemClick: (SearchResultItem) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val focusManager: FocusManager = LocalFocusManager.current
 
     Column(
@@ -134,7 +135,7 @@ private fun ComponentScreen(modifier: Modifier = Modifier) {
         GitHubAutocompleteBarComponent(
             modifier = Modifier.fillMaxWidth(),
             viewModel = hiltViewModel(key = COMPONENT_TAB_VIEW_MODEL_KEY),
-            onItemClick = { showTappedToast(context, it) }
+            onItemClick = onItemClick
         )
         Text(
             strRes(R.string.demo_component_panel_explanation),
@@ -144,8 +145,7 @@ private fun ComponentScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun OverlayScreen(modifier: Modifier = Modifier) {
-    val context: Context = LocalContext.current
+private fun OverlayScreen(onItemClick: (SearchResultItem) -> Unit, modifier: Modifier = Modifier) {
     val focusManager: FocusManager = LocalFocusManager.current
 
     Box(modifier.clearFocusOnTap(focusManager)) {
@@ -157,25 +157,13 @@ private fun OverlayScreen(modifier: Modifier = Modifier) {
                 .padding(dimRes(R.dimen.demo_overlay_bar_margin))
                 .fillMaxWidth(),
             viewModel = hiltViewModel(key = OVERLAY_TAB_VIEW_MODEL_KEY),
-            onItemClick = { showTappedToast(context, it) }
+            onItemClick = onItemClick
         )
     }
 }
 
 private fun Modifier.clearFocusOnTap(focusManager: FocusManager): Modifier =
     pointerInput(Unit) { detectTapGestures { focusManager.clearFocus() } }
-
-private fun showTappedToast(context: Context, item: SearchResultItem) {
-    val label: String = when (item) {
-        is SearchResultItem.RepoResult -> item.fullName
-        is SearchResultItem.UserResult -> item.login
-    }
-    Toast.makeText(
-        context,
-        context.getString(R.string.demo_tapped_toast, label),
-        Toast.LENGTH_SHORT
-    ).show()
-}
 
 @Composable
 private fun MockFeed(modifier: Modifier = Modifier) {
@@ -218,7 +206,7 @@ private fun FeedCard(index: Int) {
 @Preview(name = "Overview", showBackground = true, widthDp = 380, heightDp = 700)
 @Composable
 private fun OverviewScreenPreview() {
-    OverviewScreen(Modifier.fillMaxSize())
+    OverviewScreen(modifier = Modifier.fillMaxSize())
 }
 
 @Preview(name = "Mock feed", showBackground = true, widthDp = 380, heightDp = 700)
