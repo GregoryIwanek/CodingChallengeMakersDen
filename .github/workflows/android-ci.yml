@@ -46,4 +46,8 @@ jobs:
             app/build/reports/ktlint/
             shared/build/reports/tests/
             shared/build/reports/ktlint/
+            feature/detail/build/reports/tests/
+            feature/detail/build/reports/paparazzi/
+            feature/detail/build/reports/lint-results-debug.html
+            feature/detail/build/reports/ktlint/
           retention-days: 7
