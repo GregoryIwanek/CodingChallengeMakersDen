@@ -60,7 +60,7 @@ typing in one tab never leaks into the other.
 | Minimum 3 characters before searching | `SearchAutocompleteUseCase`'s `MIN_QUERY_LENGTH` gate, applied to the trimmed query |
 | Fetches both users and repositories | `GitHubSearchNetworkSourceImpl`, launched in parallel via `async` |
 | Combined, alphabetically-sorted list | `ResultMerger.mergeAndSort`, keyed on repository name / login |
-| Capped at 50 results | `SearchLimits.MAX_RESULTS` — single source of truth for both the per-type fetch limit and the final cap |
+| Capped at 50 results | `SearchLimits.MAX_RESULTS` — single source of truth for both the per-type fetch limit and the final cap (the panel's "50+ results" header mirrors it as `DEFAULT_MAX_RESULTS` in `:app`) |
 | Loading / empty / error states | `AutocompleteUiState`, rendered by `SuggestionPanel` |
 | Rapid-input handling | `debounce` + `distinctUntilChanged` + `flatMapLatest` in the use case |
 | Reusable, not hardcoded to one screen | `GitHubAutocompleteBarComponent` — plain composable API, demoed over three different screens |
@@ -195,7 +195,7 @@ details.
 
 ## Testing
 
-50 JVM/multiplatform tests + 22 instrumented tests across 13 files.
+58 JVM/multiplatform tests + 24 instrumented tests across 15 files.
 Most of the logic is tested once in `:shared`'s `commonTest`, which
 runs on both the Android host JVM and the iOS simulator:
 
@@ -215,11 +215,13 @@ runs on both the Android host JVM and the iOS simulator:
   JSON payloads through the actual `kotlinx.serialization` pipeline,
   not just hand-built DTOs, so a wrong `@SerialName` would actually
   fail a test.
-- **`GitHubAutocompleteBarTest`** (20, instrumented) — every UI state,
-  focus handling, back-press, scroll-reset on a new query, and the
-  divider/leading-icon edge cases, via real Compose UI interactions.
-- **`GitHubAutocompleteBarScreenshotTest`** (5) — [Paparazzi](https://github.com/cashapp/paparazzi)
-  golden-image tests, one per UI state. Unlike the assertion-based
+- **`GitHubAutocompleteBarTest`** (22, instrumented) — every UI state,
+  focus handling, back-press, scroll-reset on a new query, the
+  result-count header, and the divider/leading-icon edge cases, via
+  real Compose UI interactions.
+- **`GitHubAutocompleteBarScreenshotTest`** (7) — [Paparazzi](https://github.com/cashapp/paparazzi)
+  golden-image tests, one per UI state plus the singular and capped
+  ("50+") result-count header. Unlike the assertion-based
   tests above, which only check semantics (does this tag exist, does
   this text say X), each of these renders the composable to a bitmap
   and diffs it pixel-for-pixel against a checked-in reference image
@@ -234,7 +236,9 @@ runs on both the Android host JVM and the iOS simulator:
   the build on a mismatch.
 - Plus `GitHubSearchNetworkSourceImplTest`, `ResultMergerTest`,
   `ResultMappersTest`, `SearchResultItemTest`,
-  `AutocompleteViewModelTest`, and `ResourceUtilTest` (instrumented)
+  `AutocompleteViewModelTest`, `ResultCountTest`,
+  `FormatResultCountTest` (real plural strings via Paparazzi's
+  `Resources`, no device), and `ResourceUtilTest` (instrumented)
   covering the remaining domain/data/presentation logic.
 
 Run everything: `./gradlew check` (unit tests + lint + ktlint + Paparazzi)
@@ -296,6 +300,9 @@ search endpoints.
   relevance-ranked top 50, so for a query with more than 50 matches of
   one type, an alphabetically-earlier match that GitHub ranks lower
   never makes it into the list.
+- The result-count header shows "50+ results" whenever the list hits
+  the 50 cap, even if GitHub had exactly 50 matches; the true total
+  (`total_count`) isn't threaded through from `:shared`.
 - The iOS app re-implements the debounce/min-length policy in Swift
   rather than sharing it (see [iOS app](#ios-app)), so the two
   platforms' copies of that policy have to be kept in sync by hand.
@@ -312,6 +319,10 @@ search endpoints.
   tools.
 - `docs/backlog.md` — known bugs and considerations, open and
   resolved.
+- `docs/ai/` — the Claude Code harness: concepts
+  (`claude-code-harness.md`), the setup and per-feature runbook
+  (`getting-started.md`), and the result-count header built as its
+  first test feature (`harness-test-feature.md`).
 
 ## Development notes
 
@@ -319,7 +330,11 @@ This project was built with the help of AI coding assistants —
 primarily [Claude Code](https://claude.com/claude-code), with
 [OpenCode](https://opencode.ai) also used for part of the work —
 alongside manual review, on-device testing, and the architectural
-decisions described above.
+decisions described above. The Claude Code setup is committed in
+`.claude/`: permission rules, hooks (ktlint on edit, a compile check
+before finishing, blocks on Co-Authored-By trailers and remote branch
+deletion), the `new-feature` and `run-android` skills, and a
+`compose-reviewer` subagent — see `docs/ai/getting-started.md`.
 
 ## License
 
