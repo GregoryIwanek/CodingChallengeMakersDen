@@ -38,7 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -163,7 +163,7 @@ private fun RepoDetails(item: SearchResultItem.RepoResult) {
         Spacer(Modifier.width(dimensionResource(R.dimen.detail_icon_text_spacing)))
         Text(
             formatStarsCount(
-                resources = LocalContext.current.resources,
+                resources = LocalResources.current,
                 stars = item.stars
             ),
             style = MaterialTheme.typography.titleSmall

@@ -11,8 +11,13 @@ android {
 dependencies {
     implementation(project(":shared"))
     implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.core.ktx)
 
     testImplementation(libs.junit)
+
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
 tasks.withType<Test>().configureEach {
