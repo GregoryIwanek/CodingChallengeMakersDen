@@ -39,6 +39,10 @@ generates a source-set hierarchy from that. `commonMain` compiles against *every
 - `:app` (Android) keeps Compose UI, `ViewModel`s, and the Hilt↔Koin bridge — things that are
   either UI or bound to an Android/JVM-only framework (Hilt's annotation processor, Android
   `Context`/resources). "Share logic, not UI."
+- `:feature:detail` is a plain Android library (not KMP) that depends on `:shared` only for the
+  `SearchResultItem` model — a feature module consumes shared code exactly like `:app` does.
+  Android library modules get their config from convention plugins in `build-logic/`; see
+  `docs/architecture/modularization.md`.
 
 **Gotchas hit:**
 | Symptom | Cause | Fix |
@@ -416,5 +420,7 @@ A quick-lookup table for "where do I go to refresh my memory on X by re-reading 
 | Debounce/search policy (iOS, re-implemented) | `iosApp/iosApp/ContentView.swift` |
 | Fakes-not-mocks test examples | `shared/src/commonTest/.../domain/repository/{CachingGitHubSearchRepositoryTest,FakeGitHubSearchRepository}.kt` |
 | `MockEngine` HTTP test example | `shared/src/commonTest/.../remote/GitHubApiTest.kt` |
+| Convention plugins | `build-logic/convention/src/main/kotlin/*ConventionPlugin.kt` |
+| Feature module + its nav API | `feature/detail/.../DetailNavigation.kt`, wired in `app/.../ui/AppNavHost.kt` |
 | Android CI | `.github/workflows/android-ci.yml` |
 | iOS CI | `.github/workflows/ios-ci.yml` |
