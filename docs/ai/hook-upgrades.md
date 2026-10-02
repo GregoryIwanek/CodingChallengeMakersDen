@@ -1,6 +1,6 @@
 # Hook Upgrades: Optional Steps
 
-The optional upgrades from the deleted hook walkthroughs, kept for later.
+The optional upgrades from the deleted hook and skill walkthroughs, kept for later.
 
 ## ktlint-on-edit (PostToolUse)
 
@@ -42,3 +42,20 @@ Known gaps worth fixing alongside:
   makes every later turn compile, even turns that touched no files.
 - Exit 2 only feeds the error back to Claude; it doesn't force a fix. An explicit "don't fix it"
   instruction can win, so the hook is a nudge, not a guarantee.
+
+## run-android (skill)
+
+- **Auto-start the emulator:** allow the emulator binary, run it in the background, then
+  `adb wait-for-device` and poll `adb shell getprop sys.boot_completed` until it prints `1`.
+- **Drive the UI:** allow `adb shell input text:*` and `adb shell input keyevent:*` so Claude can
+  type a query (e.g. "kotlin") before the screenshot; needed for B5 of the test feature.
+- **Fresh state:** `adb shell pm clear pl.gi.codingchallenge` before launch, so old state doesn't
+  hide a bug.
+- **Logcat on crash:** if the screenshot shows no app, grab `adb logcat -d -b crash` (the crash
+  buffer survives the process dying, unlike a `--pid` filter) and report it.
+
+Known gaps worth fixing alongside:
+
+- The device is only checked in step 1. If the emulator dies mid-run, `am start` fails with exit
+  255 and no clear reason. Re-run `adb devices` when a later `adb` step fails, and if the device
+  is gone, ask the user to restart it.

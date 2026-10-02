@@ -1,6 +1,7 @@
 # Getting Started with the Claude Code Harness
 
-**Status:** in progress — A0–A2 done (`.claude/` committed, permissions, three hooks); A3 next.
+**Status:** in progress — A0–A2 done (`.claude/` committed, permissions, three hooks); A3 skill
+done, subagent next.
 Start here. Concepts and example config live in
 [claude-code-harness.md](claude-code-harness.md); the first feature to build with it is in
 [harness-test-feature.md](harness-test-feature.md).
