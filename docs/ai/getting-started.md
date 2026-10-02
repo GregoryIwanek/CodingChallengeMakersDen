@@ -1,7 +1,7 @@
 # Getting Started with the Claude Code Harness
 
-**Status:** in progress — A0–A2 done (`.claude/` committed, permissions, three hooks); A3 skill
-done, subagent next.
+**Status:** in progress — A0–A3 done (`.claude/` committed, permissions, three hooks, skill and
+subagent); A4 next.
 Start here. Concepts and example config live in
 [claude-code-harness.md](claude-code-harness.md); the first feature to build with it is in
 [harness-test-feature.md](harness-test-feature.md).
@@ -175,10 +175,10 @@ echo '{"tool_input":{"command":"git commit -m \"x\n\nCo-Authored-By: a\""}}' \
   the four steps from [claude-code-harness.md § 4](claude-code-harness.md#4-skill). Package name:
   `pl.gi.codingchallenge`.
 - `.claude/agents/compose-reviewer.md` — the file from
-  [claude-code-harness.md § 3](claude-code-harness.md#3-subagent). Alternatively type `/agents` in
-  Claude Code and create it through the menu.
+  [claude-code-harness.md § 3](claude-code-harness.md#3-subagent).
 
-**Verify:** `/agents` lists it; typing `/` shows `run-android`.
+**Verify:** asking Claude Code *"Which subagent types can you use?"* lists `compose-reviewer`;
+typing `/` shows `run-android`.
 
 ### A4. Trim `CLAUDE.md`
 

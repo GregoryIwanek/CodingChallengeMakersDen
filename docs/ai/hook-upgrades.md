@@ -1,6 +1,6 @@
 # Hook Upgrades: Optional Steps
 
-The optional upgrades from the deleted hook and skill walkthroughs, kept for later.
+The optional upgrades from the deleted hook, skill and subagent walkthroughs, kept for later.
 
 ## ktlint-on-edit (PostToolUse)
 
@@ -59,3 +59,20 @@ Known gaps worth fixing alongside:
 - The device is only checked in step 1. If the emulator dies mid-run, `am start` fails with exit
   255 and no clear reason. Re-run `adb devices` when a later `adb` step fails, and if the device
   is gone, ask the user to restart it.
+
+## compose-reviewer (subagent)
+
+- **Self-serve diff:** add `Bash` to `tools:` and tell the agent to run only `git diff` and
+  `git diff --name-only`. Saves passing paths, but it can then run any allowed command.
+- **Previews and goldens:** also check that each new public composable has a `@Preview`, and
+  remind to re-record Paparazzi goldens when a screen's layout changed.
+- **Stronger model:** `model: sonnet` if Haiku misses real issues; `model: inherit` to follow the
+  main session.
+- **Run it from `/code-review`:** call out the agent from the B6 review step so it runs on every
+  pre-commit review, not only when asked.
+
+Known gaps worth fixing alongside:
+
+- Output varies between runs: one review flagged the pre-existing missing `modifier` parameter,
+  the next skipped it, and one suggested `.modifier(modifier)`, which isn't a Compose API.
+  Sonnet or a stricter "only real APIs" line in the prompt may help.

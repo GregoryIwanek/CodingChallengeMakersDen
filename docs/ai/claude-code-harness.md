@@ -1,8 +1,9 @@
 # Claude Code Harness for Android Projects
 
 **Status:** in progress — permissions, the ktlint PostToolUse hook, the Co-Authored-By
-PreToolUse hook and the compile-check Stop hook are installed in `.claude/settings.json`, and the
-`run-android` skill is in `.claude/skills/`; the remaining steps below are not yet.
+PreToolUse hook and the compile-check Stop hook are installed in `.claude/settings.json`, the
+`run-android` skill is in `.claude/skills/` and the `compose-reviewer` subagent is in
+`.claude/agents/`; the remaining steps below are not yet.
 The hands-on runbook is [getting-started.md](getting-started.md). Live, commentable copy:
 [Claude Doc](https://claude.ai/code/artifact/0277d320-e04d-4fb0-884e-e45a049c49dd).
 
@@ -16,7 +17,7 @@ the next. Details for each step are under [Example setup](#example-setup-for-cod
 - [x] One PreToolUse hook: the Co-Authored-By blocker; learn the stdin JSON and exit-code-2 contract
 - [x] Stop hook: compile check before Claude reports done
 - [x] Skill: `run-android` with install, launch and screenshot
-- [ ] Subagent: `compose-reviewer` on a real Compose change
+- [x] Subagent: `compose-reviewer` on a real Compose change
 - [ ] MCP: a GitHub server, once PR work from the CLI feels useful
 - [ ] Trim `CLAUDE.md`: remove rules now enforced by config
 
@@ -143,12 +144,30 @@ A subagent runs in its own context with restricted tools, so a review never clut
 ```markdown
 ---
 name: compose-reviewer
-description: Reviews Compose UI changes for recomposition, state hoisting, modifier order
+description: Reviews changed Jetpack Compose files for recomposition, state and modifier issues.
+  Use after a Compose UI change, before committing. Pass the changed .kt file paths in the prompt.
 tools: Read, Grep, Glob
 model: haiku
 ---
-Review only changed @Composable files. Check: stable params, remember/derivedStateOf use,
-modifier passed as first optional param, named args on ambiguous calls.
+
+You review Jetpack Compose code. You can read files but not change them.
+
+Review only the @Composable functions in the files named in your task. Check:
+
+1. Parameters are stable: no `MutableList`, `var` properties or other unstable types without a
+   reason; lambdas and immutable/data classes are fine.
+2. State: `remember` for values that survive recomposition, `derivedStateOf` for state computed
+   from other state, `rememberSaveable` where it must survive rotation.
+3. State hoisting: composables take state and callbacks as parameters rather than owning a
+   ViewModel, except screen-level entry points.
+4. `modifier: Modifier = Modifier` is the first optional parameter, and is applied to the root
+   layout only.
+5. Named arguments on calls where positional ones are ambiguous (several args of the same type,
+   booleans, modifiers).
+
+Report each finding as `path:line — problem — suggested fix`, most important first. If a file has
+no issues, say so in one line. Don't pad the report with praise or style nits ktlint already
+covers.
 ```
 
 ### 4. Skill
