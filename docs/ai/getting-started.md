@@ -1,7 +1,7 @@
 # Getting Started with the Claude Code Harness
 
-**Status:** in progress — A0–A4 done (`.claude/` committed, permissions, three hooks, skill and
-subagent, `CLAUDE.md` trimmed); A5 extras or the MCP step next.
+**Status:** Part A done — A0–A5 (`.claude/` committed, permissions, three hooks, skills and
+subagent, `CLAUDE.md` trimmed, extras); Part B next with the first feature.
 Start here. Concepts and example config live in
 [claude-code-harness.md](claude-code-harness.md); the first feature to build with it is in
 [harness-test-feature.md](harness-test-feature.md).
@@ -189,13 +189,16 @@ that says *why*. Keep judgment rules (commit tags, clarifying questions, to-do l
 
 Optional; add any time after A4. Grouped by what they help with.
 
+**Done here:** all of these except unit tests in the Stop hook, deferred until compile-only
+proves too weak (a cheaper variant is in [hook-upgrades.md](hook-upgrades.md)).
+
 **Workflow**
 
 | Extra | How to add | Why |
 | --- | --- | --- |
 | Status line | Claude Code: `/statusline show branch, model and context usage` | See branch and context % without asking; helps with the 80 % `/compact` rule |
 | Desktop notification | `Notification` hook running `osascript -e 'display notification "Claude needs input" with title "Claude Code"'` | Switch to Android Studio while Claude works; get pinged when it waits for approval |
-| `/new-feature` command | `.claude/commands/new-feature.md` holding the prompt from B3 with `$ARGUMENTS` for the feature name | Every feature starts with the same plan-first prompt and question checklist |
+| `/new-feature` skill | `.claude/skills/new-feature/SKILL.md` (`disable-model-invocation: true`) holding the prompt from B3 with `$ARGUMENTS` for the feature name | Every feature starts with the same plan-first prompt and question checklist |
 | Fewer prompts | Claude Code: `/fewer-permission-prompts` after a week of use | Scans past sessions and proposes allow rules for read-only commands you keep approving |
 
 **IDE and quality**

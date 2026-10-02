@@ -1,9 +1,10 @@
 # Claude Code Harness for Android Projects
 
-**Status:** in progress — permissions, the ktlint PostToolUse hook, the Co-Authored-By
-PreToolUse hook and the compile-check Stop hook are installed in `.claude/settings.json`, the
-`run-android` skill is in `.claude/skills/` and the `compose-reviewer` subagent is in
-`.claude/agents/`, and `CLAUDE.md` is trimmed; only the optional MCP step below remains.
+**Status:** set up — permissions, the ktlint PostToolUse hook, the Co-Authored-By
+PreToolUse hook, the compile-check Stop hook and the backlog SessionStart hook are installed in
+`.claude/settings.json`, the `run-android` and `new-feature` skills are in `.claude/skills/`, the
+`compose-reviewer` subagent is in `.claude/agents/`, and `CLAUDE.md` is trimmed. GitHub access
+goes through read-only `gh` rules, so no MCP server is needed. Next: the test feature below.
 The hands-on runbook is [getting-started.md](getting-started.md). Live, commentable copy:
 [Claude Doc](https://claude.ai/code/artifact/0277d320-e04d-4fb0-884e-e45a049c49dd).
 
@@ -18,7 +19,7 @@ the next. Details for each step are under [Example setup](#example-setup-for-cod
 - [x] Stop hook: compile check before Claude reports done
 - [x] Skill: `run-android` with install, launch and screenshot
 - [x] Subagent: `compose-reviewer` on a real Compose change
-- [ ] MCP: a GitHub server, once PR work from the CLI feels useful
+- [x] GitHub access: read-only `gh` allow rules; no MCP server needed while `gh` covers PRs and CI
 - [x] Trim `CLAUDE.md`: remove rules now enforced by config
 
 The same building blocks carry over to a web project: only the commands in permissions and hooks change, for example `npm test` instead of `./gradlew`.
