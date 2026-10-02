@@ -74,8 +74,11 @@ connects them (autocomplete's `onItemClick` → `navigateToDetail`).
   `verifyPaparazziDebug` alone, which tolerates 0.1% difference.
   That comparison also caught 3 goldens left stale by an earlier fix, which got their own commit.
 - **The Paparazzi host theme matters even for fixed-color UI.** A platform theme changed real
-  pixels. A debug-only copy of `:app`'s theme (`src/debug/res`, Material Components as
-  `debugImplementation`) keeps them identical without shipping it.
+  pixels (faint shadow blending against the window background). The move first used a
+  debug-only copy of `:app`'s theme to stay byte-identical; once `:app` itself switched to a
+  platform theme (`android:Theme.Material.Light.NoActionBar` — Compose draws the UI, so the
+  XML theme only sets the window), Paparazzi uses that same theme and the copy, AppCompat and
+  Material Components were dropped. Goldens were re-recorded once for that switch.
 - **Hilt works across modules without extra wiring.** `@HiltViewModel` in the feature, bindings
   in `:app`'s bridge; the `.hilt` convention plugin applies Hilt + KSP to the feature.
 - **Cross-module tests need public hooks.** `AutocompleteTestTags` went from `internal` to public

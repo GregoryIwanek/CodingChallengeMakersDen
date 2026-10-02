@@ -27,6 +27,4 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    // Parent of the debug-only Paparazzi theme (src/debug/res/values/themes.xml).
-    debugImplementation(libs.material)
 }

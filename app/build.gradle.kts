@@ -51,9 +51,7 @@ dependencies {
     implementation(project(":feature:detail"))
     implementation(project(":feature:autocomplete"))
 
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.material)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

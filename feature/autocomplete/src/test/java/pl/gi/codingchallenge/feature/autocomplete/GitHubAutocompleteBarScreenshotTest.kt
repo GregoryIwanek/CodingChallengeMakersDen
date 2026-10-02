@@ -22,9 +22,8 @@ class GitHubAutocompleteBarScreenshotTest {
         // reads a JVM system property from the host).
         deviceConfig = DeviceConfig.PIXEL_6.copy(fontScale = 1f, locale = "en"),
         renderingMode = SessionParams.RenderingMode.SHRINK,
-        // Debug-only copy of :app's theme (src/debug/res) - keeps goldens
-        // pixel-identical to when the component lived in :app.
-        theme = "Theme.AutocompletePaparazzi",
+        // Same platform theme :app uses (Theme.CodingChallenge's parent).
+        theme = "android:Theme.Material.Light.NoActionBar",
         // Small tolerance for cross-OS antialiasing; unverified, no CI yet.
         maxPercentDifference = 0.1
     )
