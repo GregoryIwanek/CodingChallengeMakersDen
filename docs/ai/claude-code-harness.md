@@ -3,7 +3,7 @@
 **Status:** in progress — permissions, the ktlint PostToolUse hook, the Co-Authored-By
 PreToolUse hook and the compile-check Stop hook are installed in `.claude/settings.json`, the
 `run-android` skill is in `.claude/skills/` and the `compose-reviewer` subagent is in
-`.claude/agents/`; the remaining steps below are not yet.
+`.claude/agents/`, and `CLAUDE.md` is trimmed; only the optional MCP step below remains.
 The hands-on runbook is [getting-started.md](getting-started.md). Live, commentable copy:
 [Claude Doc](https://claude.ai/code/artifact/0277d320-e04d-4fb0-884e-e45a049c49dd).
 
@@ -19,7 +19,7 @@ the next. Details for each step are under [Example setup](#example-setup-for-cod
 - [x] Skill: `run-android` with install, launch and screenshot
 - [x] Subagent: `compose-reviewer` on a real Compose change
 - [ ] MCP: a GitHub server, once PR work from the CLI feels useful
-- [ ] Trim `CLAUDE.md`: remove rules now enforced by config
+- [x] Trim `CLAUDE.md`: remove rules now enforced by config
 
 The same building blocks carry over to a web project: only the commands in permissions and hooks change, for example `npm test` instead of `./gradlew`.
 

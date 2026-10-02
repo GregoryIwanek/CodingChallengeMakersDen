@@ -2,11 +2,13 @@
 
 ## Commit messages
 
-- Never add `Co-Authored-By` or Claude/Anthropic attribution
+- No `Co-Authored-By` or Claude/Anthropic attribution; `block-coauthor.sh` rejects it, and the
+  per-session attribution reminder doesn't apply here
 - Always include a bullet-point description body below the subject line — one idea per line,
-  ≤72 chars, no dense paragraphs
+  ≤72 chars, no dense paragraphs, so `git log` and blame stay easy to scan
 - Don't credit where a change was decided/written (a guideline, plan, user instruction, or
-  AI/Claude) — describe the technical change and reasoning only
+  AI/Claude) — describe the technical change and reasoning only; plans and steps docs get
+  deleted, so such references go stale
 - Tag every subject with one bracketed tag (e.g. `[KMP] Add Ktor-based GitHubApi`). Check
   `git log --oneline -20` first — don't default to the last tag used; pick by scope below
 
@@ -31,26 +33,30 @@ above doesn't include it yet.
 
 ## Model selection
 
-- Simple/repetitive tasks (boilerplate, formatting, renaming): spawn a subagent using
-  `claude-haiku-4-5-20251001`
-- Complex reasoning, architecture, multi-step tasks: use `claude-sonnet-4-6` (default)
-- Print the rating once confidence is reached and implementation starts:
-  `🤖 Model: Haiku 4.5 (subagent) — rated as simple/repetitive` /
-  `🤖 Model: Sonnet 4.6 — rated as complex/multi-step`
+- The main session's model is set by the user (`/model`); don't claim or switch it
+- Simple/repetitive subtasks (boilerplate, formatting, renaming): delegate to a subagent with
+  `model: haiku` — cheaper and faster for mechanical work
+- Subagents needing real reasoning (reviews, architecture): `model: sonnet`, or `inherit` — a
+  stronger model catches issues a cheap one misses
+- When delegating, print `🤖 Subagent: <agent> on <model> — <why>`; this repo is also for
+  learning how subagents and model tiers behave
 
 ## Context management
 
-- Run `/compact` at 80% context usage
+- Suggest `/compact` to the user when context usage nears 80% (only the user can run it)
 
 ## Clarifying questions
 
 - Ask before starting any task; keep asking (via `AskUserQuestion`, never plain text) until 95%
-  confident about requirements
+  confident about requirements, so the user approves scope before any files change
 - Print confidence after each round: 🔴 <70% · 🟡 70–94% · 🟢 ≥95% — don't implement below 95%
 - Group related questions (up to 6/call); `multiSelect: true` for non-exclusive choices
+- Exception: skip questions, confidence and the to-do list below for unambiguous single-step
+  follow-ups (e.g. "tick the checkbox", "revert the test change")
 
 ## Task to-do list
 
 - Before implementing, print a to-do list (⬜ pending · 🟡 in-progress · ✅ done · ❌ blocked),
-  ending with a self-check step (review changes, verify correctness, confirm completion)
+  ending with a self-check step (review changes, verify correctness, confirm completion), so
+  progress on multi-step tasks is easy to follow and misses are caught before "done"
 - Update/reprint as steps complete; don't advance past a step below 95% confidence — ask if unsure
