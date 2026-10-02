@@ -323,6 +323,10 @@ Use the compose-reviewer agent on the changed composables.
 /code-review
 ```
 
+```text
+/simplify
+```
+
 Fix what's worth fixing; ask for anything unclear to be explained before accepting it.
 
 ### B7. Commit
