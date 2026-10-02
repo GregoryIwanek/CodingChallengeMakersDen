@@ -27,5 +27,9 @@ gradlePlugin {
             id = libs.plugins.codingchallenge.android.paparazzi.get().pluginId
             implementationClass = "AndroidPaparazziConventionPlugin"
         }
+        register("androidHilt") {
+            id = libs.plugins.codingchallenge.android.hilt.get().pluginId
+            implementationClass = "AndroidHiltConventionPlugin"
+        }
     }
 }

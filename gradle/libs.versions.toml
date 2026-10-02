@@ -4,8 +4,6 @@ coreKtx = "1.19.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
-appcompat = "1.7.1"
-material = "1.14.0"
 kotlin = "2.3.21"
 ksp = "2.3.9"
 composeBom = "2026.08.00"
@@ -32,8 +30,6 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 # Compose
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
@@ -114,3 +110,4 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 codingchallenge-android-library = { id = "codingchallenge.android.library" }
 codingchallenge-android-compose = { id = "codingchallenge.android.compose" }
 codingchallenge-android-paparazzi = { id = "codingchallenge.android.paparazzi" }
+codingchallenge-android-hilt = { id = "codingchallenge.android.hilt" }

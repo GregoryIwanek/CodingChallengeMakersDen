@@ -27,7 +27,7 @@ The result-count header as shipped in PR #16 ([harness-test-feature.md](../../..
 | 2 | What are the edge cases? | `Empty` is its own state, so `Success` always has ≥ 1 item; 1 → "1 result"; 50 (the cap) → "50+ results" |
 | 3 | Which data does it show, and where does it come from? | Items shown in the list, not GitHub's `total_count` |
 | 4 | Which module: `:app` only, or `:shared`? | `:app` only; the cap is passed in as `maxResults` instead of exposing `:shared`'s constant |
-| 5 | Which files and existing patterns should it follow? | `SuggestionPanel.kt`; `dimRes` + existing `autocomplete_row_horizontal_padding`; `AutocompleteTestTags.kt` |
+| 5 | Which files and existing patterns should it follow? | `SuggestionPanel.kt`; `dimensionResource` + existing `autocomplete_row_horizontal_padding`; `AutocompleteTestTags.kt` |
 | 6 | New strings? | `<plurals name="autocomplete_result_count">` plus a `<string>` for "%1$d+ results" |
 | 7 | Accessibility: anything beyond plain, in-order text? | `heading()` plus a polite live region |
 | 8 | Which tests prove it? | `formatResultCount` text via `paparazzi.context.resources`; cap boundary unit test; 1-result and 50+ goldens; androidTest assertions |

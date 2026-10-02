@@ -35,16 +35,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.gi.codingchallenge.R
+import pl.gi.codingchallenge.feature.autocomplete.GitHubAutocompleteBarComponent
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
-import pl.gi.codingchallenge.ui.autocomplete.GitHubAutocompleteBarComponent
-import pl.gi.codingchallenge.util.dimRes
-import pl.gi.codingchallenge.util.strRes
 
 private const val COMPONENT_TAB_VIEW_MODEL_KEY: String = "component_tab"
 private const val OVERLAY_TAB_VIEW_MODEL_KEY: String = "overlay_tab"
@@ -67,19 +66,19 @@ fun DemoScreen(onItemClick: (SearchResultItem) -> Unit, modifier: Modifier = Mod
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
                     icon = { Icon(Icons.Filled.Info, contentDescription = null) },
-                    label = { Text(strRes(R.string.demo_nav_overview)) }
+                    label = { Text(stringResource(R.string.demo_nav_overview)) }
                 )
                 NavigationBarItem(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     icon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                    label = { Text(strRes(R.string.demo_nav_component)) }
+                    label = { Text(stringResource(R.string.demo_nav_component)) }
                 )
                 NavigationBarItem(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
                     icon = { Icon(Icons.Filled.List, contentDescription = null) },
-                    label = { Text(strRes(R.string.demo_nav_overlay)) }
+                    label = { Text(stringResource(R.string.demo_nav_overlay)) }
                 )
             }
         }
@@ -98,23 +97,26 @@ private fun OverviewScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
-            .padding(dimRes(R.dimen.demo_screen_padding)),
-        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_section_spacing))
+            .padding(dimensionResource(R.dimen.demo_screen_padding)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.demo_section_spacing))
     ) {
-        Text(strRes(R.string.demo_headline), style = MaterialTheme.typography.headlineSmall)
-        Text(strRes(R.string.demo_description), style = MaterialTheme.typography.bodyLarge)
-        Text(strRes(R.string.demo_requirements_title), style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.demo_headline), style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(R.string.demo_description), style = MaterialTheme.typography.bodyLarge)
+        Text(
+            stringResource(R.string.demo_requirements_title),
+            style = MaterialTheme.typography.titleMedium
+        )
         Column(
             verticalArrangement = Arrangement.spacedBy(
-                dimRes(R.dimen.demo_requirement_item_spacing)
+                dimensionResource(R.dimen.demo_requirement_item_spacing)
             )
         ) {
             stringArrayResource(R.array.demo_requirements).forEach { requirement ->
                 Text("•  $requirement", style = MaterialTheme.typography.bodyMedium)
             }
         }
-        Spacer(Modifier.height(dimRes(R.dimen.demo_cta_spacer_height)))
-        Text(strRes(R.string.demo_cta), style = MaterialTheme.typography.titleSmall)
+        Spacer(Modifier.height(dimensionResource(R.dimen.demo_cta_spacer_height)))
+        Text(stringResource(R.string.demo_cta), style = MaterialTheme.typography.titleSmall)
     }
 }
 
@@ -129,8 +131,10 @@ private fun ComponentScreen(
         modifier = modifier
             .clearFocusOnTap(focusManager)
             .verticalScroll(rememberScrollState())
-            .padding(dimRes(R.dimen.demo_screen_padding)),
-        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_component_content_spacing))
+            .padding(dimensionResource(R.dimen.demo_screen_padding)),
+        verticalArrangement = Arrangement.spacedBy(
+            dimensionResource(R.dimen.demo_component_content_spacing)
+        )
     ) {
         GitHubAutocompleteBarComponent(
             modifier = Modifier.fillMaxWidth(),
@@ -138,7 +142,7 @@ private fun ComponentScreen(
             onItemClick = onItemClick
         )
         Text(
-            strRes(R.string.demo_component_panel_explanation),
+            stringResource(R.string.demo_component_panel_explanation),
             style = MaterialTheme.typography.bodyMedium
         )
     }
@@ -154,7 +158,7 @@ private fun OverlayScreen(onItemClick: (SearchResultItem) -> Unit, modifier: Mod
         GitHubAutocompleteBarComponent(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(dimRes(R.dimen.demo_overlay_bar_margin))
+                .padding(dimensionResource(R.dimen.demo_overlay_bar_margin))
                 .fillMaxWidth(),
             viewModel = hiltViewModel(key = OVERLAY_TAB_VIEW_MODEL_KEY),
             onItemClick = onItemClick
@@ -167,17 +171,19 @@ private fun Modifier.clearFocusOnTap(focusManager: FocusManager): Modifier =
 
 @Composable
 private fun MockFeed(modifier: Modifier = Modifier) {
-    val feedContentPadding: Dp = dimRes(R.dimen.demo_feed_content_padding)
+    val feedContentPadding: Dp = dimensionResource(R.dimen.demo_feed_content_padding)
 
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(
-            top = dimRes(R.dimen.demo_feed_top_clearance),
+            top = dimensionResource(R.dimen.demo_feed_top_clearance),
             start = feedContentPadding,
             end = feedContentPadding,
             bottom = feedContentPadding
         ),
-        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_feed_item_spacing))
+        verticalArrangement = Arrangement.spacedBy(
+            dimensionResource(R.dimen.demo_feed_item_spacing)
+        )
     ) {
         items(20) { index -> FeedCard(index) }
     }
@@ -190,16 +196,21 @@ private fun FeedCard(index: Int) {
             .fillMaxWidth()
             .background(
                 MaterialTheme.colorScheme.surfaceVariant,
-                RoundedCornerShape(dimRes(R.dimen.demo_feed_card_corner_radius))
+                RoundedCornerShape(dimensionResource(R.dimen.demo_feed_card_corner_radius))
             )
-            .padding(dimRes(R.dimen.demo_feed_card_padding)),
-        verticalArrangement = Arrangement.spacedBy(dimRes(R.dimen.demo_feed_card_content_spacing))
+            .padding(dimensionResource(R.dimen.demo_feed_card_padding)),
+        verticalArrangement = Arrangement.spacedBy(
+            dimensionResource(R.dimen.demo_feed_card_content_spacing)
+        )
     ) {
         Text(
             stringResource(R.string.demo_feed_item_title, index + 1),
             style = MaterialTheme.typography.titleSmall
         )
-        Text(strRes(R.string.demo_feed_item_body), style = MaterialTheme.typography.bodySmall)
+        Text(
+            stringResource(R.string.demo_feed_item_body),
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
 

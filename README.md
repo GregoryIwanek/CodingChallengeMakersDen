@@ -28,11 +28,9 @@ Open on GitHub, Share and Copy link actions.
 
 Drop `GitHubAutocompleteBarComponent` onto any screen inside a `Box` —
 it owns only the bar and the suggestion panel below it, never the
-backdrop, scrim, or navigation. This is a take-home assignment, so the
-component lives directly in the app module; in a real project it
-would ship as its own Gradle module, or a published library (AAR via
-Maven/JitPack) if it needed to be shared across separate apps or
-repos:
+backdrop, scrim, or navigation. It ships as its own Gradle module,
+`:feature:autocomplete`; sharing it across separate apps or repos would
+mean publishing that module as a library (AAR via Maven/JitPack):
 
 ```kotlin
 Box(Modifier.fillMaxSize()) {
@@ -62,7 +60,7 @@ typing in one tab never leaks into the other.
 | Minimum 3 characters before searching | `SearchAutocompleteUseCase`'s `MIN_QUERY_LENGTH` gate, applied to the trimmed query |
 | Fetches both users and repositories | `GitHubSearchNetworkSourceImpl`, launched in parallel via `async` |
 | Combined, alphabetically-sorted list | `ResultMerger.mergeAndSort`, keyed on repository name / login |
-| Capped at 50 results | `SearchLimits.MAX_RESULTS` — single source of truth for both the per-type fetch limit and the final cap (the panel's "50+ results" header mirrors it as `DEFAULT_MAX_RESULTS` in `:app`) |
+| Capped at 50 results | `SearchLimits.MAX_RESULTS` — single source of truth for both the per-type fetch limit and the final cap (the panel's "50+ results" header mirrors it as `DEFAULT_MAX_RESULTS` in `:feature:autocomplete`) |
 | Loading / empty / error states | `AutocompleteUiState`, rendered by `SuggestionPanel` |
 | Rapid-input handling | `debounce` + `distinctUntilChanged` + `flatMapLatest` in the use case |
 | Reusable, not hardcoded to one screen | `GitHubAutocompleteBarComponent` — plain composable API, demoed over three different screens |
@@ -88,21 +86,23 @@ typing in one tab never leaks into the other.
   case, parallel user/repo fetch via `async` in the network source
 - **Testing** — `kotlin.test` + Ktor's `MockEngine` +
   [Turbine](https://github.com/cashapp/turbine) for `:shared`'s
-  multiplatform tests; JUnit4 + [MockK](https://mockk.io) for `:app`'s
+  multiplatform tests; JUnit4 + [MockK](https://mockk.io) for the Android modules'
   unit tests; Espresso + Compose UI Test for instrumented tests;
   [Paparazzi](https://github.com/cashapp/paparazzi) for JVM
   screenshot tests (see Testing below)
-- **ktlint** — code style for both `:app` and `:shared`, enforced in CI
+- **ktlint** — code style for every module, enforced in CI
 
 ## Architecture
 
-Clean Architecture + MVVM, split across three Gradle modules. `:app` holds
-Android/Compose-only code and the app's navigation graph; `:feature:detail`
-is the result detail screen as a standalone feature module; `:shared` holds
-the multiplatform domain and data layers, compiled for both Android and iOS.
+Clean Architecture + MVVM, split across four Gradle modules. `:app` is a
+thin shell: the demo screen, the app's navigation graph and DI setup.
+`:feature:autocomplete` is the search component and `:feature:detail` the
+result detail screen; the two features can't see each other, only `:app`
+connects them. `:shared` holds the multiplatform domain and data layers,
+compiled for both Android and iOS.
 Android library modules are configured by convention plugins in
 `build-logic/` — see `docs/architecture/modularization.md`. Dependencies still point
-inward — `:app`'s `ui/` depends on `:shared`'s `domain/` interfaces, and
+inward — the feature modules depend on `:shared`'s `domain/` interfaces, and
 `:shared`'s own `remote/`/`cache/` depend on its `domain/`, never the
 other way around. `:app` reaches `:shared` through a small Koin→Hilt
 bridge (`SharedKoinBridgeModule.kt`), since `:shared` is Koin-only —
@@ -113,20 +113,20 @@ Hilt's annotation processor can't run on Kotlin/Native.
 ├── di/
 │   └── SharedKoinBridgeModule.kt        # bridges Koin (:shared) into Hilt (:app)
 ├── ui/
-│   ├── autocomplete/                    # the reusable component
-│   │   ├── AutocompleteViewModel.kt     # maps SearchOutcome -> AutocompleteUiState
-│   │   ├── AutocompleteUiState.kt       # Idle/Loading/Success/Empty/Error
-│   │   ├── GitHubAutocompleteBar.kt     # public entry point (Hilt-backed + stateless overload)
-│   │   ├── FloatingSearchBar.kt         # the pill bar itself
-│   │   ├── SuggestionPanel.kt           # the floating results card
-│   │   ├── SearchResultRow.kt           # item renderer
-│   │   └── testing/AutocompleteTestTags.kt
 │   ├── AppNavHost.kt                    # the only NavHost: demo -> detail
 │   └── DemoScreen.kt                    # 3-tab demo host — see Demo above
-├── util/
-│   └── ResourceUtil.kt                  # dimRes/strRes/colRes/spRes helpers
 ├── CodingChallengeApp.kt                # @HiltAndroidApp, starts Koin before Hilt resolves anything
 └── MainActivity.kt
+
+:feature:autocomplete (pl.gi.codingchallenge.feature.autocomplete)
+├── AutocompleteViewModel.kt             # maps SearchOutcome -> AutocompleteUiState
+├── AutocompleteUiState.kt               # Idle/Loading/Success/Empty/Error
+├── GitHubAutocompleteBar.kt             # public entry point (Hilt-backed + stateless overload)
+├── FloatingSearchBar.kt                 # the pill bar itself
+├── SuggestionPanel.kt                   # the floating results card
+├── SearchResultRow.kt                   # item renderer
+├── util/ResourceUtil.kt                 # internal spRes: sp dimens read without double font-scale
+└── testing/AutocompleteTestTags.kt      # public, so :app's end-to-end test can use it
 
 :feature:detail (pl.gi.codingchallenge.feature.detail)
 ├── DetailNavigation.kt                  # public API: navigateToDetail() + detailScreen()
@@ -136,7 +136,7 @@ Hilt's annotation processor can't run on Kotlin/Native.
 ├── GitHubUrl.kt, GitHubLinkActions.kt   # URL building + intents
 └── testing/DetailTestTags.kt
 
-build-logic/convention                   # codingchallenge.android.library / .compose / .paparazzi
+build-logic/convention                   # codingchallenge.android.library / .compose / .paparazzi / .hilt
 
 :shared (pl.gi.codingchallenge.shared) — commonMain, compiles for Android + iOS
 ├── di/
@@ -246,9 +246,9 @@ runs on both the Android host JVM and the iOS simulator:
   would pass every semantic assertion untouched. Paparazzi renders on
   the JVM via a bundled Android SDK, so this runs in plain unit tests
   with no emulator; a failure produces a diff image showing exactly
-  what changed. `./gradlew :app:recordPaparazziDebug` (re)generates
+  what changed. `./gradlew :feature:autocomplete:recordPaparazziDebug` (re)generates
   the goldens after an intentional UI change;
-  `:app:verifyPaparazziDebug` (part of `check`) is what actually fails
+  `:feature:autocomplete:verifyPaparazziDebug` (part of `check`) is what actually fails
   the build on a mismatch.
 - Plus `GitHubSearchNetworkSourceImplTest`, `ResultMergerTest`,
   `ResultMappersTest`, `SearchResultItemTest`,

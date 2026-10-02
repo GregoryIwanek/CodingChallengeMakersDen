@@ -2,9 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt.android)
-    alias(libs.plugins.paparazzi)
+    alias(libs.plugins.codingchallenge.android.hilt)
     alias(libs.plugins.ktlint)
 }
 
@@ -51,10 +49,9 @@ android {
 dependencies {
     implementation(project(":shared"))
     implementation(project(":feature:detail"))
+    implementation(project(":feature:autocomplete"))
 
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.material)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
@@ -64,13 +61,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
 
     // DI
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
     // Hilt stays the DI system for Android-only classes; Koin owns :shared's own
     // graph, bridged into Hilt by a small module (see di/SharedKoinBridgeModule).
@@ -81,31 +74,10 @@ dependencies {
     // :shared's GitHubApi resolves via Koin on Android (see androidPlatformModule).
     implementation(libs.ktor.client.okhttp)
 
-    // Coroutines
-    implementation(libs.kotlinx.coroutines.android)
-
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.turbine)
-    testImplementation(libs.mockk)
-
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.compiler)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-}
-
-tasks.withType<Test>().configureEach {
-    // Paparazzi + Gradle 9 (required by this project's AGP 9.3.2) has a
-    // known HTML-report generation issue — see
-    // https://github.com/cashapp/paparazzi/issues/2111
-    reports.html.required = false
-}
-
-tasks.named("check") {
-    // So a plain `./gradlew check` catches golden-image regressions too,
-    // not just behavioral test failures.
-    dependsOn("verifyPaparazziDebug")
 }

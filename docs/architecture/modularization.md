@@ -38,16 +38,17 @@ None of these signals present → keep the module count as it is.
 
 | Module | Holds |
 | --- | --- |
-| `:app` | Android UI: the autocomplete component, demo screen, the app's `NavHost`, Hilt DI |
+| `:app` | Thin shell: demo screen, the app's `NavHost`, Hilt app + Koin bridge |
+| `:feature:autocomplete` | The search component (bar, panel, `AutocompleteViewModel`); public entry point `GitHubAutocompleteBarComponent` |
 | `:feature:detail` | Full-screen repo/user detail; exposes only `navigateToDetail()` / `detailScreen()` |
 | `:shared` | KMP domain + data: use case, repositories, Ktor client, SQLDelight cache |
-| `build-logic/` | Convention plugins `codingchallenge.android.{library,compose,paparazzi}` (included build, not a module) |
+| `build-logic/` | Convention plugins `codingchallenge.android.{library,compose,paparazzi,hilt}` (included build, not a module) |
 | `iosApp` | SwiftUI app consuming `:shared` (Xcode project, not a Gradle module) |
 
-The split that matters is platform UI vs. shared logic. `:feature:detail` was added as
-deliberate practice, not because a signal above appeared. It follows the shop layout's rules:
-it depends on `:shared` for the model, and `:app` is the only place that connects it to anything
-else.
+The split that matters is platform UI vs. shared logic. The two feature modules were added as
+deliberate practice, not because a signal above appeared. They follow the shop layout's rules:
+each depends on `:shared`, neither depends on the other, and `:app` is the only place that
+connects them (autocomplete's `onItemClick` → `navigateToDetail`).
 
 ### What the first feature module taught
 
@@ -64,7 +65,29 @@ else.
 - **Each new module needs its own `.gitignore`** (`/build`). The root one only ignores the
   top-level `build/`.
 
-### Practice exercise: extract `:feature:autocomplete`
+### What extracting `:feature:autocomplete` taught
+
+- **Move resources and tests with the code.** `git mv` keeps history; every `autocomplete_*`
+  string, dimen and color moved too, and `:app` keeps only `demo_*` and its theme.
+- **Renaming the package renames the goldens.** Paparazzi names files after package + class, so
+  "screenshots don't change" has to be proven by byte-comparing old vs new PNGs, not by
+  `verifyPaparazziDebug` alone, which tolerates 0.1% difference.
+  That comparison also caught 3 goldens left stale by an earlier fix, which got their own commit.
+- **The Paparazzi host theme matters even for fixed-color UI.** A platform theme changed real
+  pixels (faint shadow blending against the window background). The move first used a
+  debug-only copy of `:app`'s theme to stay byte-identical; once `:app` itself switched to a
+  platform theme (`android:Theme.Material.Light.NoActionBar` — Compose draws the UI, so the
+  XML theme only sets the window), Paparazzi uses that same theme and the copy, AppCompat and
+  Material Components were dropped. Goldens were re-recorded once for that switch.
+- **Hilt works across modules without extra wiring.** `@HiltViewModel` in the feature, bindings
+  in `:app`'s bridge; the `.hilt` convention plugin applies Hilt + KSP to the feature.
+- **Cross-module tests need public hooks.** `AutocompleteTestTags` went from `internal` to public
+  so `:app`'s end-to-end `DetailFlowTest` can still target the bar.
+- **Remove shared helpers from the host first.** `DemoScreen` switched to Compose built-ins
+  before the move, so `ResourceUtil` could become `internal` to the feature and every commit
+  built.
+
+### Practice exercise: extract `:feature:autocomplete` (done)
 
 Worth doing as a learning step before the shop app. It's the same move at small scale, and it
 hits every friction point (DI, resources, Paparazzi, CI). The README already says the component
@@ -80,8 +103,7 @@ can't see each other.
    new module.
 
 Plan it with `/new-feature` (see [workflows](../ai/workflows.md#1-add-a-new-feature)): tag
-`[REFACTOR]`, and screenshots should not change. `build-logic/` already exists, so step 1 is
-done.
+`[REFACTOR]`, and screenshots should not change. Done; see the lessons above.
 
 ### Follow-up: fetch full details for the detail screen
 
@@ -99,13 +121,14 @@ followers, bio and so on.
 
 ### Follow-up: resource helpers across modules
 
-`:app`'s `util/ResourceUtil.kt` (`strRes`/`dimRes`/`spRes`/`colRes`) isn't visible from
-feature modules. `:feature:detail` uses Compose's built-ins (`stringResource`,
-`dimensionResource`) and `MaterialTheme.typography` instead.
+Every module now uses Compose's built-ins (`stringResource`, `dimensionResource`,
+`colorResource`); the old one-line aliases (`strRes`/`dimRes`/`colRes`) are gone. The one helper
+with real logic, `spRes` (reads an sp dimen without applying font scale twice), stays `internal`
+to `:feature:autocomplete`, its only user; `:feature:detail` uses `MaterialTheme.typography`.
 
 | Option | Pros | Cons |
 | --- | --- | --- |
-| Compose built-ins in each module (current) | No extra module; standard API every Android dev knows | Two call styles in the repo; `spRes`'s font-scale fix has to be remembered wherever sp dimens are read |
+| Compose built-ins in each module (current) | No extra module; standard API every Android dev knows | `spRes`'s font-scale fix has to be remembered wherever sp dimens are read |
 | `:core:ui` module holding `ResourceUtil` | One implementation and one test; `:app` and features share it | One more module and build file; every helper becomes public API |
 | Copy the helpers into each module | Same call style everywhere, no coupling | Copies drift; a fix has to be applied N times |
 

@@ -36,11 +36,13 @@ generates a source-set hierarchy from that. `commonMain` compiles against *every
 **What we decided and why:**
 - Real domain/data code lives in `commonMain`; only genuinely platform-bound code
   (`HttpClientEngine`, `SqlDriver` construction) lives in `androidMain`/`iosMain`.
-- `:app` (Android) keeps Compose UI, `ViewModel`s, and the Hilt↔Koin bridge — things that are
-  either UI or bound to an Android/JVM-only framework (Hilt's annotation processor, Android
-  `Context`/resources). "Share logic, not UI."
-- `:feature:detail` is a plain Android library (not KMP) that depends on `:shared` only for the
-  `SearchResultItem` model — a feature module consumes shared code exactly like `:app` does.
+- Android UI and `ViewModel`s live in `:app` and the `:feature:*` modules, and the Hilt↔Koin
+  bridge in `:app` — things that are either UI or bound to an Android/JVM-only framework (Hilt's
+  annotation processor, Android `Context`/resources). "Share logic, not UI."
+- `:feature:autocomplete` and `:feature:detail` are plain Android libraries (not KMP) that depend
+  on `:shared` — a feature module consumes shared code exactly like `:app` does. Hilt bindings
+  from `:app`'s Koin bridge reach `:feature:autocomplete`'s `@HiltViewModel` because Hilt
+  aggregates the whole app's graph at the `:app` level.
   Android library modules get their config from convention plugins in `build-logic/`; see
   `docs/architecture/modularization.md`.
 
@@ -382,7 +384,7 @@ the single highest-density interview-answer material in this document.
   touches the actual KMP-relevant part of logging (Napier abstracting `android.util.Log` vs.
   `NSLog`/`os_log`), not a generic "add a logger somewhere."
 - **Compose Multiplatform, using the exact screen that already exists twice.** This project
-  deliberately went all-native (Compose Android + SwiftUI iOS) — `GitHubAutocompleteBar` (`:app`)
+  deliberately went all-native (Compose Android + SwiftUI iOS) — `GitHubAutocompleteBar` (`:feature:autocomplete`)
   and `ContentView.swift` (`iosApp`) are already two independent implementations of the *same*
   screen against the *same* `GitHubSearchRepository`. Sharing the Compose UI to iOS via CMP instead
   of hand-maintaining both would be a direct, measurable before/after, not a from-scratch toy.
@@ -422,5 +424,6 @@ A quick-lookup table for "where do I go to refresh my memory on X by re-reading 
 | `MockEngine` HTTP test example | `shared/src/commonTest/.../remote/GitHubApiTest.kt` |
 | Convention plugins | `build-logic/convention/src/main/kotlin/*ConventionPlugin.kt` |
 | Feature module + its nav API | `feature/detail/.../DetailNavigation.kt`, wired in `app/.../ui/AppNavHost.kt` |
+| Feature module with a Hilt `ViewModel` | `feature/autocomplete/.../AutocompleteViewModel.kt` (+ `AndroidHiltConventionPlugin.kt`) |
 | Android CI | `.github/workflows/android-ci.yml` |
 | iOS CI | `.github/workflows/ios-ci.yml` |

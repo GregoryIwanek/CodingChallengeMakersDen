@@ -23,6 +23,11 @@ it would actually involve.
   `isFocused = false` callback Compose fires on first composition no longer closes a panel
   opened via `initialActive = true`. `:app`'s instrumented suite went from 14/27 to 27/27.
   Side effect: rotating with the panel open now keeps it open (restored `active` state).
+  Correction to the original ticket: Paparazzi *does* see the initial focus event. Before the
+  fix, the `success`/`oneResult`/`cappedResults` goldens showed the panel open with a collapsed
+  (▼) arrow. The fix flips it to ▲, a change under `verifyPaparazziDebug`'s 0.1% tolerance, so
+  CI passed; those 3 goldens were re-recorded separately when the component moved to
+  `:feature:autocomplete`.
 - **AT-5** — `docs/PROJECT_ANALYSIS.md` deleted outright (superseded by
   `docs/kmp-knowledge-base.md` + this file, which are actively maintained).
 - **AT-8** — the linked Artifact republished at the same URL as v2, redrawn to match current

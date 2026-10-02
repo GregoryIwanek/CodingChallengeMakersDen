@@ -21,8 +21,8 @@ import org.junit.Test
 import pl.gi.codingchallenge.MainActivity
 import pl.gi.codingchallenge.R
 import pl.gi.codingchallenge.di.FakeSearchModule
+import pl.gi.codingchallenge.feature.autocomplete.testing.AutocompleteTestTags
 import pl.gi.codingchallenge.feature.detail.R as DetailR
-import pl.gi.codingchallenge.ui.autocomplete.testing.AutocompleteTestTags
 
 /**
  * End-to-end through the real MainActivity and NavHost: search, open a
