@@ -90,10 +90,14 @@ block misses:
   "Bash(adb devices:*)", "Bash(adb shell am start:*)", "Bash(adb exec-out screencap:*)"
 ],
 "deny": [
-  "Bash(./gradlew :app:connectedDebugAndroidTest:*)",
-  "Bash(./gradlew :app:connectedAndroidTest:*)"
+  "Bash(./gradlew *connectedDebugAndroidTest*)",
+  "Bash(./gradlew *connectedAndroidTest*)"
 ]
 ```
+
+The `*…*` glob makes each deny cover every module and multi-task calls
+(`./gradlew help :feature:detail:connectedDebugAndroidTest`). `:*` is only a trailing
+wildcard, so per-module rules like `:app:connectedDebugAndroidTest:*` miss other modules.
 
 Merge these into the existing arrays; don't paste a second `allow` key.
 

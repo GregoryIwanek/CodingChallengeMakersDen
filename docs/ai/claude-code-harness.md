@@ -94,8 +94,8 @@ Allow frequent safe commands so they never prompt; deny what must not run unaske
       "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)"
     ],
     "deny": [
-      "Bash(./gradlew connectedDebugAndroidTest:*)",
-      "Bash(./gradlew connectedAndroidTest:*)",
+      "Bash(./gradlew *connectedDebugAndroidTest*)",
+      "Bash(./gradlew *connectedAndroidTest*)",
       "Read(./local.properties)"
     ]
   }
