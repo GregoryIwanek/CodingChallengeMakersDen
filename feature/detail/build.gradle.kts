@@ -10,6 +10,7 @@ android {
 
 dependencies {
     implementation(project(":shared"))
+    implementation(libs.androidx.compose.material.icons.core)
 
     testImplementation(libs.junit)
 }
