@@ -38,6 +38,13 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "sed -n '/^## Open/,/^## Resolved/p' \"$CLAUDE_PROJECT_DIR\"/docs/backlog.md" }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
