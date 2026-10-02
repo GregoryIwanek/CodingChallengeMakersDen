@@ -10,7 +10,8 @@ import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 /**
  * Golden-image tests for GitHubAutocompleteBarComponent's five UI states —
  * same canned states already used by the @Previews in
- * GitHubAutocompleteBar.kt. `./gradlew :app:recordPaparazziDebug`
+ * GitHubAutocompleteBar.kt — plus the singular and capped result-count
+ * header variants. `./gradlew :app:recordPaparazziDebug`
  * (re)generates goldens; `:app:verifyPaparazziDebug` checks against them.
  */
 class GitHubAutocompleteBarScreenshotTest {
@@ -54,6 +55,47 @@ class GitHubAutocompleteBarScreenshotTest {
                 onItemClick = {},
                 onLeadingIconClick = {},
                 initialText = "flow",
+                initialActive = true
+            )
+        }
+    }
+
+    @Test
+    fun oneResult() {
+        paparazzi.snapshot {
+            GitHubAutocompleteBarComponent(
+                uiState = AutocompleteUiState.Success(sampleResults.take(1)),
+                onQueryChanged = {},
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+                initialText = "flow",
+                initialActive = true
+            )
+        }
+    }
+
+    @Test
+    fun cappedResults() {
+        val cappedResults: List<SearchResultItem> = List(DEFAULT_MAX_RESULTS) {
+            SearchResultItem.RepoResult(
+                id = "$it",
+                name = "repo-$it",
+                fullName = "owner/repo-$it",
+                ownerLogin = "owner",
+                avatarUrl = null,
+                description = null,
+                stars = 0
+            )
+        }
+        paparazzi.snapshot {
+            GitHubAutocompleteBarComponent(
+                uiState = AutocompleteUiState.Success(cappedResults),
+                onQueryChanged = {},
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+                initialText = "repo",
                 initialActive = true
             )
         }

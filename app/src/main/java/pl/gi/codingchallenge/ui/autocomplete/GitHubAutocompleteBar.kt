@@ -46,7 +46,8 @@ fun GitHubAutocompleteBarComponent(
     modifier: Modifier = Modifier,
     viewModel: AutocompleteViewModel = hiltViewModel(),
     onItemClick: (SearchResultItem) -> Unit = {},
-    onLeadingIconClick: () -> Unit = {}
+    onLeadingIconClick: () -> Unit = {},
+    maxResults: Int = DEFAULT_MAX_RESULTS
 ) {
     val uiState: AutocompleteUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -56,7 +57,8 @@ fun GitHubAutocompleteBarComponent(
         onRetry = viewModel::retry,
         onItemClick = onItemClick,
         onLeadingIconClick = onLeadingIconClick,
-        modifier = modifier
+        modifier = modifier,
+        maxResults = maxResults
     )
 }
 
@@ -72,7 +74,8 @@ internal fun GitHubAutocompleteBarComponent(
     onLeadingIconClick: () -> Unit,
     modifier: Modifier = Modifier,
     initialText: String = "",
-    initialActive: Boolean = false
+    initialActive: Boolean = false,
+    maxResults: Int = DEFAULT_MAX_RESULTS
 ) {
     var text: String by rememberSaveable { mutableStateOf(initialText) }
     var active: Boolean by rememberSaveable { mutableStateOf(initialActive) }
@@ -112,7 +115,8 @@ internal fun GitHubAutocompleteBarComponent(
                     uiState = uiState,
                     text = text,
                     onRetry = onRetry,
-                    onItemClick = onItemClick
+                    onItemClick = onItemClick,
+                    maxResults = maxResults
                 )
             }
         }

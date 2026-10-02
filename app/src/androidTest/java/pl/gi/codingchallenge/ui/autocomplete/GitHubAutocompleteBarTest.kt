@@ -9,6 +9,7 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -156,6 +157,49 @@ class GitHubAutocompleteBarTest {
     }
 
     @Test
+    fun successState_showsResultCountHeader() {
+        composeRule.setContent {
+            GitHubAutocompleteBarComponent(
+                uiState = AutocompleteUiState.Success(sampleResults),
+                onQueryChanged = {},
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+                initialActive = true
+            )
+        }
+
+        composeRule.onNodeWithTag(AutocompleteTestTags.RESULT_COUNT_HEADER)
+            .assertTextEquals("2 results")
+    }
+
+    @Test
+    fun nonSuccessStates_showNoResultCountHeader() {
+        var uiState: AutocompleteUiState by mutableStateOf(AutocompleteUiState.Loading)
+
+        composeRule.setContent {
+            GitHubAutocompleteBarComponent(
+                uiState = uiState,
+                onQueryChanged = {},
+                onRetry = {},
+                onItemClick = {},
+                onLeadingIconClick = {},
+                initialActive = true
+            )
+        }
+
+        listOf(
+            AutocompleteUiState.Loading,
+            AutocompleteUiState.Empty,
+            AutocompleteUiState.Error("Check your connection and try again.")
+        ).forEach { state ->
+            uiState = state
+            composeRule.waitForIdle()
+            composeRule.onNodeWithTag(AutocompleteTestTags.RESULT_COUNT_HEADER).assertDoesNotExist()
+        }
+    }
+
+    @Test
     fun successState_showsDividerBetweenRows_butNotAfterTheLastOne() {
         composeRule.setContent {
             GitHubAutocompleteBarComponent(
@@ -260,6 +304,8 @@ class GitHubAutocompleteBarTest {
         composeRule.onNodeWithTag(
             AutocompleteTestTags.SUGGESTION_PANEL
         ).assertHeightIsEqualTo(500.dp)
+        composeRule.onNodeWithTag(AutocompleteTestTags.RESULT_COUNT_HEADER)
+            .assertTextEquals("50+ results")
     }
 
     @Test
