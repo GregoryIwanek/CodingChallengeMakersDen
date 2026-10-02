@@ -1,8 +1,11 @@
 # Claude Code Harness for Android Projects
 
-**Status:** reference / learning plan, not a decision — nothing below is installed yet. Today the
-repo's `.claude/` holds only `CLAUDE.md`. The steps below are the plan for
-setting it up later. Live, commentable copy:
+**Status:** set up — permissions, the ktlint PostToolUse hook, the Co-Authored-By
+PreToolUse hook, the compile-check Stop hook and the backlog SessionStart hook are installed in
+`.claude/settings.json`, the `run-android` and `new-feature` skills are in `.claude/skills/`, the
+`compose-reviewer` subagent is in `.claude/agents/`, and `CLAUDE.md` is trimmed. GitHub access
+goes through read-only `gh` rules, so no MCP server is needed. Next: the test feature below.
+The hands-on runbook is [getting-started.md](getting-started.md). Live, commentable copy:
 [Claude Doc](https://claude.ai/code/artifact/0277d320-e04d-4fb0-884e-e45a049c49dd).
 
 ## Implementation steps
@@ -10,16 +13,21 @@ setting it up later. Live, commentable copy:
 Build it one layer at a time, cheapest and highest-value first, and test each layer before adding
 the next. Details for each step are under [Example setup](#example-setup-for-codingchallenge) below.
 
-- [ ] Permissions: add the allow/deny lists to `.claude/settings.json`; try running a denied command and watch it get blocked
-- [ ] One PostToolUse hook: ktlint on edit; edit a `.kt` file and confirm it was formatted
-- [ ] One PreToolUse hook: the Co-Authored-By blocker; learn the stdin JSON and exit-code-2 contract
-- [ ] Stop hook: compile check before Claude reports done
-- [ ] Skill: `run-android` with install, launch and screenshot
-- [ ] Subagent: `compose-reviewer` on a real Compose change
-- [ ] MCP: a GitHub server, once PR work from the CLI feels useful
-- [ ] Trim `CLAUDE.md`: remove rules now enforced by config
+- [x] Permissions: add the allow/deny lists to `.claude/settings.json`; try running a denied command and watch it get blocked
+- [x] One PostToolUse hook: ktlint on edit; edit a `.kt` file and confirm it was formatted
+- [x] One PreToolUse hook: the Co-Authored-By blocker; learn the stdin JSON and exit-code-2 contract
+- [x] Stop hook: compile check before Claude reports done
+- [x] Skill: `run-android` with install, launch and screenshot
+- [x] Subagent: `compose-reviewer` on a real Compose change
+- [x] GitHub access: read-only `gh` allow rules; no MCP server needed while `gh` covers PRs and CI
+- [x] Trim `CLAUDE.md`: remove rules now enforced by config
 
 The same building blocks carry over to a web project: only the commands in permissions and hooks change, for example `npm test` instead of `./gradlew`.
+
+## Test feature
+
+After setup, validate the harness with one small feature: a result-count header in the
+suggestion panel. See [harness-test-feature.md](harness-test-feature.md).
 
 ## What a harness is
 
@@ -117,11 +125,12 @@ The PreToolUse hook enforces the commit rule. Hook input arrives as JSON on stdi
 
 ```bash
 # .claude/hooks/block-coauthor.sh
-cmd=$(jq -r '.tool_input.command')
-if [[ "$cmd" == git\ commit* && "$cmd" == *Co-Authored-By* ]]; then
-  echo "Co-Authored-By trailers are banned in this repo" >&2
+cmd=$(jq -r '.tool_input.command // empty')
+if [[ "$cmd" == *"git commit"* ]] && grep -qi 'co-authored-by' <<<"$cmd"; then
+  echo "Blocked: Co-Authored-By trailers are banned in this repo (see .claude/CLAUDE.md). Commit again without the trailer." >&2
   exit 2
 fi
+exit 0
 ```
 
 `ktlint-on-edit.sh` reads `.tool_input.file_path` the same way and runs `./gradlew ktlintFormat` when a `.kt` or `.kts` file changed, so formatting always matches the `ktlintCheck` step in `android-ci.yml`. Other useful events:
@@ -136,12 +145,30 @@ A subagent runs in its own context with restricted tools, so a review never clut
 ```markdown
 ---
 name: compose-reviewer
-description: Reviews Compose UI changes for recomposition, state hoisting, modifier order
+description: Reviews changed Jetpack Compose files for recomposition, state and modifier issues.
+  Use after a Compose UI change, before committing. Pass the changed .kt file paths in the prompt.
 tools: Read, Grep, Glob
 model: haiku
 ---
-Review only changed @Composable files. Check: stable params, remember/derivedStateOf use,
-modifier passed as first optional param, named args on ambiguous calls.
+
+You review Jetpack Compose code. You can read files but not change them.
+
+Review only the @Composable functions in the files named in your task. Check:
+
+1. Parameters are stable: no `MutableList`, `var` properties or other unstable types without a
+   reason; lambdas and immutable/data classes are fine.
+2. State: `remember` for values that survive recomposition, `derivedStateOf` for state computed
+   from other state, `rememberSaveable` where it must survive rotation.
+3. State hoisting: composables take state and callbacks as parameters rather than owning a
+   ViewModel, except screen-level entry points.
+4. `modifier: Modifier = Modifier` is the first optional parameter, and is applied to the root
+   layout only.
+5. Named arguments on calls where positional ones are ambiguous (several args of the same type,
+   booleans, modifiers).
+
+Report each finding as `path:line — problem — suggested fix`, most important first. If a file has
+no issues, say so in one line. Don't pad the report with praise or style nits ktlint already
+covers.
 ```
 
 ### 4. Skill
@@ -170,12 +197,12 @@ flowchart LR
     prompt["Your prompt<br/>+ CLAUDE.md, memory"] --> model["Model<br/>picks next tool call"]
     model --> perm["Permission rules<br/>allow · ask · deny"]
     perm --> pre["PreToolUse hook<br/>no Co-Authored-By"]
-    perm -. "deny: error returns" .-> model
-    pre -. "exit 2: error returns" .-> model
-    pre -- pass --> tool["Tool runs<br/>Edit, gradlew, adb"]
+    perm -.->|"deny: error returns"| model
+    pre -.->|"exit 2: error returns"| model
+    pre -->|pass| tool["Tool runs<br/>Edit, gradlew, adb"]
     tool --> post["PostToolUse hook<br/>ktlintFormat on .kt"]
-    post -- result --> model
-    model -- done --> stop["Stop hook<br/>compileDebugKotlin"]
+    post -->|result| model
+    model -->|done| stop["Stop hook<br/>compileDebugKotlin"]
     stop --> answer["Answer to you"]
 
     classDef gate fill:#e3edfb,stroke:#2f6fd6,stroke-width:2px

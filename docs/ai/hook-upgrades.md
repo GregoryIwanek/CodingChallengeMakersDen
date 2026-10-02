@@ -1,0 +1,78 @@
+# Hook Upgrades: Optional Steps
+
+The optional upgrades from the deleted hook, skill and subagent walkthroughs, kept for later.
+
+## ktlint-on-edit (PostToolUse)
+
+- **Speed:** each edit formats the whole project. Map the path to a module, so a file under
+  `shared/` runs `:shared:ktlintFormat` and one under `app/` runs `:app:ktlintFormat`.
+- **Feedback:** replace `|| true` with code that sends the output to stderr and exits with 2.
+  Claude then sees violations ktlint couldn't auto-fix and fixes them itself.
+
+## block-coauthor (PreToolUse)
+
+- **Block other risky commands** with the same pattern: `git push --force`, `git reset --hard`,
+  `rm -rf`. Each is one more `if` block, or a separate script under the same matcher.
+- **Cover your own commits too:** a `commit-msg` git hook (e.g. in `.githooks/`, enabled with
+  `git config core.hooksPath .githooks`) rejects the trailer whoever commits.
+- **Trim `CLAUDE.md`:** once the hook works, shorten the Co-Authored-By rule to one line saying it
+  is enforced by `block-coauthor.sh`. That's the last checklist step, so it can wait.
+
+Known gaps worth fixing alongside:
+
+- `git commit -F msg.txt` with the trailer inside the file gets through; the hook only reads the
+  command text.
+- The hook matches `co-authored-by` anywhere in a commit command, so a commit message that merely
+  mentions the trailer is blocked too. Reword it (e.g. "co-author trailer").
+
+## compile-check (Stop)
+
+- **Re-check the fix:** instead of skipping when `stop_hook_active` is true, count attempts (e.g.
+  in a temp file keyed by `session_id`) and give up after 2–3, so Claude's fix is verified too.
+- **Faster check:** compile only the module that changed: `:app:compileDebugKotlin` for `app/`,
+  `:shared:compileAndroidMain` for `shared/`.
+- **Cover iOS-only code:** when a file under `shared/src/iosMain/` changed, also run
+  `:shared:compileKotlinIosSimulatorArm64`. Much slower, so only for that path.
+- **Unit tests on demand:** a second Stop step that runs `testDebugUnitTest` only when a test
+  file changed.
+
+Known gaps worth fixing alongside:
+
+- The skip check reads the whole working tree, not the turn. Any uncommitted `.kt`/`.kts` change
+  makes every later turn compile, even turns that touched no files.
+- Exit 2 only feeds the error back to Claude; it doesn't force a fix. An explicit "don't fix it"
+  instruction can win, so the hook is a nudge, not a guarantee.
+
+## run-android (skill)
+
+- **Auto-start the emulator:** allow the emulator binary, run it in the background, then
+  `adb wait-for-device` and poll `adb shell getprop sys.boot_completed` until it prints `1`.
+- **Drive the UI:** allow `adb shell input text:*` and `adb shell input keyevent:*` so Claude can
+  type a query (e.g. "kotlin") before the screenshot; needed for B5 of the test feature.
+- **Fresh state:** `adb shell pm clear pl.gi.codingchallenge` before launch, so old state doesn't
+  hide a bug.
+- **Logcat on crash:** if the screenshot shows no app, grab `adb logcat -d -b crash` (the crash
+  buffer survives the process dying, unlike a `--pid` filter) and report it.
+
+Known gaps worth fixing alongside:
+
+- The device is only checked in step 1. If the emulator dies mid-run, `am start` fails with exit
+  255 and no clear reason. Re-run `adb devices` when a later `adb` step fails, and if the device
+  is gone, ask the user to restart it.
+
+## compose-reviewer (subagent)
+
+- **Self-serve diff:** add `Bash` to `tools:` and tell the agent to run only `git diff` and
+  `git diff --name-only`. Saves passing paths, but it can then run any allowed command.
+- **Previews and goldens:** also check that each new public composable has a `@Preview`, and
+  remind to re-record Paparazzi goldens when a screen's layout changed.
+- **Stronger model:** `model: sonnet` if Haiku misses real issues; `model: inherit` to follow the
+  main session.
+- **Run it from `/code-review`:** call out the agent from the B6 review step so it runs on every
+  pre-commit review, not only when asked.
+
+Known gaps worth fixing alongside:
+
+- Output varies between runs: one review flagged the pre-existing missing `modifier` parameter,
+  the next skipped it, and one suggested `.modifier(modifier)`, which isn't a Compose API.
+  Sonnet or a stricter "only real APIs" line in the prompt may help.

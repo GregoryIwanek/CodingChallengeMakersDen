@@ -1,0 +1,82 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(./gradlew testDebugUnitTest:*)",
+      "Bash(./gradlew :app:testDebugUnitTest:*)",
+      "Bash(./gradlew compileDebugKotlin:*)",
+      "Bash(./gradlew :app:compileDebugKotlin:*)",
+      "Bash(./gradlew :app:compileDebugUnitTestKotlin:*)",
+      "Bash(./gradlew :shared:allTests:*)",
+      "Bash(./gradlew :shared:testAndroidHostTest:*)",
+      "Bash(./gradlew :shared:tasks:*)",
+      "Bash(./gradlew :shared:iosSimulatorArm64Test:*)",
+      "Bash(./gradlew ktlintCheck:*)",
+      "Bash(./gradlew ktlintFormat:*)",
+      "Bash(./gradlew check:*)",
+      "Bash(./gradlew recordPaparazziDebug:*)",
+      "Bash(./gradlew verifyPaparazziDebug:*)",
+      "Bash(./gradlew :app:recordPaparazziDebug:*)",
+      "Bash(./gradlew :app:verifyPaparazziDebug:*)",
+      "Bash(./gradlew installDebug:*)",
+      "Bash(adb devices:*)",
+      "Bash(adb shell am start:*)",
+      "Bash(adb exec-out screencap:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "mcp__claude_ai_Claude_Docs__read",
+      "mcp__claude_ai_Claude_Docs__guide"
+    ],
+    "deny": [
+      "Bash(./gradlew connectedDebugAndroidTest:*)",
+      "Bash(./gradlew connectedAndroidTest:*)",
+      "Bash(./gradlew :app:connectedDebugAndroidTest:*)",
+      "Bash(./gradlew :app:connectedAndroidTest:*)",
+      "Read(./local.properties)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "sed -n '/^## Open/,/^## Resolved/p' \"$CLAUDE_PROJECT_DIR\"/docs/backlog.md" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-coauthor.sh" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ktlint-on-edit.sh" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/compile-check.sh",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}
