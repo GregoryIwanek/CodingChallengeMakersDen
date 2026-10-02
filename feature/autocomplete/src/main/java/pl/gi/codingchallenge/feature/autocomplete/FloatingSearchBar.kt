@@ -34,13 +34,13 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import pl.gi.codingchallenge.feature.autocomplete.testing.AutocompleteTestTags
-import pl.gi.codingchallenge.feature.autocomplete.util.colRes
-import pl.gi.codingchallenge.feature.autocomplete.util.dimRes
 import pl.gi.codingchallenge.feature.autocomplete.util.spRes
-import pl.gi.codingchallenge.feature.autocomplete.util.strRes
 
 @Composable
 internal fun FloatingSearchBar(
@@ -52,7 +52,7 @@ internal fun FloatingSearchBar(
     onLeadingIconClick: () -> Unit
 ) {
     val barCornerRadius: RoundedCornerShape =
-        RoundedCornerShape(dimRes(R.dimen.autocomplete_bar_corner_radius))
+        RoundedCornerShape(dimensionResource(R.dimen.autocomplete_bar_corner_radius))
     val focusManager: FocusManager = LocalFocusManager.current
     val focusRequester: FocusRequester = remember { FocusRequester() }
     // onFocusChanged also fires once on first composition with isFocused = false;
@@ -63,13 +63,16 @@ internal fun FloatingSearchBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(dimRes(R.dimen.autocomplete_bar_height))
+            .height(dimensionResource(R.dimen.autocomplete_bar_height))
             .shadow(
-                elevation = dimRes(R.dimen.autocomplete_bar_elevation),
+                elevation = dimensionResource(R.dimen.autocomplete_bar_elevation),
                 shape = barCornerRadius
             )
-            .background(color = colRes(R.color.autocomplete_surface), shape = barCornerRadius)
-            .padding(horizontal = dimRes(R.dimen.autocomplete_bar_inner_padding)),
+            .background(
+                color = colorResource(R.color.autocomplete_surface),
+                shape = barCornerRadius
+            )
+            .padding(horizontal = dimensionResource(R.dimen.autocomplete_bar_inner_padding)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
@@ -100,20 +103,20 @@ internal fun FloatingSearchBar(
                 },
                 contentDescription = when {
                     !hasSuggestions -> null
-                    active -> strRes(R.string.autocomplete_leading_icon_collapse)
-                    else -> strRes(R.string.autocomplete_leading_icon_expand)
+                    active -> stringResource(R.string.autocomplete_leading_icon_collapse)
+                    else -> stringResource(R.string.autocomplete_leading_icon_expand)
                 },
-                tint = colRes(R.color.autocomplete_text_secondary)
+                tint = colorResource(R.color.autocomplete_text_secondary)
             )
         }
 
         Box(modifier = Modifier.weight(1f)) {
             if (text.isEmpty()) {
                 Text(
-                    text = strRes(R.string.autocomplete_search_placeholder),
+                    text = stringResource(R.string.autocomplete_search_placeholder),
                     style = TextStyle(
                         fontSize = spRes(R.dimen.autocomplete_input_text_size),
-                        color = colRes(R.color.autocomplete_text_secondary)
+                        color = colorResource(R.color.autocomplete_text_secondary)
                     )
                 )
             }
@@ -123,9 +126,9 @@ internal fun FloatingSearchBar(
                 singleLine = true,
                 textStyle = TextStyle(
                     fontSize = spRes(R.dimen.autocomplete_input_text_size),
-                    color = colRes(R.color.autocomplete_text_primary)
+                    color = colorResource(R.color.autocomplete_text_primary)
                 ),
-                cursorBrush = SolidColor(colRes(R.color.autocomplete_accent)),
+                cursorBrush = SolidColor(colorResource(R.color.autocomplete_accent)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag(AutocompleteTestTags.SEARCH_FIELD)
@@ -143,28 +146,30 @@ internal fun FloatingSearchBar(
             IconButton(
                 onClick = { onTextChange("") },
                 modifier = Modifier
-                    .size(dimRes(R.dimen.autocomplete_clear_button_size))
+                    .size(dimensionResource(R.dimen.autocomplete_clear_button_size))
                     .testTag(AutocompleteTestTags.CLEAR_BUTTON)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(dimRes(R.dimen.autocomplete_clear_circle_size))
+                        .size(dimensionResource(R.dimen.autocomplete_clear_circle_size))
                         .background(
-                            color = colRes(R.color.autocomplete_border),
+                            color = colorResource(R.color.autocomplete_border),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.Filled.Clear,
-                        contentDescription = strRes(R.string.autocomplete_clear_icon),
-                        tint = colRes(R.color.autocomplete_text_secondary),
-                        modifier = Modifier.size(dimRes(R.dimen.autocomplete_clear_icon_size))
+                        contentDescription = stringResource(R.string.autocomplete_clear_icon),
+                        tint = colorResource(R.color.autocomplete_text_secondary),
+                        modifier = Modifier.size(
+                            dimensionResource(R.dimen.autocomplete_clear_icon_size)
+                        )
                     )
                 }
             }
         } else {
-            Box(Modifier.width(dimRes(R.dimen.autocomplete_leading_spacer_width)))
+            Box(Modifier.width(dimensionResource(R.dimen.autocomplete_leading_spacer_width)))
         }
     }
 }

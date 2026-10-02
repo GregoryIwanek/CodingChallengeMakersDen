@@ -18,10 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import pl.gi.codingchallenge.feature.autocomplete.util.dimRes
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 /**
@@ -109,7 +109,9 @@ internal fun GitHubAutocompleteBarComponent(
             exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
         ) {
             Column {
-                Spacer(Modifier.height(dimRes(R.dimen.autocomplete_bar_to_panel_spacing)))
+                Spacer(
+                    Modifier.height(dimensionResource(R.dimen.autocomplete_bar_to_panel_spacing))
+                )
                 SuggestionPanel(
                     uiState = uiState,
                     text = text,

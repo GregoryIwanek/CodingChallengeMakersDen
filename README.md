@@ -125,7 +125,7 @@ Hilt's annotation processor can't run on Kotlin/Native.
 ├── FloatingSearchBar.kt                 # the pill bar itself
 ├── SuggestionPanel.kt                   # the floating results card
 ├── SearchResultRow.kt                   # item renderer
-├── util/ResourceUtil.kt                 # internal dimRes/strRes/colRes/spRes helpers
+├── util/ResourceUtil.kt                 # internal spRes: sp dimens read without double font-scale
 └── testing/AutocompleteTestTags.kt      # public, so :app's end-to-end test can use it
 
 :feature:detail (pl.gi.codingchallenge.feature.detail)

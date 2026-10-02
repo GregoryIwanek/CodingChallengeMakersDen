@@ -40,7 +40,7 @@
     <dimen name="autocomplete_person_icon_size">17dp</dimen>
 
     <!-- GitHubAutocompleteBar — type scale. Genuinely sp, read via the
-         spResource() helper (ResourceUtil.kt) rather than
+         spRes() helper (ResourceUtil.kt) rather than
          dimensionResource() — see that file for why a plain
          dimensionResource(...).value.sp would double-apply the
          device's font-scale accessibility setting. -->

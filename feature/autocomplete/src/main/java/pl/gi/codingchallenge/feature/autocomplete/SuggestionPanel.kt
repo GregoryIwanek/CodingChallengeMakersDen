@@ -32,6 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -40,10 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import pl.gi.codingchallenge.feature.autocomplete.testing.AutocompleteTestTags
-import pl.gi.codingchallenge.feature.autocomplete.util.colRes
-import pl.gi.codingchallenge.feature.autocomplete.util.dimRes
 import pl.gi.codingchallenge.feature.autocomplete.util.spRes
-import pl.gi.codingchallenge.feature.autocomplete.util.strRes
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
 // Mirrors :shared's internal MAX_RESULTS; hosts override it via the
@@ -61,17 +61,20 @@ internal fun SuggestionPanel(
     maxResults: Int = DEFAULT_MAX_RESULTS
 ) {
     val panelCornerRadius: RoundedCornerShape =
-        RoundedCornerShape(dimRes(R.dimen.autocomplete_panel_corner_radius))
+        RoundedCornerShape(dimensionResource(R.dimen.autocomplete_panel_corner_radius))
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.SUGGESTION_PANEL)
             .shadow(
-                elevation = dimRes(R.dimen.autocomplete_panel_elevation),
+                elevation = dimensionResource(R.dimen.autocomplete_panel_elevation),
                 shape = panelCornerRadius
             )
-            .background(color = colRes(R.color.autocomplete_surface), shape = panelCornerRadius)
+            .background(
+                color = colorResource(R.color.autocomplete_surface),
+                shape = panelCornerRadius
+            )
     ) {
         when (uiState) {
             // Never shown — see AnimatedVisibility's visible condition.
@@ -83,7 +86,9 @@ internal fun SuggestionPanel(
             // The height cap wraps header + list so the whole panel, not
             // just the list, stays within autocomplete_panel_max_height.
             is AutocompleteUiState.Success -> Column(
-                modifier = Modifier.heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height))
+                modifier = Modifier.heightIn(
+                    max = dimensionResource(R.dimen.autocomplete_panel_max_height)
+                )
             ) {
                 ResultCountHeader(
                     count = uiState.items.size,
@@ -92,7 +97,7 @@ internal fun SuggestionPanel(
                         maxResults = maxResults
                     )
                 )
-                HorizontalDivider(color = colRes(R.color.autocomplete_divider))
+                HorizontalDivider(color = colorResource(R.color.autocomplete_divider))
                 LazyColumn(
                     // Keyed on text (not the whole uiState) so a retry of the
                     // same query keeps its scroll position, but a genuinely
@@ -108,7 +113,7 @@ internal fun SuggestionPanel(
                         SearchResultRow(item, onClick = { onItemClick(item) })
                         if (index < uiState.items.lastIndex) {
                             HorizontalDivider(
-                                color = colRes(R.color.autocomplete_divider),
+                                color = colorResource(R.color.autocomplete_divider),
                                 modifier = Modifier.testTag(
                                     AutocompleteTestTags.resultDivider(index)
                                 )
@@ -135,13 +140,13 @@ private fun ResultCountHeader(count: Int, isCapped: Boolean) {
         // LocalResources (not LocalContext) so a config change recomposes this.
         formatResultCount(resources = LocalResources.current, count = count, isCapped = isCapped),
         fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
-        color = colRes(R.color.autocomplete_text_secondary),
+        color = colorResource(R.color.autocomplete_text_secondary),
         modifier = Modifier
             .fillMaxWidth()
             .padding(
                 // Matches SearchResultRow so the header text lines up with row content.
-                horizontal = dimRes(R.dimen.autocomplete_row_horizontal_padding),
-                vertical = dimRes(R.dimen.autocomplete_result_count_vertical_padding)
+                horizontal = dimensionResource(R.dimen.autocomplete_row_horizontal_padding),
+                vertical = dimensionResource(R.dimen.autocomplete_result_count_vertical_padding)
             )
             .semantics {
                 heading()
@@ -157,13 +162,13 @@ private fun LoadingIndicator() {
         Modifier
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.LOADING_INDICATOR)
-            .height(dimRes(R.dimen.autocomplete_short_state_box_height)),
+            .height(dimensionResource(R.dimen.autocomplete_short_state_box_height)),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            color = colRes(R.color.autocomplete_accent),
-            strokeWidth = dimRes(R.dimen.autocomplete_spinner_stroke_width),
-            modifier = Modifier.size(dimRes(R.dimen.autocomplete_large_state_icon_size))
+            color = colorResource(R.color.autocomplete_accent),
+            strokeWidth = dimensionResource(R.dimen.autocomplete_spinner_stroke_width),
+            modifier = Modifier.size(dimensionResource(R.dimen.autocomplete_large_state_icon_size))
         )
     }
 }
@@ -174,16 +179,18 @@ private fun EmptyState() {
         Modifier
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.EMPTY_STATE)
-            .height(dimRes(R.dimen.autocomplete_short_state_box_height)),
+            .height(dimensionResource(R.dimen.autocomplete_short_state_box_height)),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            strRes(R.string.autocomplete_empty_message),
+            stringResource(R.string.autocomplete_empty_message),
             fontSize = spRes(R.dimen.autocomplete_state_headline_text_size),
-            color = colRes(R.color.autocomplete_text_secondary),
+            color = colorResource(R.color.autocomplete_text_secondary),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(
-                horizontal = dimRes(R.dimen.autocomplete_state_message_horizontal_padding)
+                horizontal = dimensionResource(
+                    R.dimen.autocomplete_state_message_horizontal_padding
+                )
             )
         )
     }
@@ -195,57 +202,69 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .testTag(AutocompleteTestTags.ERROR_STATE)
-            .height(dimRes(R.dimen.autocomplete_tall_state_box_height)),
+            .height(dimensionResource(R.dimen.autocomplete_tall_state_box_height)),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(
-                dimRes(R.dimen.autocomplete_error_column_spacing)
+                dimensionResource(R.dimen.autocomplete_error_column_spacing)
             )
         ) {
             Icon(
                 Icons.Filled.Warning,
                 contentDescription = null,
-                tint = colRes(R.color.autocomplete_error_color),
-                modifier = Modifier.size(dimRes(R.dimen.autocomplete_large_state_icon_size))
+                tint = colorResource(R.color.autocomplete_error_color),
+                modifier = Modifier.size(
+                    dimensionResource(R.dimen.autocomplete_large_state_icon_size)
+                )
             )
             Text(
-                strRes(R.string.autocomplete_error_headline),
+                stringResource(R.string.autocomplete_error_headline),
                 fontSize = spRes(R.dimen.autocomplete_state_headline_text_size),
                 fontWeight = FontWeight.SemiBold,
-                color = colRes(R.color.autocomplete_text_primary)
+                color = colorResource(R.color.autocomplete_text_primary)
             )
             Text(
                 message,
                 fontSize = spRes(R.dimen.autocomplete_state_detail_text_size),
-                color = colRes(R.color.autocomplete_text_secondary),
+                color = colorResource(R.color.autocomplete_text_secondary),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(
-                    horizontal = dimRes(R.dimen.autocomplete_state_message_horizontal_padding)
+                    horizontal = dimensionResource(
+                        R.dimen.autocomplete_state_message_horizontal_padding
+                    )
                 )
             )
-            Spacer(Modifier.height(dimRes(R.dimen.autocomplete_error_icon_to_headline_spacing)))
+            Spacer(
+                Modifier.height(
+                    dimensionResource(R.dimen.autocomplete_error_icon_to_headline_spacing)
+                )
+            )
             OutlinedButton(
                 onClick = onRetry,
                 contentPadding = PaddingValues(
-                    horizontal = dimRes(R.dimen.autocomplete_retry_horizontal_padding),
-                    vertical = dimRes(R.dimen.autocomplete_retry_vertical_padding)
+                    horizontal = dimensionResource(R.dimen.autocomplete_retry_horizontal_padding),
+                    vertical = dimensionResource(R.dimen.autocomplete_retry_vertical_padding)
                 ),
                 modifier = Modifier.testTag(AutocompleteTestTags.RETRY_BUTTON)
             ) {
                 Icon(
                     Icons.Filled.Refresh,
                     contentDescription = null,
-                    tint = colRes(R.color.autocomplete_accent),
-                    modifier = Modifier.size(dimRes(R.dimen.autocomplete_retry_icon_size))
+                    tint = colorResource(R.color.autocomplete_accent),
+                    modifier = Modifier.size(
+                        dimensionResource(R.dimen.autocomplete_retry_icon_size)
+                    )
                 )
-                Spacer(Modifier.width(dimRes(R.dimen.autocomplete_retry_icon_text_spacing)))
+                Spacer(
+                    Modifier.width(dimensionResource(R.dimen.autocomplete_retry_icon_text_spacing))
+                )
                 Text(
-                    strRes(R.string.autocomplete_retry_label),
+                    stringResource(R.string.autocomplete_retry_label),
                     fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
                     fontWeight = FontWeight.SemiBold,
-                    color = colRes(R.color.autocomplete_accent)
+                    color = colorResource(R.color.autocomplete_accent)
                 )
             }
         }

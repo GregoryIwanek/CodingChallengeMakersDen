@@ -118,13 +118,14 @@ followers, bio and so on.
 
 ### Follow-up: resource helpers across modules
 
-`ResourceUtil.kt` (`strRes`/`dimRes`/`spRes`/`colRes`) now lives in `:feature:autocomplete` as
-`internal`, its only user. `:feature:detail` and `:app`'s `DemoScreen` use Compose's built-ins
-(`stringResource`, `dimensionResource`) and `MaterialTheme.typography` instead.
+Every module now uses Compose's built-ins (`stringResource`, `dimensionResource`,
+`colorResource`); the old one-line aliases (`strRes`/`dimRes`/`colRes`) are gone. The one helper
+with real logic, `spRes` (reads an sp dimen without applying font scale twice), stays `internal`
+to `:feature:autocomplete`, its only user; `:feature:detail` uses `MaterialTheme.typography`.
 
 | Option | Pros | Cons |
 | --- | --- | --- |
-| Compose built-ins in each module (current) | No extra module; standard API every Android dev knows | Two call styles in the repo; `spRes`'s font-scale fix has to be remembered wherever sp dimens are read |
+| Compose built-ins in each module (current) | No extra module; standard API every Android dev knows | `spRes`'s font-scale fix has to be remembered wherever sp dimens are read |
 | `:core:ui` module holding `ResourceUtil` | One implementation and one test; `:app` and features share it | One more module and build file; every helper becomes public API |
 | Copy the helpers into each module | Same call style everywhere, no coupling | Copies drift; a fix has to be applied N times |
 

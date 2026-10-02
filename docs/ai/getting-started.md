@@ -249,7 +249,7 @@ Answers for the [test feature](harness-test-feature.md) are filled in as an exam
 | 2 | What are the edge cases? | Hidden scope | `Empty` is its own state, so `Success` always has ≥ 1 item |
 | 3 | Which number or data, from where? | Wrong source = wrong feature | **Decide:** items shown in the list, or GitHub's `total_count`? Shown items needs no `:shared` change |
 | 4 | Which module does it touch: `:app` only, or `:shared`? | `:shared` means iOS too, `[KMP]` tag, iOS CI runs | `:app` only |
-| 5 | Which files and existing patterns? | Fits the codebase | `SuggestionPanel.kt`; `formatStars` style; `dimRes` + `dimens.xml`; test tags in `AutocompleteTestTags.kt` |
+| 5 | Which files and existing patterns? | Fits the codebase | `SuggestionPanel.kt`; `formatStars` style; `dimensionResource` + `dimens.xml`; test tags in `AutocompleteTestTags.kt` |
 | 6 | Strings and localization? | Plurals need `<plurals>`, not `<string>` | New `<plurals>` in `strings.xml` (first one in the repo) |
 | 7 | Accessibility? | Screen readers | Plain `Text`, read in order; no extra semantics needed |
 | 8 | Which tests prove it? | Defines verification | Unit test for `formatResultCount`; Paparazzi `success` golden re-recorded |

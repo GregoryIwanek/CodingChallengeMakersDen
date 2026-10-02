@@ -21,12 +21,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import pl.gi.codingchallenge.feature.autocomplete.testing.AutocompleteTestTags
-import pl.gi.codingchallenge.feature.autocomplete.util.colRes
-import pl.gi.codingchallenge.feature.autocomplete.util.dimRes
 import pl.gi.codingchallenge.feature.autocomplete.util.spRes
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 
@@ -38,8 +38,8 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
             .testTag(AutocompleteTestTags.resultRow(item.id))
             .clickable(onClick = onClick)
             .padding(
-                horizontal = dimRes(R.dimen.autocomplete_row_horizontal_padding),
-                vertical = dimRes(R.dimen.autocomplete_row_vertical_padding)
+                horizontal = dimensionResource(R.dimen.autocomplete_row_horizontal_padding),
+                vertical = dimensionResource(R.dimen.autocomplete_row_vertical_padding)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -47,36 +47,38 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
             is SearchResultItem.RepoResult -> {
                 Box(
                     Modifier
-                        .size(dimRes(R.dimen.autocomplete_avatar_size))
+                        .size(dimensionResource(R.dimen.autocomplete_avatar_size))
                         .background(
-                            color = colRes(R.color.autocomplete_repo_bg),
+                            color = colorResource(R.color.autocomplete_repo_bg),
                             shape = RoundedCornerShape(
-                                dimRes(R.dimen.autocomplete_repo_avatar_corner_radius)
+                                dimensionResource(R.dimen.autocomplete_repo_avatar_corner_radius)
                             )
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         item.name.firstOrNull()?.uppercase() ?: "?",
-                        color = colRes(R.color.autocomplete_accent),
+                        color = colorResource(R.color.autocomplete_accent),
                         fontWeight = FontWeight.Bold,
                         fontSize = spRes(R.dimen.autocomplete_item_title_text_size)
                     )
                 }
-                Spacer(Modifier.width(dimRes(R.dimen.autocomplete_avatar_to_text_spacing)))
+                Spacer(
+                    Modifier.width(dimensionResource(R.dimen.autocomplete_avatar_to_text_spacing))
+                )
                 Column(Modifier.weight(1f)) {
                     Text(
                         item.name,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = spRes(R.dimen.autocomplete_item_title_text_size),
-                        color = colRes(R.color.autocomplete_text_primary),
+                        color = colorResource(R.color.autocomplete_text_primary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         item.description?.let { "${item.ownerLogin} · $it" } ?: item.ownerLogin,
                         fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
-                        color = colRes(R.color.autocomplete_text_secondary),
+                        color = colorResource(R.color.autocomplete_text_secondary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -85,15 +87,21 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                     Icon(
                         Icons.Filled.Star,
                         contentDescription = null,
-                        tint = colRes(R.color.autocomplete_star_color),
-                        modifier = Modifier.size(dimRes(R.dimen.autocomplete_star_icon_size))
+                        tint = colorResource(R.color.autocomplete_star_color),
+                        modifier = Modifier.size(
+                            dimensionResource(R.dimen.autocomplete_star_icon_size)
+                        )
                     )
-                    Spacer(Modifier.width(dimRes(R.dimen.autocomplete_star_icon_text_spacing)))
+                    Spacer(
+                        Modifier.width(
+                            dimensionResource(R.dimen.autocomplete_star_icon_text_spacing)
+                        )
+                    )
                     Text(
                         formatStars(item.stars),
                         fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
                         fontWeight = FontWeight.SemiBold,
-                        color = colRes(R.color.autocomplete_star_color)
+                        color = colorResource(R.color.autocomplete_star_color)
                     )
                 }
             }
@@ -101,9 +109,9 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
             is SearchResultItem.UserResult -> {
                 Box(
                     Modifier
-                        .size(dimRes(R.dimen.autocomplete_avatar_size))
+                        .size(dimensionResource(R.dimen.autocomplete_avatar_size))
                         .background(
-                            color = colRes(R.color.autocomplete_user_bg),
+                            color = colorResource(R.color.autocomplete_user_bg),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -111,24 +119,28 @@ internal fun SearchResultRow(item: SearchResultItem, onClick: () -> Unit) {
                     Icon(
                         Icons.Filled.Person,
                         contentDescription = null,
-                        tint = colRes(R.color.autocomplete_user_icon),
-                        modifier = Modifier.size(dimRes(R.dimen.autocomplete_person_icon_size))
+                        tint = colorResource(R.color.autocomplete_user_icon),
+                        modifier = Modifier.size(
+                            dimensionResource(R.dimen.autocomplete_person_icon_size)
+                        )
                     )
                 }
-                Spacer(Modifier.width(dimRes(R.dimen.autocomplete_avatar_to_text_spacing)))
+                Spacer(
+                    Modifier.width(dimensionResource(R.dimen.autocomplete_avatar_to_text_spacing))
+                )
                 Column(Modifier.weight(1f)) {
                     Text(
                         item.login,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = spRes(R.dimen.autocomplete_item_title_text_size),
-                        color = colRes(R.color.autocomplete_text_primary),
+                        color = colorResource(R.color.autocomplete_text_primary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         item.htmlUrl.removePrefix("https://"),
                         fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
-                        color = colRes(R.color.autocomplete_text_secondary),
+                        color = colorResource(R.color.autocomplete_text_secondary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

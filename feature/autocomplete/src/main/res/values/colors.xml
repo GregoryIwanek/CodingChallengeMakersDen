@@ -4,7 +4,7 @@
          exploration (SOLUTION_PLAN.md §9) rather than the host app's
          MaterialTheme, so the bar looks the same regardless of what
          theme it's dropped into. Not tied to Material Theme — plain
-         color resources, read via colRes(...) (ResourceUtil.kt). -->
+         color resources, read via colorResource(...). -->
     <color name="autocomplete_surface">#FFFFFFFF</color>
     <color name="autocomplete_border">#FFD1D9E0</color>
     <color name="autocomplete_divider">#FFEAEEF2</color>
