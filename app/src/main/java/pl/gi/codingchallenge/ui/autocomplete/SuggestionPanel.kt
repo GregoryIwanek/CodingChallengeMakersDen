@@ -1,5 +1,6 @@
 package pl.gi.codingchallenge.ui.autocomplete
 
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +30,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,12 +47,19 @@ import pl.gi.codingchallenge.util.dimRes
 import pl.gi.codingchallenge.util.spRes
 import pl.gi.codingchallenge.util.strRes
 
+// Mirrors :shared's internal MAX_RESULTS; hosts override it via the
+// maxResults param if the shared cap ever changes.
+internal const val DEFAULT_MAX_RESULTS: Int = 50
+
+internal fun isResultCountCapped(count: Int, maxResults: Int): Boolean = count >= maxResults
+
 @Composable
 internal fun SuggestionPanel(
     uiState: AutocompleteUiState,
     text: String,
     onRetry: () -> Unit,
-    onItemClick: (SearchResultItem) -> Unit
+    onItemClick: (SearchResultItem) -> Unit,
+    maxResults: Int = DEFAULT_MAX_RESULTS
 ) {
     val panelCornerRadius: RoundedCornerShape =
         RoundedCornerShape(dimRes(R.dimen.autocomplete_panel_corner_radius))
@@ -68,27 +81,75 @@ internal fun SuggestionPanel(
             AutocompleteUiState.Empty -> EmptyState()
             is AutocompleteUiState.Error -> ErrorState(uiState.message, onRetry = onRetry)
 
-            is AutocompleteUiState.Success -> LazyColumn(
-                // Keyed on text (not the whole uiState) so a retry of the
-                // same query keeps its scroll position, but a genuinely
-                // new query starts scrolled to the top.
-                state = remember(text) { LazyListState() },
-                modifier = Modifier
-                    .heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height))
-                    .testTag(AutocompleteTestTags.RESULTS_LIST)
+            // The height cap wraps header + list so the whole panel, not
+            // just the list, stays within autocomplete_panel_max_height.
+            is AutocompleteUiState.Success -> Column(
+                modifier = Modifier.heightIn(max = dimRes(R.dimen.autocomplete_panel_max_height))
             ) {
-                itemsIndexed(uiState.items, key = { _, item -> item.uniqueKey }) { index, item ->
-                    SearchResultRow(item, onClick = { onItemClick(item) })
-                    if (index < uiState.items.lastIndex) {
-                        HorizontalDivider(
-                            color = colRes(R.color.autocomplete_divider),
-                            modifier = Modifier.testTag(AutocompleteTestTags.resultDivider(index))
-                        )
+                ResultCountHeader(
+                    count = uiState.items.size,
+                    isCapped = isResultCountCapped(
+                        count = uiState.items.size,
+                        maxResults = maxResults
+                    )
+                )
+                HorizontalDivider(color = colRes(R.color.autocomplete_divider))
+                LazyColumn(
+                    // Keyed on text (not the whole uiState) so a retry of the
+                    // same query keeps its scroll position, but a genuinely
+                    // new query starts scrolled to the top.
+                    state = remember(text) { LazyListState() },
+                    modifier = Modifier
+                        .weight(weight = 1f, fill = false)
+                        .testTag(AutocompleteTestTags.RESULTS_LIST)
+                ) {
+                    itemsIndexed(uiState.items, key = { _, item ->
+                        item.uniqueKey
+                    }) { index, item ->
+                        SearchResultRow(item, onClick = { onItemClick(item) })
+                        if (index < uiState.items.lastIndex) {
+                            HorizontalDivider(
+                                color = colRes(R.color.autocomplete_divider),
+                                modifier = Modifier.testTag(
+                                    AutocompleteTestTags.resultDivider(index)
+                                )
+                            )
+                        }
                     }
                 }
             }
         }
     }
+}
+
+// Takes Resources (not Context) so JVM tests can pass Paparazzi's.
+internal fun formatResultCount(resources: Resources, count: Int, isCapped: Boolean): String =
+    if (isCapped) {
+        resources.getString(R.string.autocomplete_result_count_capped, count)
+    } else {
+        resources.getQuantityString(R.plurals.autocomplete_result_count, count, count)
+    }
+
+@Composable
+private fun ResultCountHeader(count: Int, isCapped: Boolean) {
+    Text(
+        // LocalResources (not LocalContext) so a config change recomposes this.
+        formatResultCount(resources = LocalResources.current, count = count, isCapped = isCapped),
+        fontSize = spRes(R.dimen.autocomplete_small_label_text_size),
+        color = colRes(R.color.autocomplete_text_secondary),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                // Matches SearchResultRow so the header text lines up with row content.
+                horizontal = dimRes(R.dimen.autocomplete_row_horizontal_padding),
+                vertical = dimRes(R.dimen.autocomplete_result_count_vertical_padding)
+            )
+            .semantics {
+                heading()
+                liveRegion = LiveRegionMode.Polite
+            }
+            .testTag(AutocompleteTestTags.RESULT_COUNT_HEADER)
+    )
 }
 
 @Composable
