@@ -1,7 +1,7 @@
 # Diagramming Tools for Layers & System Connections
 
 **Status:** reference, not a decision — a comparison of tools for visualizing this repo's
-module/layer structure and dependency wiring, plus one worked example. Revisit if the team
+module/layer structure and dependency wiring, plus two worked examples. Revisit if the team
 settles on one and wants it enforced.
 
 ---
@@ -17,30 +17,32 @@ settles on one and wants it enforced.
 | Setup cost | None — just write the fence | Self-host Structurizr Lite, or a hosted account | None — free web app or plugin | None — this session's Artifact tool |
 | Best for | Quick diagrams that live next to the code they describe | Formal C4-style architecture docs (context/container/component) | One-off polished diagrams, manual layout control | A designed, interactive-capable diagram meant to be linked and shared |
 
-## Worked example
+## Worked examples
 
-**[GitHub Autocomplete Architecture](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6)** (v2) — a
-layer + dependency diagram built with the Artifact method (see below), showing how a search
-request crosses the `:app` / `:shared` / `iosApp` boundaries: the domain-facing interfaces
-declared in `:shared` invert the dependency, `:shared`'s own Koin graph supplies both the
-Ktor-backed network source and the SQLDelight-backed cache, `:app`'s Hilt graph resolves the
-search use case through one Koin↔Hilt bridge, and iOS calls `GitHubSearchRepository` directly,
-bypassing the use case entirely.
+**[GitHub Autocomplete Architecture](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6)** (v3) — a
+runtime flow diagram built with the Artifact method (see below). It shows how a search request and
+a tapped result travel through `:app`, `:feature:autocomplete`, `:feature:detail`, `:shared` and
+`iosApp`: the two features never point at each other (`onItemClick` goes back to `:app`'s
+`AppNavHost`, which calls `navigateToDetail`), the `AutocompleteViewModel` gets its use case from
+`:app`'s Koin→Hilt bridge, `:shared`'s interfaces keep the Ktor network source and SQLDelight
+cache behind one repository, and iOS calls that repository directly, bypassing the use case.
 
-This is the same mechanism `docs/architecture/github-search-caching-decision.md` originally
-decided (that doc's "what actually changed" section is now superseded — see its own callout for
-current file locations).
+**Module graph in [modularization.md](modularization.md#this-repo)** — a Mermaid `flowchart` of the
+`implementation(project(…))` dependencies and the convention plugins each module applies. It
+renders on GitHub and changes in the same PR as the build files, so it can't drift unnoticed. The
+two complement each other: Mermaid for *what depends on what* (versioned), the Artifact for *how a
+request flows at runtime* (linked).
 
-**This is v2, redrawn after v1 went stale.** The original version of this diagram put the network
-source and caching decorator in `:app`, labeled "Retrofit" — accurate when drawn, but a later Ktor
-migration moved both into `:shared`, and nothing caught the drift for a while because the diagram
-lives outside git with no diff to flag it (see `docs/backlog.md` AT-8, in Resolved). Same
-tradeoff the recommendation below already names for this method — **if you keep a diagram like
-this, re-verify it against the code every so often; a link doesn't age itself for you.**
+**The Artifact has gone stale twice.** v1 put the network source in `:app` as "Retrofit"; a Ktor
+migration moved it into `:shared` and nothing caught the drift until a docs pass (`docs/backlog.md`
+AT-8, in Resolved). v2 then still showed the autocomplete inside `:app` after the feature-module
+extraction; v3 was redrawn alongside the in-repo Mermaid graph. Same tradeoff the recommendation
+below names for this method — **if you keep a diagram like this, re-verify it whenever modules
+change; a link doesn't age itself for you.**
 
 ## The Artifact method
 
-What produced the worked example above: a hand-authored HTML page with inline `<svg>` (native
+What produced the Artifact worked example above: a hand-authored HTML page with inline `<svg>` (native
 shapes — `rect`, `path`, `text`, `line` — no charting library), published as a Claude Artifact.
 Practical notes for reusing this:
 
@@ -63,12 +65,13 @@ Practical notes for reusing this:
 No single tool fits every case here:
 
 - For a diagram that should render inline in a markdown doc and get maintained alongside the
-  prose (like the caching decision doc), reach for **Mermaid** first — lowest friction, versioned
-  as text, no external dependency.
+  prose (like the caching decision doc, or the module graph in `modularization.md`), reach for
+  **Mermaid** first — lowest friction, versioned as text, no external dependency.
 - For a genuinely polished, onboarding-facing diagram worth linking from the README or a PR, the
-  **Artifact method** used above is a reasonable choice — see the worked example. Just budget for
-  the maintenance cost the row above already names: it went stale once (see the worked example's
-  own note) precisely because nothing in git flags it when the architecture moves.
+  **Artifact method** used above is a reasonable choice — see the worked examples. Just budget for
+  the maintenance cost the row above already names: it went stale twice (see the worked examples'
+  note) precisely because nothing in git flags it when the architecture moves. Pair it with a
+  Mermaid graph in the repo for the part that must stay exact.
 - **Structurizr** is worth adopting only if the team wants formal C4-style diagrams enforced
   across multiple docs, not for a single one-off.
 - **draw.io** is the fallback when a diagram needs manual layout control Mermaid can't express
