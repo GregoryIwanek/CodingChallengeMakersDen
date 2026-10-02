@@ -1,6 +1,7 @@
 # Getting Started with the Claude Code Harness
 
-**Status:** runbook, not executed yet. Start here. Concepts and example config live in
+**Status:** in progress — A0–A2 done (`.claude/` committed, permissions, three hooks); A3 next.
+Start here. Concepts and example config live in
 [claude-code-harness.md](claude-code-harness.md); the first feature to build with it is in
 [harness-test-feature.md](harness-test-feature.md).
 Rendered copy with the flowchart drawn (for viewers without Mermaid, e.g. Android Studio):
@@ -115,21 +116,25 @@ cd "$CLAUDE_PROJECT_DIR" && ./gradlew ktlintFormat -q --console=plain >/dev/null
 [claude-code-harness.md § 2](claude-code-harness.md#2-hooks); add the `#!/usr/bin/env bash` line
 on top.
 
-`.claude/hooks/stop-compile.sh` — refuses "done" while Kotlin doesn't compile:
+`.claude/hooks/compile-check.sh` — refuses "done" while Kotlin doesn't compile:
 
 ```bash
 #!/usr/bin/env bash
 input=$(cat)
-# Already blocked once this turn: let Claude stop instead of looping forever.
-[[ $(jq -r '.stop_hook_active' <<<"$input") == "true" ]] && exit 0
-cd "$CLAUDE_PROJECT_DIR"
-# Nothing Kotlin changed (tracked or new): skip the slow compile.
-[[ -z $(git status --porcelain -- '*.kt' '*.kts') ]] && exit 0
+[[ $(jq -r '.stop_hook_active // false' <<<"$input") == "true" ]] && exit 0
+cd "$CLAUDE_PROJECT_DIR" || exit 0
+git status --porcelain -uall | grep -qE '\.kts?$' || exit 0
 if ! out=$(./gradlew compileDebugKotlin -q --console=plain 2>&1); then
-  echo "$out" | tail -30 >&2
+  errors=$(grep -E '^e: ' <<<"$out" | head -n 20)
+  echo "Compilation failed. Fix these errors before finishing:" >&2
+  echo "${errors:-$(tail -n 20 <<<"$out")}" >&2
   exit 2
 fi
+exit 0
 ```
+
+It skips when the working tree has no uncommitted `.kt`/`.kts` files, and lets Claude stop on
+the second attempt (`stop_hook_active`). Exit 2 only feeds the errors back; it can't force a fix.
 
 **Terminal:**
 
@@ -150,7 +155,7 @@ Register all three in `.claude/settings.json`:
       "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-coauthor.sh" }] }
   ],
   "Stop": [
-    { "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-compile.sh" }] }
+    { "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/compile-check.sh", "timeout": 300 }] }
   ]
 }
 ```
@@ -197,7 +202,7 @@ Optional; add any time after A4. Grouped by what they help with.
 | Extra | How to add | Why |
 | --- | --- | --- |
 | IDE link | Install the Claude Code plugin in Android Studio; in Claude Code type `/ide` | Diffs open in the IDE; Claude reads the IDE's diagnostics (`getDiagnostics`) |
-| Unit tests in Stop hook | Extend `stop-compile.sh` with `testDebugUnitTest` | Stronger "done" gate; costs ~30 s per turn, so add only if compile-only proves too weak |
+| Unit tests in Stop hook | Extend `compile-check.sh` with `testDebugUnitTest` | Stronger "done" gate; costs ~30 s per turn, so add only if compile-only proves too weak |
 | Pre-PR review | Claude Code: `/code-review` then `/simplify` on the branch | Catches bugs and cleanups before CI or a human sees them |
 
 **Integrations**
