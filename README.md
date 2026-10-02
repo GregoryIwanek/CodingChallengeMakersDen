@@ -101,7 +101,9 @@ result detail screen; the two features can't see each other, only `:app`
 connects them. `:shared` holds the multiplatform domain and data layers,
 compiled for both Android and iOS.
 Android library modules are configured by convention plugins in
-`build-logic/` — see `docs/architecture/modularization.md`. Dependencies still point
+`build-logic/` — see `docs/architecture/modularization.md` for the module graph, and the
+[architecture diagram](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6) for how a search
+request flows through them. Dependencies still point
 inward — the feature modules depend on `:shared`'s `domain/` interfaces, and
 `:shared`'s own `remote/`/`cache/` depend on its `domain/`, never the
 other way around. `:app` reaches `:shared` through a small Koin→Hilt

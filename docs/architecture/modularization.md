@@ -45,6 +45,35 @@ None of these signals present → keep the module count as it is.
 | `build-logic/` | Convention plugins `codingchallenge.android.{library,compose,paparazzi,hilt}` (included build, not a module) |
 | `iosApp` | SwiftUI app consuming `:shared` (Xcode project, not a Gradle module) |
 
+Module dependencies, as declared in each `build.gradle.kts` (update this graph in the same PR
+that adds or rewires a module, so it can't drift):
+
+```mermaid
+flowchart TD
+    app[":app<br/>NavHost · DemoScreen · Koin→Hilt bridge"]
+    auto[":feature:autocomplete<br/>bar · panel · AutocompleteViewModel"]
+    detail[":feature:detail<br/>detail screen · nav extensions"]
+    shared[":shared · KMP<br/>use case · repositories · Ktor · SQLDelight"]
+    ios["iosApp · SwiftUI<br/>(Xcode, not Gradle)"]
+    logic["build-logic/<br/>convention plugins"]
+
+    app --> auto
+    app --> detail
+    app --> shared
+    auto --> shared
+    detail --> shared
+    ios -->|Shared.framework| shared
+    logic -.->|library · compose · paparazzi · hilt| auto
+    logic -.->|library · compose · paparazzi| detail
+    logic -.->|hilt| app
+```
+
+Solid arrows are `implementation(project(…))` dependencies; dashed ones are convention plugins
+applied. There is deliberately no arrow between the two features: `:app`'s `AppNavHost` passes
+autocomplete's `onItemClick` to `navigateToDetail`. For how a search request flows through
+these modules at runtime, see the
+[architecture diagram](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6).
+
 The split that matters is platform UI vs. shared logic. The two feature modules were added as
 deliberate practice, not because a signal above appeared. They follow the shop layout's rules:
 each depends on `:shared`, neither depends on the other, and `:app` is the only place that
@@ -191,3 +220,5 @@ This changes the module graph more than anything else.
 - [ ] Are DI bindings, resources and tests moved along with the code?
 - [ ] Do CI workflows still cover it (paths filter in `ios-ci.yml` for KMP modules)?
 - [ ] Does `./gradlew check` pass with unchanged Paparazzi goldens?
+- [ ] Is the [module graph](#this-repo) updated in the same PR, and the
+      [architecture diagram](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6) re-checked?
