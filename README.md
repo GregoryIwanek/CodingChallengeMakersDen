@@ -94,12 +94,13 @@ typing in one tab never leaks into the other.
 
 ## Architecture
 
-Clean Architecture + MVVM, split across four Gradle modules. `:app` is a
+Clean Architecture + MVVM, split across five Gradle modules. `:app` is a
 thin shell: the demo screen, the app's navigation graph and DI setup.
 `:feature:autocomplete` is the search component and `:feature:detail` the
 result detail screen; the two features can't see each other, only `:app`
 connects them. `:shared` holds the multiplatform domain and data layers,
-compiled for both Android and iOS.
+compiled for both Android and iOS. `:proxy` is a separate JVM server, not
+part of the app build, that holds the Anthropic API key for the LLM features.
 Android library modules are configured by convention plugins in
 `build-logic/` — see `docs/architecture/modularization.md` for the module graph, and the
 [architecture diagram](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6) for how a search
@@ -166,6 +167,12 @@ build-logic/convention                   # codingchallenge.android.library / .co
 ├── cache/
 │   └── SearchResultCache.kt             # implements GitHubSearchCache via SQLDelight
 └── Platform.kt                          # expect/actual demo (+ Platform.android.kt/Platform.ios.kt)
+
+:proxy (pl.gi.codingchallenge.proxy) — JVM Ktor server, keeps the Anthropic key off the device
+├── Application.kt                       # Netty entry point; exits if ANTHROPIC_API_KEY is missing
+├── ExplainRoutes.kt                     # GET /explain: README summary streamed as SSE
+├── ReadmeSource.kt                      # GitHub /readme endpoint (any README file name)
+└── RepoExplainer.kt                     # Claude call via the Anthropic Java SDK, streaming
 ```
 
 The tree above is `commonMain` — the code that compiles for both platforms. `androidMain`/
@@ -270,6 +277,10 @@ runs on both the Android host JVM and the iOS simulator:
   come back via system or toolbar back, with the tab and query intact.
   `HiltTestRunner` + `FakeSearchModule` (`@TestInstallIn`, replacing
   the Koin bridge) keep it offline and deterministic.
+- **`ExplainRoutesTest`** (9, `:proxy`) — the `/explain` SSE route under
+  Ktor's `testApplication`, with fake README and Claude sources: frame
+  order, stop reasons, every error code, truncation, and the raw wire
+  format of multi-line text. No API key or network needed.
 
 Run everything: `./gradlew check` (unit tests + lint + ktlint + Paparazzi)
 and `./gradlew connectedDebugAndroidTest` (needs a device/emulator).
@@ -307,6 +318,15 @@ CI runs two workflows:
 
 No API token is required — this uses GitHub's public, unauthenticated
 search endpoints.
+
+**LLM proxy** (optional; only the LLM features need it)
+
+1. `export ANTHROPIC_API_KEY=...` in your shell. Never put the key in
+   `local.properties` or `BuildConfig`: an APK can be unpacked.
+2. `./gradlew :proxy:run` starts it on port 8080 (set `PORT` to change).
+3. `curl -N "localhost:8080/explain?repo=square/okhttp"` should print the
+   summary in chunks, then an `event: stop` frame. Each call costs a few
+   cents of API usage.
 
 ## Known limitations
 

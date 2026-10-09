@@ -42,6 +42,7 @@ None of these signals present → keep the module count as it is.
 | `:feature:autocomplete` | The search component (bar, panel, `AutocompleteViewModel`); public entry point `GitHubAutocompleteBarComponent` |
 | `:feature:detail` | Full-screen repo/user detail; exposes only `navigateToDetail()` / `detailScreen()` |
 | `:shared` | KMP domain + data: use case, repositories, Ktor client, SQLDelight cache |
+| `:proxy` | JVM Ktor server holding the Anthropic API key; streams README summaries as SSE. Not part of the app build |
 | `build-logic/` | Convention plugins `codingchallenge.android.{library,compose,paparazzi,hilt}` (included build, not a module) |
 | `iosApp` | SwiftUI app consuming `:shared` (Xcode project, not a Gradle module) |
 
@@ -56,6 +57,7 @@ flowchart TD
     shared[":shared · KMP<br/>use case · repositories · Ktor · SQLDelight"]
     ios["iosApp · SwiftUI<br/>(Xcode, not Gradle)"]
     logic["build-logic/<br/>convention plugins"]
+    proxy[":proxy · JVM server<br/>Ktor SSE · Anthropic SDK"]
 
     app --> auto
     app --> detail
@@ -69,7 +71,8 @@ flowchart TD
 ```
 
 Solid arrows are `implementation(project(…))` dependencies; dashed ones are convention plugins
-applied. There is deliberately no arrow between the two features: `:app`'s `AppNavHost` passes
+applied. `:proxy` has no arrows: no module depends on it, and the app will reach it over HTTP,
+not through Gradle. There is deliberately no arrow between the two features: `:app`'s `AppNavHost` passes
 autocomplete's `onItemClick` to `navigateToDetail`. For how a search request flows through
 these modules at runtime, see the
 [architecture diagram](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6).
