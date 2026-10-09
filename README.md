@@ -277,10 +277,11 @@ runs on both the Android host JVM and the iOS simulator:
   come back via system or toolbar back, with the tab and query intact.
   `HiltTestRunner` + `FakeSearchModule` (`@TestInstallIn`, replacing
   the Koin bridge) keep it offline and deterministic.
-- **`ExplainRoutesTest`** (9, `:proxy`) — the `/explain` SSE route under
+- **`ExplainRoutesTest`** (10, `:proxy`) — the `/explain` SSE route under
   Ktor's `testApplication`, with fake README and Claude sources: frame
-  order, stop reasons, every error code, truncation, and the raw wire
-  format of multi-line text. No API key or network needed.
+  order, stop reasons, every error code, truncation, the raw wire
+  format of multi-line text, and the `429` past the rate limit. No API
+  key or network needed.
 
 Run everything: `./gradlew check` (unit tests + lint + ktlint + Paparazzi)
 and `./gradlew connectedDebugAndroidTest` (needs a device/emulator).

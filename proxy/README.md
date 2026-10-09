@@ -33,9 +33,10 @@ Compared with the backend a real product (say, a shop) needs:
 What carries over: routing, streaming, error handling, secrets in environment variables, and
 testing routes with `testApplication`. What's still new: database, auth, deployment.
 
-**Before running it anywhere but your laptop:** with no auth, anyone who finds the URL can
-spend your Claude credits through it. Add at least a rate limit and a shared secret the app
-sends with each request first.
+**Before running it anywhere but your laptop:** it has no auth, so anyone who can reach it can
+spend your Claude credits. Today two guards keep that small: it listens on `127.0.0.1` only (other
+machines on your Wi-Fi can't connect) and allows 10 `/explain` calls a minute. A deployed
+version would also need a shared secret or real auth.
 
 ## Folder map
 
@@ -58,8 +59,8 @@ proxy/
 **`Application.kt`** — the *composition root*: the one place that creates real objects and
 wires them together. It refuses to start without `ANTHROPIC_API_KEY` (failing on startup is
 easier to spot than failing on the first request), reads `PORT` (default 8080), creates one
-shared GitHub HTTP client and one Claude client, and starts a Netty server. When the server
-stops, it closes both clients.
+shared GitHub HTTP client and one Claude client, and starts a Netty server on `127.0.0.1`
+(this machine only). When the server stops, it closes both clients.
 
 **`ExplainRoutes.kt`** — defines `GET /explain?repo=owner/name` inside
 `Application.proxyModule(...)`. It knows about HTTP and SSE, but not about Claude or GitHub
@@ -113,6 +114,9 @@ curl / app            ExplainRoutes             GitHubReadmeSource      ClaudeRe
 
 If Claude fails halfway, the text already sent stays sent, and an `error` frame follows.
 
+The one exception: past 10 calls a minute, the request is refused **before** the stream starts,
+so it gets a normal `429 Too Many Requests` with a `Retry-After` header and no frames.
+
 ## Concepts worth knowing
 
 **SSE (Server-Sent Events).** A normal HTTP response that stays open and sends small
@@ -147,6 +151,14 @@ Same idea as `GitHubSearchNetworkSource` in `:shared`.
 - `max_tokens` 4,000 is a ceiling, not a target; the prompt asks for under 120 words.
 - The README goes inside `<readme>…</readme>` tags so the model treats it as material to
   summarise, not as instructions.
+
+**Usage guards.** Three layers stop accidental spending, from strongest to weakest:
+1. *Prepaid credits with auto-reload off* (set in the Anthropic console): a hard cap no bug can
+   pass. A monthly spend limit there is a second check.
+2. *Per-call caps* in code: README cut at 40k characters, reply capped at 4,000 tokens, so one
+   call costs about $0.12 at most (about $0.05 typically).
+3. *Rate limit*: Ktor's `RateLimit` plugin allows 10 `/explain` calls a minute, which catches an
+   app bug such as a retry loop. It's a token bucket: 10 tokens, refilled every minute.
 
 **Version catalog.** Ktor server artifacts reuse the catalog's `ktor` version, the same one
 `:shared`'s client uses, so the two never drift apart.

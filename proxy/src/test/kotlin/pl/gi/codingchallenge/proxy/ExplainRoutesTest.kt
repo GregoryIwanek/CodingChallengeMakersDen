@@ -4,10 +4,13 @@ import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.plugins.sse.sse
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -164,5 +167,30 @@ class ExplainRoutesTest {
             )
 
         assertEquals(listOf(Frame("error", "upstream_error")), frames)
+    }
+
+    @Test
+    fun `answers 429 over the per-minute limit without calling the model`() {
+        var modelCalls = 0
+        val explainer =
+            RepoExplainer {
+                modelCalls++
+                flowOf(ExplainEvent.Stop("end_turn"))
+            }
+
+        testApplication {
+            application { proxyModule(okhttpReadme, explainer, explainPerMinute = 2) }
+            val responses = List(3) { client.get("/explain?repo=square/okhttp") }
+
+            assertEquals(
+                listOf(HttpStatusCode.OK, HttpStatusCode.OK),
+                responses.take(2).map {
+                    it.status
+                }
+            )
+            assertEquals(HttpStatusCode.TooManyRequests, responses[2].status)
+            assertNotNull(responses[2].headers[HttpHeaders.RetryAfter])
+        }
+        assertEquals(2, modelCalls)
     }
 }

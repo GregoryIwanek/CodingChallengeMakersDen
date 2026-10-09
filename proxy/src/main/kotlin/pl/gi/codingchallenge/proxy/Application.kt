@@ -23,7 +23,9 @@ fun main() {
     val http = HttpClient(OkHttp)
     val claude = AnthropicOkHttpClient.fromEnv()
 
-    embeddedServer(Netty, port = port) {
+    // Loopback only: other machines on the network can't reach it and spend the credits.
+    // The Android emulator still can, through 10.0.2.2, which maps to this host's loopback.
+    embeddedServer(Netty, port = port, host = LOOPBACK_HOST) {
         proxyModule(GitHubReadmeSource(http), ClaudeRepoExplainer(claude))
         // Release both clients' connection pools and threads on a clean shutdown.
         monitor.subscribe(ApplicationStopped) {
@@ -34,3 +36,4 @@ fun main() {
 }
 
 private const val DEFAULT_PORT = 8080
+private const val LOOPBACK_HOST = "127.0.0.1"
