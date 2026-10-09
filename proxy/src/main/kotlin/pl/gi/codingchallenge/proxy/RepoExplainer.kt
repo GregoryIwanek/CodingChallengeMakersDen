@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
+/** The proxy's own event type, so the route maps these to SSE frames without knowing SDK classes. */
 sealed interface ExplainEvent {
     data class Text(val value: String) : ExplainEvent
 
@@ -16,6 +17,7 @@ sealed interface ExplainEvent {
     data class Stop(val reason: String) : ExplainEvent
 }
 
+/** Turns a README into a stream of summary events. Tests pass a lambda, so they need no key or network. */
 fun interface RepoExplainer {
     fun explain(readme: String): Flow<ExplainEvent>
 }

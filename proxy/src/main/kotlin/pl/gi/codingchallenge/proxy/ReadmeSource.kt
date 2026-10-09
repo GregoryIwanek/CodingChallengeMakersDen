@@ -8,6 +8,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 
+/** Where README text comes from. A `fun interface`, so a test can pass a lambda instead of calling GitHub. */
 fun interface ReadmeSource {
     /** The README text for `owner/name`, or null when the repo has none. */
     suspend fun fetch(repo: String): String?

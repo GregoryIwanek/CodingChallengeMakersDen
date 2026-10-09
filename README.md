@@ -321,6 +321,8 @@ search endpoints.
 
 **LLM proxy** (optional; only the LLM features need it)
 
+What each file does and how a request flows: [`proxy/README.md`](proxy/README.md).
+
 1. `export ANTHROPIC_API_KEY=...` in your shell. Never put the key in
    `local.properties` or `BuildConfig`: an APK can be unpacked.
 2. `./gradlew :proxy:run` starts it on port 8080 (set `PORT` to change).
