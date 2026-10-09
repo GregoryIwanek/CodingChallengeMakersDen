@@ -165,6 +165,13 @@ class LlmClient(private val http: HttpClient, private val baseUrl: String) {
 }
 ```
 
+> Two things to fix in this sketch against the real `:proxy`:
+> - It must handle the `error` and `truncated` events too. Right now the `else` branch would
+>   show an error code like `invalid_repo` as summary text.
+> - Ktor's SSE client rejoins a multi-line `data:` frame with `\r\n` rather than the spec's
+>   `\n`, so normalise with `replace("\r\n", "\n")` before emitting `Text`. The proxy's
+>   `ExplainRoutesTest` pins down what the server itself sends.
+
 **Build**: state and the ViewModel (`:feature:detail`)
 
 ```kotlin
