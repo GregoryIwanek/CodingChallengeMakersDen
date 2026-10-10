@@ -43,6 +43,7 @@ version would also need a shared secret or real auth.
 ```
 proxy/
 ├── build.gradle.kts         what this module is: Kotlin JVM + `application` (gives ./gradlew :proxy:run)
+├── run.sh                   guided start: checks, key prompt, waits until ready, test calls
 ├── src/main/kotlin/pl/gi/codingchallenge/proxy/
 │   ├── Application.kt       entry point: checks the key, builds real clients, starts the server
 │   ├── ExplainRoutes.kt     the HTTP part: GET /explain, validation, errors, SSE frames
@@ -165,14 +166,44 @@ Same idea as `GitHubSearchNetworkSource` in `:shared`.
 
 ## Running and testing
 
+The easy way, from the repo root:
+
 ```
-export ANTHROPIC_API_KEY=sk-ant-...      # never in the repo or local.properties
-./gradlew :proxy:run                     # starts on :8080, keeps running
-curl -N "localhost:8080/explain?repo=square/okhttp"
+./proxy/run.sh                           # PORT=8081 ./proxy/run.sh for another port
+```
+
+It walks through five steps and prints the manual command for each:
+1. Checks that Java is installed and the port is free.
+2. Uses `ANTHROPIC_API_KEY` if it's already exported, or asks for it with hidden input. The key
+   is never written to disk.
+3. Starts the server and waits for `Responding at`. If startup fails, it shows the log instead.
+4. Sends a free check, `?repo=bad`, which expects `invalid_repo` and makes no Claude call.
+5. Optionally sends one real request, after asking `[y/N]`.
+
+The server then stays in the foreground with its log, and Ctrl+C stops it. The log is also
+saved to `proxy/build/proxy-run.log`.
+
+By hand:
+
+```
+read -s "ANTHROPIC_API_KEY?Anthropic API key: " && export ANTHROPIC_API_KEY   # zsh, hidden
+./gradlew :proxy:run --console=plain     # starts on :8080, keeps running
+curl -N "localhost:8080/explain?repo=square/okhttp"                           # 2nd terminal
 ./gradlew :proxy:test                    # route tests, no key needed
 ```
 
-Each real `/explain` call costs a few cents.
+Each real `/explain` call costs a few cents. Keep the key out of the repo and
+`local.properties`. `export ANTHROPIC_API_KEY=sk-ant-...` also works, but it saves the key in
+your shell history.
+
+**If it seems not to start:**
+- *Gradle sits at around 85% `EXECUTING`.* That means it's running. `:proxy:run` never
+  finishes, and `Responding at http://127.0.0.1:8080` is the sign it's ready. The `--console=plain`
+  flag stops the progress bar from hiding that line.
+- *It exits with `ANTHROPIC_API_KEY is not set`.* `export` only applies to the terminal it was
+  typed in. A new terminal, or Android Studio's Run button, starts without the key.
+- *It fails with `Address already in use`.* Something already holds the port, probably an
+  earlier proxy. Find it with `lsof -iTCP:8080 -sTCP:LISTEN`.
 
 ## Where this is heading
 
