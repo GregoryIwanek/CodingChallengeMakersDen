@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.codingchallenge.android.library)
     alias(libs.plugins.codingchallenge.android.compose)
     alias(libs.plugins.codingchallenge.android.paparazzi)
+    alias(libs.plugins.codingchallenge.android.hilt)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -15,6 +16,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.hilt.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
