@@ -31,10 +31,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "PROXY_BASE_URL", "\"http://10.0.2.2:8080\"")
+        }
         release {
             optimization {
                 enable = false
             }
+            buildConfigField("String", "PROXY_BASE_URL", "\"\"")
         }
     }
     compileOptions {
@@ -43,6 +47,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
