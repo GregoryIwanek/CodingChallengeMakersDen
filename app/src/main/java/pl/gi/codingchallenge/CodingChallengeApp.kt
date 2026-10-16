@@ -16,6 +16,7 @@ class CodingChallengeApp : Application() {
         // about each other; SharedKoinBridgeModule is what connects them.
         startKoin {
             androidContext(this@CodingChallengeApp)
+            properties(values = mapOf("proxyBaseUrl" to BuildConfig.PROXY_BASE_URL))
             modules(sharedModule, androidPlatformModule)
         }
     }

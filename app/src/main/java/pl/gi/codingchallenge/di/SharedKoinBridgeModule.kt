@@ -9,6 +9,7 @@ import org.koin.core.component.get
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchCache
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
 import pl.gi.codingchallenge.shared.domain.usecase.SearchAutocompleteUseCase
+import pl.gi.codingchallenge.shared.llm.LlmClient
 
 // The entire Hilt/Koin bridge: Hilt generates its graph at compile time via
 // annotation processing and has no way to reach into Koin's runtime-built graph on
@@ -27,4 +28,7 @@ object SharedKoinBridgeModule : KoinComponent {
 
     @Provides
     fun provideSearchAutocompleteUseCase(): SearchAutocompleteUseCase = get()
+
+    @Provides
+    fun provideLlmClient(): LlmClient = get()
 }

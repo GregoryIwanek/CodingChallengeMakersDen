@@ -4,9 +4,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
 import pl.gi.codingchallenge.shared.domain.usecase.SearchAutocompleteUseCase
+import pl.gi.codingchallenge.shared.llm.LlmChunk
+import pl.gi.codingchallenge.shared.llm.LlmClient
 
 /**
  * Replaces the Koin bridge in instrumented tests: the real use case
@@ -43,4 +47,10 @@ object FakeSearchModule {
     fun provideSearchAutocompleteUseCase(
         repository: GitHubSearchRepository
     ): SearchAutocompleteUseCase = SearchAutocompleteUseCase(repository)
+
+    @Provides
+    fun provideLlmClient(): LlmClient = object : LlmClient {
+        override val isEnabled: Boolean = false
+        override fun explainRepo(fullName: String): Flow<LlmChunk> = emptyFlow()
+    }
 }

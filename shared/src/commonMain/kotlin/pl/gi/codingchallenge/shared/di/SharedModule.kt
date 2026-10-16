@@ -8,6 +8,8 @@ import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchCache
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchNetworkSource
 import pl.gi.codingchallenge.shared.domain.repository.GitHubSearchRepository
 import pl.gi.codingchallenge.shared.domain.usecase.SearchAutocompleteUseCase
+import pl.gi.codingchallenge.shared.llm.LlmClient
+import pl.gi.codingchallenge.shared.llm.LlmClientImpl
 import pl.gi.codingchallenge.shared.remote.GitHubApi
 import pl.gi.codingchallenge.shared.remote.GitHubSearchNetworkSourceImpl
 
@@ -23,6 +25,12 @@ val sharedModule: Module = module {
     // same pattern the deleted CatFactApi proved.
     single { GitHubApi(engine = get()) }
     single<GitHubSearchNetworkSource> { GitHubSearchNetworkSourceImpl(api = get()) }
+    single<LlmClient> {
+        LlmClientImpl(
+            engine = get(),
+            baseUrl = getPropertyOrNull<String>(key = "proxyBaseUrl").orEmpty()
+        )
+    }
     // CachingGitHubSearchRepository is the one thing the domain layer (the use case)
     // ever resolves as GitHubSearchRepository - this is now the single live
     // implementation for both :app (via SharedKoinBridgeModule) and iOS.
