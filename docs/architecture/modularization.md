@@ -66,7 +66,7 @@ flowchart TD
     detail --> shared
     ios -->|Shared.framework| shared
     logic -.->|library · compose · paparazzi · hilt| auto
-    logic -.->|library · compose · paparazzi| detail
+    logic -.->|library · compose · paparazzi · hilt| detail
     logic -.->|hilt| app
 ```
 
@@ -76,6 +76,12 @@ not through Gradle. There is deliberately no arrow between the two features: `:a
 autocomplete's `onItemClick` to `navigateToDetail`. For how a search request flows through
 these modules at runtime, see the
 [architecture diagram](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6).
+
+The SVG below puts it all on one page: the modules, the layers inside `:shared` and the
+features, the Koin → Hilt wiring, and the runtime calls to GitHub and through `:proxy` to
+Anthropic, with the device/server boundary.
+
+![Architecture: modules, layers, DI wiring and runtime flows](architecture.svg)
 
 The split that matters is platform UI vs. shared logic. The two feature modules were added as
 deliberate practice, not because a signal above appeared. They follow the shop layout's rules:
