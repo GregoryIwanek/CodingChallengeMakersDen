@@ -66,6 +66,11 @@ internal fun ResultDetailScreen(
     onShare: () -> Unit,
     onCopyUrl: () -> Unit,
     modifier: Modifier = Modifier,
+    // Defaulted so the card stays hidden for existing previews, tests and snapshots.
+    explainState: ExplainUiState = ExplainUiState.Idle,
+    isExplainAvailable: Boolean = false,
+    onExplain: () -> Unit = {},
+    onStopExplain: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     Scaffold(
@@ -109,7 +114,17 @@ internal fun ResultDetailScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (item) {
-                is SearchResultItem.RepoResult -> RepoDetails(item)
+                is SearchResultItem.RepoResult -> {
+                    RepoDetails(item)
+                    if (isExplainAvailable) {
+                        ExplainCard(
+                            state = explainState,
+                            onExplain = onExplain,
+                            onStop = onStopExplain
+                        )
+                    }
+                }
+                // Users have no README to summarise.
                 is SearchResultItem.UserResult -> UserDetails(item)
             }
             DetailActions(

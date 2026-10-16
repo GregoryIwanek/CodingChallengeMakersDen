@@ -11,4 +11,5 @@ internal object DetailTestTags {
     const val OPEN_BUTTON: String = "detail_open_button"
     const val SHARE_BUTTON: String = "detail_share_button"
     const val COPY_BUTTON: String = "detail_copy_button"
+    const val EXPLAIN_CARD: String = "detail_explain_card"
 }

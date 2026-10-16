@@ -270,8 +270,8 @@ runs on both the Android host JVM and the iOS simulator:
   `:feature:detail:recordPaparazziDebug` re-records them),
   `DetailRouteTest` (route JSON round-trip), `GitHubUrlTest`,
   `FormatStarsCountTest`, plus instrumented `ResultDetailScreenTest`
-  (content + every button's callback) and `DetailNavigationTest`
-  (navigate in, back out, via a throwaway `NavHost`).
+  (content + every button's callback). Navigating in and out is
+  covered end-to-end by `:app`'s `DetailFlowTest`.
 - **`DetailFlowTest`** (3, instrumented) — end-to-end through the real
   `MainActivity` and nav graph: search, open a repo or user detail,
   come back via system or toolbar back, with the tab and query intact.

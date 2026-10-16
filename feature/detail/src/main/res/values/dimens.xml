@@ -8,4 +8,7 @@
     <dimen name="detail_icon_text_spacing">6dp</dimen>
     <dimen name="detail_actions_spacing">8dp</dimen>
     <dimen name="detail_button_icon_size">18dp</dimen>
+    <dimen name="detail_explain_padding">16dp</dimen>
+    <dimen name="detail_explain_spacing">8dp</dimen>
+    <dimen name="detail_explain_shimmer_line_height">14dp</dimen>
 </resources>
