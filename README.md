@@ -98,6 +98,11 @@ typing in one tab never leaks into the other.
 
 ## Architecture
 
+![Architecture: modules, layers, DI wiring and runtime flows](docs/architecture/architecture.svg)
+
+*Modules, the layers inside them, Koin → Hilt wiring and runtime flows on one page. Regenerate
+with `docs/architecture/tools/gen_architecture_svg.py`.*
+
 Clean Architecture + MVVM, split across five Gradle modules. `:app` is a
 thin shell: the demo screen, the app's navigation graph and DI setup.
 `:feature:autocomplete` is the search component and `:feature:detail` the
@@ -108,8 +113,7 @@ part of the app build, that holds the Anthropic API key for the LLM features.
 Android library modules are configured by convention plugins in
 `build-logic/` — see `docs/architecture/modularization.md` for the module graph, and the
 [architecture diagram](https://claude.ai/artifact/TGHqdZFQJz2ZnB8CpLDSW6) for how a search
-request flows through them. [`docs/architecture/architecture.svg`](docs/architecture/architecture.svg)
-shows modules, layers, DI wiring and runtime flows on one page. Dependencies still point
+request flows through them. Dependencies still point
 inward — the feature modules depend on `:shared`'s `domain/` interfaces, and
 `:shared`'s own `remote/`/`cache/` depend on its `domain/`, never the
 other way around. `:app` reaches `:shared` through a small Koin→Hilt
