@@ -21,7 +21,11 @@ import pl.gi.codingchallenge.shared.domain.model.SearchResultItem
 internal fun ResultDetailRoute(
     item: SearchResultItem,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    explainState: ExplainUiState = ExplainUiState.Idle,
+    isExplainAvailable: Boolean = false,
+    onExplain: () -> Unit = {},
+    onStopExplain: () -> Unit = {}
 ) {
     val context: Context = LocalContext.current
     val scope: CoroutineScope = rememberCoroutineScope()
@@ -43,6 +47,10 @@ internal fun ResultDetailRoute(
             }
         },
         modifier = modifier,
+        explainState = explainState,
+        isExplainAvailable = isExplainAvailable,
+        onExplain = onExplain,
+        onStopExplain = onStopExplain,
         snackbarHostState = snackbarHostState
     )
 }

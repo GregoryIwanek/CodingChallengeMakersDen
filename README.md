@@ -22,7 +22,10 @@ the rest of the screen down, and **Overlay** hosts the exact same bar
 floating over an unrelated scrolling feed instead — the same component
 in both of its layout modes, side by side. Tapping a result in either
 tab opens a full-screen detail page for that repository or user, with
-Open on GitHub, Share and Copy link actions.
+Open on GitHub, Share and Copy link actions. In debug builds, a
+repository's page also has an **Explain this repo** card that streams
+an AI summary of its README from the local `:proxy`, with Stop and
+Retry (see [Running it](#running-it)).
 
 ## Quick usage
 
@@ -80,7 +83,8 @@ typing in one tab never leaks into the other.
   bootstrapped directly from Swift on iOS
 - **Ktor** 3.5.2 + **kotlinx.serialization** 1.11.0 — multiplatform
   networking and JSON parsing, with a per-platform engine (OkHttp on
-  Android, Darwin/`NSURLSession` on iOS)
+  Android, Darwin/`NSURLSession` on iOS); Ktor's SSE (Server-Sent
+  Events) client streams the README summaries from `:proxy`
 - **SQLDelight** 2.3.2 — multiplatform local cache for search results
 - **Kotlin Coroutines** 1.11.0 — `debounce`/`flatMapLatest` in the use
   case, parallel user/repo fetch via `async` in the network source
@@ -110,6 +114,9 @@ inward — the feature modules depend on `:shared`'s `domain/` interfaces, and
 other way around. `:app` reaches `:shared` through a small Koin→Hilt
 bridge (`SharedKoinBridgeModule.kt`), since `:shared` is Koin-only —
 Hilt's annotation processor can't run on Kotlin/Native.
+The same bridge exposes `LlmClient` to `ExplainRepoViewModel`; its base
+URL comes from `:app`'s `BuildConfig` (the emulator host in debug,
+empty in release, which turns the feature off).
 
 ```
 :app (pl.gi.codingchallenge)
@@ -119,7 +126,9 @@ Hilt's annotation processor can't run on Kotlin/Native.
 │   ├── AppNavHost.kt                    # the only NavHost: demo -> detail
 │   └── DemoScreen.kt                    # 3-tab demo host — see Demo above
 ├── CodingChallengeApp.kt                # @HiltAndroidApp, starts Koin before Hilt resolves anything
-└── MainActivity.kt
+│                                        #   (+ PROXY_BASE_URL BuildConfig as a Koin property)
+├── MainActivity.kt
+└── src/debug/                           # debug-only manifest + network config: cleartext to 10.0.2.2
 
 :feature:autocomplete (pl.gi.codingchallenge.feature.autocomplete)
 ├── AutocompleteViewModel.kt             # maps SearchOutcome -> AutocompleteUiState
@@ -136,6 +145,9 @@ Hilt's annotation processor can't run on Kotlin/Native.
 ├── DetailRoute.kt                       # internal type-safe route, item carried as JSON
 ├── ResultDetailRoute.kt                 # wires buttons to browser/share sheet/clipboard
 ├── ResultDetailScreen.kt                # stateless repo/user detail UI
+├── ExplainRepoViewModel.kt              # streams LlmClient chunks into ExplainUiState; Stop/Retry
+├── ExplainUiState.kt                    # Idle/WaitingForFirstToken/Streaming/Done/Refused/Failed
+├── ExplainCard.kt                       # the "Explain this repo" card, one branch per state
 ├── GitHubUrl.kt, GitHubLinkActions.kt   # URL building + intents
 └── testing/DetailTestTags.kt
 
@@ -166,6 +178,10 @@ build-logic/convention                   # codingchallenge.android.library / .co
 │   └── dto/                             # UserDto, RepositoryDto, GitHubSearchResponse<T>
 ├── cache/
 │   └── SearchResultCache.kt             # implements GitHubSearchCache via SQLDelight
+├── llm/
+│   ├── LlmClient.kt                     # interface + LlmChunk: Text/Finished/Failed/Truncated
+│   ├── LlmClientImpl.kt                 # Ktor SSE client for :proxy's /explain, via channelFlow
+│   └── LlmChunkMapping.kt               # pure SSE frame -> LlmChunk mapping
 └── Platform.kt                          # expect/actual demo (+ Platform.android.kt/Platform.ios.kt)
 
 :proxy (pl.gi.codingchallenge.proxy) — JVM Ktor server, keeps the Anthropic key off the device
@@ -220,7 +236,7 @@ details.
 
 ## Testing
 
-68 JVM/multiplatform tests + 31 instrumented tests across 22 files.
+79 JVM/multiplatform tests + 30 instrumented tests across 23 files.
 Most of the logic is tested once in `:shared`'s `commonTest`, which
 runs on both the Android host JVM and the iOS simulator:
 
@@ -236,6 +252,9 @@ runs on both the Android host JVM and the iOS simulator:
 - **`SearchResultCacheTest`** (4, `androidHostTest`) — the real
   SQLDelight cache against an in-memory JDBC SQLite driver, including
   eviction of the oldest queries beyond the cap.
+- **`LlmChunkMappingTest`** (8) — every SSE frame the proxy can send
+  mapped to its `LlmChunk`: text (unnamed or `message`), `\r\n`
+  normalised, `stop`, `error`, `truncated`, and unknown events skipped.
 - **`GitHubSerializationTest`** (2) — decodes real (trimmed) GitHub
   JSON payloads through the actual `kotlinx.serialization` pipeline,
   not just hand-built DTOs, so a wrong `@SerialName` would actually
@@ -269,9 +288,11 @@ runs on both the Android host JVM and the iOS simulator:
   goldens: repo, repo without description, user;
   `:feature:detail:recordPaparazziDebug` re-records them),
   `DetailRouteTest` (route JSON round-trip), `GitHubUrlTest`,
-  `FormatStarsCountTest`, plus instrumented `ResultDetailScreenTest`
-  (content + every button's callback) and `DetailNavigationTest`
-  (navigate in, back out, via a throwaway `NavHost`).
+  `FormatStarsCountTest`, `ExplainRepoViewModelTest` (3, a fake
+  `LlmClient`: text accumulates, a mid-stream failure keeps the
+  partial text, Stop marks it stopped), plus instrumented `ResultDetailScreenTest`
+  (content + every button's callback). Navigating in and out is
+  covered end-to-end by `:app`'s `DetailFlowTest`.
 - **`DetailFlowTest`** (3, instrumented) — end-to-end through the real
   `MainActivity` and nav graph: search, open a repo or user detail,
   come back via system or toolbar back, with the tab and query intact.
@@ -330,6 +351,11 @@ What each file does and how a request flows: [`proxy/README.md`](proxy/README.md
 3. `curl -N "localhost:8080/explain?repo=square/okhttp"` should print the
    summary in chunks, then an `event: stop` frame. Each call costs a few
    cents of API usage.
+4. To try it in the app, run the **debug** build on an **emulator**,
+   open a repository's detail page and tap **Explain this repo**. The
+   app reaches the proxy at `http://10.0.2.2:8080`, the emulator's
+   alias for your machine's `localhost`. `./proxy/run.sh` is a guided
+   alternative to steps 1–3.
 
 ## Known limitations
 
@@ -361,6 +387,12 @@ What each file does and how a request flows: [`proxy/README.md`](proxy/README.md
   platforms' copies of that policy have to be kept in sync by hand.
   The iOS UI is also deliberately minimal — no overlay mode or
   reusable component, and no UI tests.
+- The Explain card is debug-only and emulator-only: release builds have
+  no proxy URL, and the cleartext exception covers only `10.0.2.2`. A
+  physical phone needs `adb reverse tcp:8080 tcp:8080` plus a
+  `127.0.0.1` URL and cleartext entry. iOS shares `LlmClient` but has no Explain UI, and
+  a summary cut short because the README was too long isn't flagged in
+  the UI yet.
 
 ## Further documentation
 
